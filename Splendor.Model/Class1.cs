@@ -42,16 +42,94 @@ namespace Splendor.Model
 
 	//}
 
+	public class Deck
+	{
+		private int[] indices;
+		private Card[] cards;
+		private int startIndex;
+		private int size;
+		private int head;
+
+		public Deck(Card[] cards, int start, int size)
+		{
+			if(cards == null)
+			{
+				throw new ArgumentNullException("cards");
+			}
+			this.cards = cards;
+			if(start < 0 || 
+				start > this.cards.Length ||
+				size < 0 ||
+				start + size > this.cards.Length)
+			{
+				throw new ArgumentOutOfRangeException();
+			}
+			this.startIndex = start;
+			this.size = size;
+			this.indices = Enumerable.Range(this.startIndex, size).ToArray();
+			this.head = 0;
+		}
+
+		public Card Draw()
+		{
+			if(this.head >= this.size)
+			{
+				throw new InvalidOperationException();
+			}
+			return this[this.head++];
+		}
+
+		public Card this[int index]
+		{
+			get
+			{
+				if (index >= this.size || index < 0)
+				{
+					throw new ArgumentOutOfRangeException();
+				}
+				return this.cards[this.indices[index]];
+			}
+		}
+
+		public void Shuffle(IRandomizer randomizer)
+		{
+			for (int i = this.size - 1; i >= 0; i--)
+			{
+				int ind = randomizer.Next(i);
+				int swap = this.indices[i];
+				this.indices[i] = this.indices[ind];
+				this.indices[ind] = swap;
+			}
+		}
+	}
+
+	public interface IRandomizer
+	{
+		int Next(int max);
+	}
+
+	public class Randomizer : IRandomizer
+	{
+		private Random random;
+
+		public Randomizer()
+		{
+			this.random = new Random();
+		}
+
+		public int Next(int max)
+		{
+			return this.random.Next(max);
+		}
+	}
+	
 	public class GameState
 	{
 		private readonly int playerCount;
 		private int currentPlayer;
 		private readonly int[][] tokens;
-		private readonly int[][] deckOrder;
-
-		//private readonly State[] cards;
-		//private readonly State[] nobles;
-		// state: (created, setup, playing, ended?)
+		private readonly Deck[] decks;
+		private readonly int[] tableau;
 		private readonly Random r = new Random();
 
 		private int Rand(int max)
@@ -59,49 +137,52 @@ namespace Splendor.Model
 			return r.Next(max);
 		}
 
-		public void ShuffleDecks()
+		public void ShuffleDecks(IRandomizer r)
 		{
-			for (int tier = 0; tier < this.deckOrder.Length; tier++)
+			for (int tier = 0; tier < this.decks.Length; tier++)
 			{
-				this.ShuffleDeck(tier);
-			}
-		}
-
-		private void ShuffleDeck(int tier)
-		{
-			int count = this.deckOrder[tier].Length;
-			this.deckOrder[tier] = Enumerable.Range(0, count).ToArray();
-			for (int i = count - 1; i >= 0; i--)
-			{
-				int ind = this.Rand(i);
-				int swap = this.deckOrder[tier][i];
-				this.deckOrder[tier][i] = this.deckOrder[tier][ind];
-				this.deckOrder[tier][ind] = swap;
+				this.decks[tier].Shuffle(r);
 			}
 		}
 
 		public void Setup(Setup setup)
 		{
+			IRandomizer r = new Randomizer();
 			// shuffle decks separately
-
+			this.ShuffleDecks(r);
 			// reveal top four from each deck
+			for (int i = 0; i < this.tableau.Length; i++)
+			{
+				int tier = (i / Game.tiers);
+				this.tableau[i] = decks[tier].Draw().id;
+			}
 			// shuffle and reveal nobles
+
 			// populate tokens
+			this.tokens[4][(int)Color.White] = setup.tokenCount;
+			this.tokens[4][(int)Color.Blue] = setup.tokenCount;
+			this.tokens[4][(int)Color.Green] = setup.tokenCount;
+			this.tokens[4][(int)Color.Red] = setup.tokenCount;
+			this.tokens[4][(int)Color.Black] = setup.tokenCount;
+			this.tokens[4][(int)Color.Gold] = 5;
 			// determine starting player
+			this.currentPlayer = r.Next(setup.playerCount);
 		}
 
 		public GameState(int numPlayers)
 		{
-			this.tokens = new int[6][];
-			for (int i = 0; i < 6; i++)
+			this.tokens = new int[numPlayers][];
+			for (int i = 0; i < numPlayers; i++)
 			{
-				this.tokens[i] = new int[5];
+				this.tokens[i] = new int[6];
 			}
-			this.deckOrder = new int[Game.tiers][];
-			for (int i = 0; i < this.deckOrder.Length; i++)
+			this.decks = new Deck[Game.tiers];
+			for (int i = 0; i < this.decks.Length; i++)
 			{
-				int count = Game.Cards.Count(card => card.tier == i);
-				this.deckOrder[i] = new int[count];
+				var cards = Game.Cards;
+				var first = cards.First(card => card.tier == i);
+				var count = cards.Count(card => card.tier == i);
+				this.decks[i] = new Deck(Game.Cards, first.id, count);
 			}
 		}
 
@@ -149,6 +230,19 @@ namespace Splendor.Model
 		public int nobleCount;
 	}
 
+	public class Card
+	{
+		public byte id;
+		public byte tier;
+		public byte costWhite;
+		public byte costBlue;
+		public byte costGreen;
+		public byte costRed;
+		public byte costBlack;
+		public byte value;
+		public byte gives;
+	}
+
 	public static class Game
 	{
 		// tier (1/2/3)
@@ -166,19 +260,6 @@ namespace Splendor.Model
 			new Setup() { playerCount = 3, nobleCount = 4, tokenCount = 5 },
 			new Setup() { playerCount = 4, nobleCount = 5, tokenCount = 7 },
 		};
-
-		public class Card
-		{
-			public byte id;
-			public byte tier;
-			public byte costWhite;
-			public byte costBlue;
-			public byte costGreen;
-			public byte costRed;
-			public byte costBlack;
-			public byte value;
-			public byte gives;
-		}
 
 		public static readonly Noble[] Nobles =
 		{
