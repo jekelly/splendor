@@ -122,15 +122,106 @@ namespace Splendor.Model
 			return this.random.Next(max);
 		}
 	}
-	
-	public class GameState
+
+	class GameController
 	{
+		
+	}
+	
+	interface IPlayer
+	{
+		int[] Tokens { get;  }
+		Card[] Hand { get; }
+		Card[] Tableau { get; }
+	}
+
+	interface IGame
+	{
+		int[] Tokens { get; }
+		Card[] Market { get; }
+		Noble[] Nobles { get; }
+	}
+
+	partial class GameState
+	{
+		class Player : IPlayer
+		{
+			private readonly GameState gameState;
+			private readonly int playerIndex;
+
+			public Player(GameState gameState, int playerIndex)
+			{
+				this.gameState = gameState;
+				this.playerIndex = playerIndex;
+			}
+
+			public int[] Tokens
+			{
+				get { return this.gameState.tokens[this.playerIndex]; }
+			}
+
+			public Card[] Hand
+			{
+				get { return this.gameState.hands[this.playerIndex].Select(i => Rules.Cards[i]).ToArray(); }
+			}
+
+			public Card[] Tableau
+			{
+				get { return this.gameState.tableau[this.playerIndex].Select(i => Rules.Cards[i]).ToArray(); }
+			}
+		}
+
+		class Game : IGame
+		{
+			private readonly GameState gameState;
+
+			public Game(GameState gameState)
+			{
+				this.gameState = gameState;
+			}
+
+			public int[] Tokens
+			{
+				get { return this.gameState.tokens[SupplyIndex]; }
+			}
+
+			public Card[] Market
+			{
+				get { return this.gameState.market.Select(i => Rules.Cards[i]).ToArray(); }
+			}
+
+			public Noble[] Nobles
+			{
+				get { throw new NotImplementedException(); }
+			}
+		}
+	}
+
+	enum Action
+	{
+		TakeWhite,
+		TakeBlue,
+		TakeGreen,
+		TakeRed,
+		TakeBlack,
+	}
+
+	public partial class GameState
+	{
+		private const int SupplyIndex = 4;
+
+		private readonly IRandomizer randomizer;
 		private readonly int playerCount;
-		private int currentPlayer;
 		private readonly int[][] tokens;
 		private readonly Deck[] decks;
-		private readonly int[] tableau;
-		private readonly IRandomizer randomizer;
+		private readonly int[] market;
+		private readonly int[][] hands;
+		private readonly int[][] tableau;
+
+		private readonly Action[] actions;
+		private int actionCount;
+
+		private int currentPlayer;
 
 		public void ShuffleDecks()
 		{
@@ -140,25 +231,48 @@ namespace Splendor.Model
 			}
 		}
 
+		public IEnumerable<Action> GetActions()
+		{
+			List<Action> availableActions = new List<Action>();
+			if (this.actionCount= 0)
+			{
+				// take any token
+				yield return Action.TakeWhite;
+				yield return Action.TakeBlue;
+				yield return Action.TakeGreen;
+				yield return Action.TakeRed;
+				yield return Action.TakeBlack;
+				// take a card
+				// build any card from table or hand
+			}
+			else if (actionCount == 1)
+			{
+				Action firstAction = this.actions[0];
+				if (firstAction == Action.TakeWhite)
+				{
+
+				}
+			}
+		}
+
 		public void Setup(Setup setup)
 		{
 			// shuffle decks separately
 			this.ShuffleDecks();
 			// reveal top four from each deck
-			for (int i = 0; i < this.tableau.Length; i++)
+			for (int i = 0; i < this.market.Length; i++)
 			{
-				int tier = (i / Game.tiers);
-				this.tableau[i] = decks[tier].Draw().id;
+				int tier = (i / Rules.tiers);
+				this.market[i] = decks[tier].Draw().id;
 			}
 			// shuffle and reveal nobles
-
 			// populate tokens
-			this.tokens[4][(int)Color.White] = setup.tokenCount;
-			this.tokens[4][(int)Color.Blue] = setup.tokenCount;
-			this.tokens[4][(int)Color.Green] = setup.tokenCount;
-			this.tokens[4][(int)Color.Red] = setup.tokenCount;
-			this.tokens[4][(int)Color.Black] = setup.tokenCount;
-			this.tokens[4][(int)Color.Gold] = 5;
+			this.tokens[SupplyIndex][(int)Color.White] = setup.tokenCount;
+			this.tokens[SupplyIndex][(int)Color.Blue] = setup.tokenCount;
+			this.tokens[SupplyIndex][(int)Color.Green] = setup.tokenCount;
+			this.tokens[SupplyIndex][(int)Color.Red] = setup.tokenCount;
+			this.tokens[SupplyIndex][(int)Color.Black] = setup.tokenCount;
+			this.tokens[SupplyIndex][(int)Color.Gold] = Rules.goldCount;
 			// determine starting player
 			this.currentPlayer = this.randomizer.Next(setup.playerCount);
 		}
@@ -175,22 +289,20 @@ namespace Splendor.Model
 			{
 				this.tokens[i] = new int[6];
 			}
-			this.decks = new Deck[Game.tiers];
+			this.decks = new Deck[Rules.tiers];
 			for (int i = 0; i < this.decks.Length; i++)
 			{
-				var cards = Game.Cards;
+				var cards = Rules.Cards;
 				var first = cards.First(card => card.tier == i);
 				var count = cards.Count(card => card.tier == i);
-				this.decks[i] = new Deck(Game.Cards, first.id, count);
+				this.decks[i] = new Deck(Rules.Cards, first.id, count);
 			}
 		}
 
 		public bool IsValid()
 		{
-			// Ensure all rows have 4 cards
-
 			// Ensure all tokens are accounted for
-			int tokenCount = Game.Setups[0].tokenCount;
+			int tokenCount = Rules.Setups[0].tokenCount;
 			for (Color c = Color.White; c < Color.Gold; c++)
 			{
 				int sum = this.tokens[(int)c].Sum();
@@ -199,13 +311,15 @@ namespace Splendor.Model
 					return false;
 				}
 			}
-			if (this.tokens[5].Sum() != Game.goldCount)
+			if (this.tokens[5].Sum() != Rules.goldCount)
 			{
 				return false;
 			}
 			// Ensure no player has more than 3 cards in hand
 
-			// 
+			// Ensure tableau has 12 cards
+
+			// and that there are exactly 4 in each tier
 
 			return true;
 		}
@@ -242,14 +356,8 @@ namespace Splendor.Model
 		public byte gives;
 	}
 
-	public static class Game
+	public static class Rules
 	{
-		// tier (1/2/3)
-		// costs
-		// value
-		// gives (0-4 white blue green red black)
-
-
 		public const int tiers = 3;
 		public const int goldCount = 5;
 
