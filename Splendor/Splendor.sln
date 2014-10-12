@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Splendor", "Splendor.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Splendor.Model", "..\Splendor.Model\Splendor.Model.csproj", "{D1E7D5A2-D88C-40C3-89B1-E69C8B67901E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Splendor.Model.Tests", "..\Splendor.Model.Tests\Splendor.Model.Tests.csproj", "{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,16 @@ Global
 		{D1E7D5A2-D88C-40C3-89B1-E69C8B67901E}.Release|ARM.ActiveCfg = Release|Any CPU
 		{D1E7D5A2-D88C-40C3-89B1-E69C8B67901E}.Release|x64.ActiveCfg = Release|Any CPU
 		{D1E7D5A2-D88C-40C3-89B1-E69C8B67901E}.Release|x86.ActiveCfg = Release|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Release|ARM.ActiveCfg = Release|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Release|x64.ActiveCfg = Release|Any CPU
+		{E04CFADF-12F3-4CAC-8BE2-8ACE3371276C}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
