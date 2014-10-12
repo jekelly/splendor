@@ -9,9 +9,8 @@ namespace Splendor.Model.Tests
 		[TestMethod]
 		public void TestMethod1()
 		{
-			IRandomizer r = new Randomizer();
 			GameState gs = new GameState(2);
-			gs.ShuffleDecks(r);
+			gs.ShuffleDecks();
 		}
 	}
 }

@@ -130,26 +130,20 @@ namespace Splendor.Model
 		private readonly int[][] tokens;
 		private readonly Deck[] decks;
 		private readonly int[] tableau;
-		private readonly Random r = new Random();
+		private readonly IRandomizer randomizer;
 
-		private int Rand(int max)
-		{
-			return r.Next(max);
-		}
-
-		public void ShuffleDecks(IRandomizer r)
+		public void ShuffleDecks()
 		{
 			for (int tier = 0; tier < this.decks.Length; tier++)
 			{
-				this.decks[tier].Shuffle(r);
+				this.decks[tier].Shuffle(this.randomizer);
 			}
 		}
 
 		public void Setup(Setup setup)
 		{
-			IRandomizer r = new Randomizer();
 			// shuffle decks separately
-			this.ShuffleDecks(r);
+			this.ShuffleDecks();
 			// reveal top four from each deck
 			for (int i = 0; i < this.tableau.Length; i++)
 			{
@@ -166,11 +160,16 @@ namespace Splendor.Model
 			this.tokens[4][(int)Color.Black] = setup.tokenCount;
 			this.tokens[4][(int)Color.Gold] = 5;
 			// determine starting player
-			this.currentPlayer = r.Next(setup.playerCount);
+			this.currentPlayer = this.randomizer.Next(setup.playerCount);
 		}
 
-		public GameState(int numPlayers)
+		public GameState(int numPlayers, IRandomizer randomizer = null)
 		{
+			if(randomizer == null)
+			{
+				randomizer = new Randomizer();
+			}
+			this.randomizer = randomizer;
 			this.tokens = new int[numPlayers][];
 			for (int i = 0; i < numPlayers; i++)
 			{
