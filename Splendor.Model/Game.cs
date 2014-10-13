@@ -21,7 +21,7 @@ namespace Splendor.Model
 			{
 				get
 				{
-					return this.gameState.currentActions.ToList();
+					return this.gameState.currentActions.Take(this.gameState.actionCount).ToList();
 				}
 			}
 

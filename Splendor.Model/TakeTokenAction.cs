@@ -23,7 +23,7 @@ namespace Splendor.Model
 			bool isFirstAction = game.Actions.Count == 0;
 			bool isSecondAction = game.Actions.Count == 1;
 			int count = game.Supply[(int)this.color];
-			TakeTokenAction firstAction = game.Actions[0] as TakeTokenAction;
+			TakeTokenAction firstAction = isSecondAction ? game.Actions[0] as TakeTokenAction : null;
 			// if this is the first action, the only requirement is
 			// that there are tokens left to take.
 			return (isFirstAction && count > 0) ||
