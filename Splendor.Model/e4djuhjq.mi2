@@ -207,10 +207,6 @@ namespace Splendor.Model
 
 			public bool CanExecute(GameState state)
 			{
-				if (state == null)
-				{
-					return false;
-				}
 				bool isFirstAction = state.actionCount == 0;
 				bool isSecondAction = state.actionCount == 1;
 				int count = state.tokens[SupplyIndex][(int)this.color];
@@ -220,21 +216,12 @@ namespace Splendor.Model
 				return (isFirstAction && count > 0) ||
 					// if this is the second action, it either needs to be a
 					// different color or we need to have at least 3 left (4 normally)
-					(isSecondAction && firstAction != null && (firstAction.color != this.color || count >= 3));
+					(isSecondAction && firstAction != null && (firstAction.color != this.color || count > 3));
 			}
 
-			public void Execute(GameState state)
-			{
-				if (state == null)
-				{
-					throw new ArgumentNullException("state");
-				}
-				int playerIndex = state.currentPlayer;
-				state.tokens[playerIndex][(int)this.color]++;
-				state.tokens[SupplyIndex][(int)this.color]--;
-				state.currentActions[state.actionCount++] = this;
-			}
+
 		}
+
 	}
 
 	enum Action
@@ -261,7 +248,14 @@ namespace Splendor.Model
 		private int actionCount;
 
 		private int currentPlayer;
-		
+
+		public GameState()
+		{
+			// TODO: how many actions could someone possibly take on a single turn?
+			this.actionCount = 0;
+			this.currentActions = new IAction[6];
+		}
+
 		static GameState()
 		{
 			List<IAction> actions = new List<IAction>();
@@ -358,9 +352,6 @@ namespace Splendor.Model
 				var count = cards.Count(card => card.tier == i);
 				this.decks[i] = new Deck(Rules.Cards, first.id, count);
 			}
-			// TODO: how many actions could someone possibly take on a single turn?
-			this.actionCount = 0;
-			this.currentActions = new IAction[6];
 		}
 
 		public bool IsValid()
@@ -421,7 +412,6 @@ namespace Splendor.Model
 
 	public interface IAction
 	{
-		void Execute(GameState state);
 		bool CanExecute(GameState state);
 	}
 
@@ -429,11 +419,6 @@ namespace Splendor.Model
 	{
 
 		public bool CanExecute(GameState state)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Execute(GameState state)
 		{
 			throw new NotImplementedException();
 		}
@@ -452,11 +437,6 @@ namespace Splendor.Model
 		{
 			throw new NotImplementedException();
 		}
-
-		public void Execute(GameState state)
-		{
-			throw new NotImplementedException();
-		}
 	}
 
 	class ReserveCardAction : IAction
@@ -472,11 +452,6 @@ namespace Splendor.Model
 		{
 			throw new NotImplementedException();
 		}
-
-		public void Execute(GameState state)
-		{
-			throw new NotImplementedException();
-		}
 	}
 
 	class BuildCardAction : IAction
@@ -489,11 +464,6 @@ namespace Splendor.Model
 		}
 
 		public bool CanExecute(GameState state)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void Execute(GameState state)
 		{
 			throw new NotImplementedException();
 		}

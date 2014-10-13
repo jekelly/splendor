@@ -5,7 +5,7 @@
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{d1e7d5a2-d88c-40c3-89b1-e69c8b67901e}</ProjectGuid>
+    <ProjectGuid>{D1E7D5A2-D88C-40C3-89B1-E69C8B67901E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Splendor.Model</RootNamespace>
@@ -36,8 +36,26 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="BuildCardAction.cs" />
+    <Compile Include="Card.cs" />
+    <Compile Include="Color.cs" />
+    <Compile Include="GameState.cs" />
+    <Compile Include="Deck.cs" />
+    <Compile Include="Game.cs" />
+    <Compile Include="IAction.cs" />
+    <Compile Include="IGame.cs" />
+    <Compile Include="IPlayer.cs" />
+    <Compile Include="IRandomizer.cs" />
+    <Compile Include="Noble.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Randomizer.cs" />
+    <Compile Include="ReplaceTokenAction.cs" />
+    <Compile Include="ReserveCardAction.cs" />
+    <Compile Include="Rules.cs" />
+    <Compile Include="Setup.cs" />
+    <Compile Include="SetupAction.cs" />
+    <Compile Include="TakeTokenAction.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
@@ -47,5 +65,4 @@
   <Target Name="AfterBuild">
   </Target>
   -->
-
 </Project>
