@@ -17,7 +17,15 @@ namespace Splendor.Model
 				this.gameState = gameState;
 			}
 
-			public int[] Tokens
+			public IList<IAction> Actions
+			{
+				get
+				{
+					return this.gameState.currentActions.ToList();
+				}
+			}
+
+			public int[] Supply
 			{
 				get { return this.gameState.tokens[SupplyIndex]; }
 			}
@@ -30,6 +38,17 @@ namespace Splendor.Model
 			public Noble[] Nobles
 			{
 				get { throw new NotImplementedException(); }
+			}
+
+			public int CurrentPlayer
+			{
+				get { return this.gameState.currentPlayer; }
+			}
+
+			public void GainToken(int playerIndex, Color color)
+			{
+				this.gameState.tokens[playerIndex][(int)color]++;
+				this.Supply[(int)color]--;
 			}
 		}
 	}

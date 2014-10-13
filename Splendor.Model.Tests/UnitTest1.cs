@@ -21,7 +21,7 @@ namespace Splendor.Model.Tests
 		public void CanExecuteNull_ReturnsFalse()
 		{
 			GameState state = new GameState(2);
-			GameState.TakeTokenAction takeTokenAction = new GameState.TakeTokenAction(Color.Green);
+			TakeTokenAction takeTokenAction = new TakeTokenAction(Color.Green);
 			takeTokenAction.CanExecute(null);
 		}
 
@@ -30,9 +30,9 @@ namespace Splendor.Model.Tests
 		{
 			GameState state = new GameState(2);
 			IGame game = state.AsGame();
-			game.Tokens[(int)Color.Green] = 1;
-			GameState.TakeTokenAction takeTokenAction = new GameState.TakeTokenAction(Color.Green);
-			bool result = takeTokenAction.CanExecute(state);
+			game.Supply[(int)Color.Green] = 1;
+			IAction takeTokenAction = new TakeTokenAction(Color.Green);
+			bool result = takeTokenAction.CanExecute(game);
 			Assert.IsTrue(result);
 		}
 
@@ -41,9 +41,9 @@ namespace Splendor.Model.Tests
 		{
 			GameState state = new GameState(2);
 			IGame game = state.AsGame();
-			game.Tokens[(int)Color.Green] = 0;
-			GameState.TakeTokenAction takeTokenAction = new GameState.TakeTokenAction(Color.Green);
-			bool result = takeTokenAction.CanExecute(state);
+			game.Supply[(int)Color.Green] = 0;
+			IAction takeTokenAction = new TakeTokenAction(Color.Green);
+			bool result = takeTokenAction.CanExecute(game);
 			Assert.IsFalse(result);
 		}
 
@@ -52,10 +52,10 @@ namespace Splendor.Model.Tests
 		{
 			GameState state = new GameState(2);
 			IGame game = state.AsGame();
-			game.Tokens[(int)Color.Green] = 4;
-			GameState.TakeTokenAction takeTokenAction = new GameState.TakeTokenAction(Color.Green);
-			takeTokenAction.Execute(state);
-			bool result = takeTokenAction.CanExecute(state);
+			game.Supply[(int)Color.Green] = 4;
+			TakeTokenAction takeTokenAction = new TakeTokenAction(Color.Green);
+			takeTokenAction.Execute(game);
+			bool result = takeTokenAction.CanExecute(game);
 			Assert.IsTrue(result);
 		}
 	}

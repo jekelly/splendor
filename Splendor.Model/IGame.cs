@@ -8,8 +8,16 @@ namespace Splendor.Model
 {
 	public interface IGame
 	{
-		int[] Tokens { get; }
+		IList<IAction> Actions { get; }
+
+		int[] Supply { get; }
+
+		//int[] Tokens { get; }
 		Card[] Market { get; }
 		Noble[] Nobles { get; }
+
+		int CurrentPlayer { get; }
+
+		void GainToken(int playerIndex, Color color);
 	}
 }

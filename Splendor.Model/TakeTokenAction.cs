@@ -38,10 +38,8 @@ namespace Splendor.Model
 			{
 				throw new ArgumentNullException("game");
 			}
-			int playerIndex = game.currentPlayer;
-			game.tokens[playerIndex][(int)this.color]++;
-			game.tokens[SupplyIndex][(int)this.color]--;
-			game.currentActions[game.actionCount++] = this;
+			int playerIndex = game.CurrentPlayer;
+			game.GainToken(playerIndex, this.color);
 		}
 	}
 }
