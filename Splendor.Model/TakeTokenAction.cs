@@ -22,14 +22,17 @@ namespace Splendor.Model
 			}
 			bool isFirstAction = game.Actions.Count == 0;
 			bool isSecondAction = game.Actions.Count == 1;
-			int count = game.Supply[(int)this.color];
-			TakeTokenAction firstAction = isSecondAction ? game.Actions[0] as TakeTokenAction : null;
+			bool isThirdAction = game.Actions.Count == 2;
+			int count = game.Supply(this.color);
+			TakeTokenAction firstAction = !isFirstAction ? game.Actions[0] as TakeTokenAction : null;
+			TakeTokenAction secondAction = isThirdAction ? game.Actions[1] as TakeTokenAction : null;
 			// if this is the first action, the only requirement is
 			// that there are tokens left to take.
 			return (isFirstAction && count > 0) ||
 				// if this is the second action, it either needs to be a
 				// different color or we need to have at least 3 left (4 normally)
-				(isSecondAction && firstAction != null && (firstAction.color != this.color || count >= 3));
+				(isSecondAction && firstAction != null && (firstAction.color != this.color || count >= 3)) ||
+				(isThirdAction && firstAction != null && secondAction != null && firstAction.color != this.color && secondAction.color != this.color && firstAction.color != secondAction.color);
 		}
 
 		public void Execute(IGame game)

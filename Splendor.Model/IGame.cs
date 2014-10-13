@@ -10,7 +10,7 @@ namespace Splendor.Model
 	{
 		IList<IAction> Actions { get; }
 
-		int[] Supply { get; }
+		int Supply(Color color);
 
 		//int[] Tokens { get; }
 		Card[] Market { get; }

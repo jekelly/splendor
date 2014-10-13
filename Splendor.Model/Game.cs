@@ -25,9 +25,9 @@ namespace Splendor.Model
 				}
 			}
 
-			public int[] Supply
+			public int Supply(Color color)
 			{
-				get { return this.gameState.tokens[SupplyIndex]; }
+				return this.gameState.tokens[SupplyIndex][(int)color];
 			}
 
 			public Card[] Market
@@ -48,7 +48,7 @@ namespace Splendor.Model
 			public void GainToken(int playerIndex, Color color)
 			{
 				this.gameState.tokens[playerIndex][(int)color]++;
-				this.Supply[(int)color]--;
+				this.gameState.tokens[SupplyIndex][(int)color]--;
 			}
 		}
 	}
