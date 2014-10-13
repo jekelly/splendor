@@ -52,12 +52,12 @@ namespace Splendor.Model
 
 		public Deck(Card[] cards, int start, int size)
 		{
-			if(cards == null)
+			if (cards == null)
 			{
 				throw new ArgumentNullException("cards");
 			}
 			this.cards = cards;
-			if(start < 0 || 
+			if (start < 0 ||
 				start > this.cards.Length ||
 				size < 0 ||
 				start + size > this.cards.Length)
@@ -72,7 +72,7 @@ namespace Splendor.Model
 
 		public Card Draw()
 		{
-			if(this.head >= this.size)
+			if (this.head >= this.size)
 			{
 				throw new InvalidOperationException();
 			}
@@ -125,17 +125,17 @@ namespace Splendor.Model
 
 	class GameController
 	{
-		
+
 	}
-	
+
 	interface IPlayer
 	{
-		int[] Tokens { get;  }
+		int[] Tokens { get; }
 		Card[] Hand { get; }
 		Card[] Tableau { get; }
 	}
 
-	interface IGame
+	public interface IGame
 	{
 		int[] Tokens { get; }
 		Card[] Market { get; }
@@ -195,15 +195,52 @@ namespace Splendor.Model
 				get { throw new NotImplementedException(); }
 			}
 		}
+
+
+		internal class TakeTokenAction : IAction
+		{
+			private readonly Color color;
+			public TakeTokenAction(Color color)
+			{
+				this.color = color;
+			}
+
+			public bool CanExecute(GameState state)
+			{
+				if (state == null)
+				{
+					return false;
+				}
+				bool isFirstAction = state.actionCount == 0;
+				bool isSecondAction = state.actionCount == 1;
+				int count = state.tokens[SupplyIndex][(int)this.color];
+				TakeTokenAction firstAction = state.currentActions[0] as TakeTokenAction;
+				// if this is the first action, the only requirement is
+				// that there are tokens left to take.
+				return (isFirstAction && count > 0) ||
+					// if this is the second action, it either needs to be a
+					// different color or we need to have at least 3 left (4 normally)
+					(isSecondAction && firstAction != null && (firstAction.color != this.color || count >= 3));
+			}
+
+			public void Execute(GameState state)
+			{
+				if (state == null)
+				{
+					throw new ArgumentNullException("state");
+				}
+				int playerIndex = state.currentPlayer;
+				state.tokens[playerIndex][(int)this.color]++;
+				state.tokens[SupplyIndex][(int)this.color]--;
+				state.currentActions[state.actionCount++] = this;
+			}
+		}
 	}
 
 	enum Action
 	{
-		TakeWhite,
-		TakeBlue,
-		TakeGreen,
-		TakeRed,
-		TakeBlack,
+		TakeToken,
+
 	}
 
 	public partial class GameState
@@ -218,10 +255,34 @@ namespace Splendor.Model
 		private readonly int[][] hands;
 		private readonly int[][] tableau;
 
-		private readonly Action[] actions;
+		private static readonly IAction[] actions;
+
+		private readonly IAction[] currentActions;
 		private int actionCount;
 
 		private int currentPlayer;
+		
+		static GameState()
+		{
+			List<IAction> actions = new List<IAction>();
+
+			for (Color color = Color.White; color <= Color.Gold; color++)
+			{
+				actions.Add(new TakeTokenAction(color));
+				actions.Add(new ReplaceTokenAction(color));
+			}
+			for (int i = 0; i < Rules.Cards.Length; i++)
+			{
+				actions.Add(new ReserveCardAction(Rules.Cards[i]));
+				actions.Add(new BuildCardAction(Rules.Cards[i]));
+			}
+			GameState.actions = actions.ToArray();
+		}
+
+		public IGame AsGame()
+		{
+			return new Game(this);
+		}
 
 		public void ShuffleDecks()
 		{
@@ -231,29 +292,29 @@ namespace Splendor.Model
 			}
 		}
 
-		public IEnumerable<Action> GetActions()
-		{
-			List<Action> availableActions = new List<Action>();
-			if (this.actionCount= 0)
-			{
-				// take any token
-				yield return Action.TakeWhite;
-				yield return Action.TakeBlue;
-				yield return Action.TakeGreen;
-				yield return Action.TakeRed;
-				yield return Action.TakeBlack;
-				// take a card
-				// build any card from table or hand
-			}
-			else if (actionCount == 1)
-			{
-				Action firstAction = this.actions[0];
-				if (firstAction == Action.TakeWhite)
-				{
+		//public IEnumerable<Action> GetActions()
+		//{
+		//	List<Action> availableActions = new List<Action>();
+		//	if (this.actionCount= 0)
+		//	{
+		//		// take any token
+		//		yield return Action.TakeWhite;
+		//		yield return Action.TakeBlue;
+		//		yield return Action.TakeGreen;
+		//		yield return Action.TakeRed;
+		//		yield return Action.TakeBlack;
+		//		// take a card
+		//		// build any card from table or hand
+		//	}
+		//	else if (actionCount == 1)
+		//	{
+		//		Action firstAction = this.actions[0];
+		//		if (firstAction == Action.TakeWhite)
+		//		{
 
-				}
-			}
-		}
+		//		}
+		//	}
+		//}
 
 		public void Setup(Setup setup)
 		{
@@ -279,13 +340,13 @@ namespace Splendor.Model
 
 		public GameState(int numPlayers, IRandomizer randomizer = null)
 		{
-			if(randomizer == null)
+			if (randomizer == null)
 			{
 				randomizer = new Randomizer();
 			}
 			this.randomizer = randomizer;
-			this.tokens = new int[numPlayers][];
-			for (int i = 0; i < numPlayers; i++)
+			this.tokens = new int[5][];
+			for (int i = 0; i < 5; i++)
 			{
 				this.tokens[i] = new int[6];
 			}
@@ -297,6 +358,9 @@ namespace Splendor.Model
 				var count = cards.Count(card => card.tier == i);
 				this.decks[i] = new Deck(Rules.Cards, first.id, count);
 			}
+			// TODO: how many actions could someone possibly take on a single turn?
+			this.actionCount = 0;
+			this.currentActions = new IAction[6];
 		}
 
 		public bool IsValid()
@@ -335,7 +399,6 @@ namespace Splendor.Model
 		Gold,
 	}
 
-
 	public class Setup
 	{
 		public int playerCount;
@@ -354,6 +417,86 @@ namespace Splendor.Model
 		public byte costBlack;
 		public byte value;
 		public byte gives;
+	}
+
+	public interface IAction
+	{
+		void Execute(GameState state);
+		bool CanExecute(GameState state);
+	}
+
+	class SetupAction : IAction
+	{
+
+		public bool CanExecute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Execute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	class ReplaceTokenAction : IAction
+	{
+		private readonly Color color;
+
+		public ReplaceTokenAction(Color color)
+		{
+			this.color = color;
+		}
+
+		public bool CanExecute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Execute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	class ReserveCardAction : IAction
+	{
+		private readonly Card card;
+
+		public ReserveCardAction(Card card)
+		{
+			this.card = card;
+		}
+
+		public bool CanExecute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Execute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+	}
+
+	class BuildCardAction : IAction
+	{
+		private readonly Card card;
+
+		public BuildCardAction(Card card)
+		{
+			this.card = card;
+		}
+
+		public bool CanExecute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Execute(GameState state)
+		{
+			throw new NotImplementedException();
+		}
 	}
 
 	public static class Rules
