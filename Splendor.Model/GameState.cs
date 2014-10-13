@@ -40,12 +40,7 @@ namespace Splendor.Model
 			}
 			GameState.actions = actions.ToArray();
 		}
-
-		public IGame AsGame()
-		{
-			return new Game(this);
-		}
-
+		
 		public void ShuffleDecks()
 		{
 			for (int tier = 0; tier < this.decks.Length; tier++)

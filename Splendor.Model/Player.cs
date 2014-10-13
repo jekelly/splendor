@@ -19,19 +19,19 @@ namespace Splendor.Model
 				this.playerIndex = playerIndex;
 			}
 
-			public int[] Tokens
+			public int Tokens(Color color)
 			{
-				get { return this.gameState.tokens[this.playerIndex]; }
+				return this.gameState.tokens[this.playerIndex][(int)color];
 			}
 
-			public Card[] Hand
+			public IEnumerable<Card> Hand
 			{
-				get { return this.gameState.hands[this.playerIndex].Select(i => Rules.Cards[i]).ToArray(); }
+				get { return this.gameState.hands[this.playerIndex].Select(i => Rules.Cards[i]); }
 			}
 
-			public Card[] Tableau
+			public IEnumerable<Card> Tableau
 			{
-				get { return this.gameState.tableau[this.playerIndex].Select(i => Rules.Cards[i]).ToArray(); }
+				get { return this.gameState.tableau[this.playerIndex].Select(i => Rules.Cards[i]); }
 			}
 		}
 	}

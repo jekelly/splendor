@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	public interface IGame
+	interface IGame
 	{
 		IList<IAction> Actions { get; }
 
@@ -18,6 +18,10 @@ namespace Splendor.Model
 
 		int CurrentPlayer { get; }
 
+		IPlayer GetPlayer(int playerIndex);
+
 		void GainToken(int playerIndex, Color color);
+
+		void SpendToken(int playerIndex, Color color);
 	}
 }

@@ -45,6 +45,17 @@ namespace Splendor.Model
 				get { return this.gameState.currentPlayer; }
 			}
 
+			public IPlayer GetPlayer(int playerIndex)
+			{
+				return new Player(this.gameState, playerIndex);
+			}
+
+			public void SpendToken(int playerIndex, Color color)
+			{
+				this.gameState.tokens[playerIndex][(int)color]--;
+				this.gameState.tokens[SupplyIndex][(int)color]++;
+			}
+
 			public void GainToken(int playerIndex, Color color)
 			{
 				this.gameState.tokens[playerIndex][(int)color]++;

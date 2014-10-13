@@ -17,12 +17,18 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			throw new NotImplementedException();
+			int totalTokens = 0;
+			IPlayer player = game.GetPlayer(game.CurrentPlayer);
+			for(Color c = Color.White; c <= Color.Gold; c++)
+			{
+				totalTokens += player.Tokens(c);
+			}
+			return player.Tokens(this.color) > 0 && totalTokens > 10;
 		}
 
 		public void Execute(IGame game)
 		{
-			throw new NotImplementedException();
+			game.SpendToken(game.CurrentPlayer, this.color);
 		}
 	}
 }

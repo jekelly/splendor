@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	public interface IAction
+	interface IAction
 	{
 		void Execute(IGame game);
 		bool CanExecute(IGame game);

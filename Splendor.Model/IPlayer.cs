@@ -8,8 +8,8 @@ namespace Splendor.Model
 {
 	interface IPlayer
 	{
-		int[] Tokens { get; }
-		Card[] Hand { get; }
-		Card[] Tableau { get; }
+		int Tokens(Color color);
+		IEnumerable<Card> Hand { get; }
+		IEnumerable<Card> Tableau { get; }
 	}
 }
