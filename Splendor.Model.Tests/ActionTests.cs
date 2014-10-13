@@ -38,6 +38,7 @@ namespace Splendor.Model.Tests
 		[Theory]
 		[InlineData(false, Color.Green, 0, 0, 0, 0, 0, 0)]
 		[InlineData(false, Color.Green, 0, 5, 5, 0, 0, 0)]
+		[InlineData(false, Color.Green, 6, 5, 0, 0, 0, 0)]
 		[InlineData(false, Color.Green, 0, 5, 4, 1, 0, 0)]
 		[InlineData(true, Color.Green, 0, 5, 5, 1, 0, 0)]
 		public void ReplaceTokenAction_CanExecute(bool expectation, Color color, int whiteTokens, int blueTokens, int greenTokens, int redTokens, int blackTokens, int goldTokens)
