@@ -71,6 +71,11 @@ namespace Splendor.Model
 			this.currentPlayer = this.randomizer.Next(setup.playerCount);
 		}
 
+		internal IGame GetGame()
+		{
+			return new Game(this);
+		}
+
 		public GameState(int numPlayers, IRandomizer randomizer = null)
 		{
 			if (randomizer == null)

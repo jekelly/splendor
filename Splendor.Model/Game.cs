@@ -62,5 +62,10 @@ namespace Splendor.Model
 				this.gameState.tokens[SupplyIndex][(int)color]--;
 			}
 		}
+
+		internal IPlayer GetPlayer(int playerIndex)
+		{
+			return new Player(this, playerIndex);
+		}
 	}
 }

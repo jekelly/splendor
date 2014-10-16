@@ -35,6 +35,17 @@ namespace Splendor.Model.Tests
 			result.Should().Be(expectation);
 		}
 
+		[Fact]
+		public void TakeTokenAction_Execute_AddsTokenToPlayerSupply()
+		{
+			GameState state = new GameState(2);
+			IGame game = state.GetGame();
+			IAction takeTokenAction = new TakeTokenAction(Color.Blue);
+			takeTokenAction.Execute(game);
+			IPlayer player = state.GetPlayer(0);
+			player.Tokens(Color.Blue).Should().Be(1);
+		}
+
 		[Theory]
 		[InlineData(false, Color.Green, 0, 0, 0, 0, 0, 0)]
 		[InlineData(false, Color.Green, 0, 5, 5, 0, 0, 0)]
