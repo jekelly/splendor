@@ -57,6 +57,10 @@ namespace Splendor.Model
 
 		public void Shuffle(IRandomizer randomizer)
 		{
+			if (this.head != 0)
+			{
+				throw new InvalidOperationException("Cannot shuffle a deck once it has been drawn from.");
+			}
 			for (int i = this.size - 1; i >= 0; i--)
 			{
 				int ind = randomizer.Next(i);

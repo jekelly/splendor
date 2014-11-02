@@ -20,6 +20,8 @@ namespace Splendor.Model
 
 		IPlayer GetPlayer(int playerIndex);
 
+		void Setup(Setup setup);
+
 		void GainToken(int playerIndex, Color color);
 
 		void SpendToken(int playerIndex, Color color);

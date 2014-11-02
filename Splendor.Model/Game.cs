@@ -18,7 +18,7 @@ namespace Splendor.Model
 				randomizer = new Randomizer();
 			}
 			this.randomizer = randomizer;
-			this.gameState = new GameState(numPlayers);
+			this.gameState = new GameState();
 		}
 
 		//public Game(Game game)
@@ -30,7 +30,7 @@ namespace Splendor.Model
 		{
 			get
 			{
-				return this.gameState.actions.Take(this.gameState.actionCount).Select(actionIndex => Rules.Actions[actionIndex]).ToList();
+				return this.gameState.actions.Take(this.gameState.actionsSize).Select(actionIndex => Rules.Actions[actionIndex]).ToList();
 			}
 		}
 
@@ -59,16 +59,24 @@ namespace Splendor.Model
 			return new Player(this.gameState, playerIndex);
 		}
 
+		public void Setup(Setup setup)
+		{
+			this.gameState.Setup(setup, this.randomizer);
+		}
+
 		public void SpendToken(int playerIndex, Color color)
 		{
-			this.gameState.tokens[playerIndex][(int)color]--;
-			this.gameState.tokens[GameState.SupplyIndex][(int)color]++;
+			this.gameState.SpendToken(playerIndex, color);
 		}
 
 		public void GainToken(int playerIndex, Color color)
 		{
-			this.gameState.tokens[playerIndex][(int)color]++;
-			this.gameState.tokens[GameState.SupplyIndex][(int)color]--;
+			this.gameState.TakeToken(playerIndex, color);
+		}
+
+		public void BuyCard(int playerIndex, Card card)
+		{
+			this.gameState.BuyCard(playerIndex, card);
 		}
 	}
 }
