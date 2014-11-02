@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	partial class GameState
+	partial class Game
 	{
 		class Player : IPlayer
 		{

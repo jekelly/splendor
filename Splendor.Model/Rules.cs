@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	public static class Rules
+	internal static class Rules
 	{
 		public const int tiers = 3;
 		public const int goldCount = 5;
@@ -16,6 +16,16 @@ namespace Splendor.Model
 			new Setup() { playerCount = 2, nobleCount = 3, tokenCount = 4 },
 			new Setup() { playerCount = 3, nobleCount = 4, tokenCount = 5 },
 			new Setup() { playerCount = 4, nobleCount = 5, tokenCount = 7 },
+		};
+
+		public static readonly IAction[] Actions = 
+		{
+			new TakeTokenAction(Color.White),
+			new TakeTokenAction(Color.Blue),
+			new TakeTokenAction(Color.Green),
+			new TakeTokenAction(Color.Red),
+			new TakeTokenAction(Color.Black),
+			new TakeTokenAction(Color.Gold),
 		};
 
 		public static readonly Noble[] Nobles =

@@ -6,66 +6,69 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	partial class GameState
+	partial class Game : IGame
 	{
-		class Game : IGame
+		private readonly IRandomizer randomizer;
+		private readonly GameState gameState;
+
+		public Game(int numPlayers = 2, IRandomizer randomizer = null)
 		{
-			private readonly GameState gameState;
-
-			public Game(GameState gameState)
+			if(randomizer == null)
 			{
-				this.gameState = gameState;
+				randomizer = new Randomizer();
 			}
+			this.randomizer = randomizer;
+			this.gameState = new GameState(numPlayers);
+		}
 
-			public IList<IAction> Actions
-			{
-				get
-				{
-					return this.gameState.currentActions.Take(this.gameState.actionCount).ToList();
-				}
-			}
+		//public Game(Game game)
+		//{
+		//	this.gameState = game.gameState.Clone();
+		//}
 
-			public int Supply(Color color)
+		public IList<IAction> Actions
+		{
+			get
 			{
-				return this.gameState.tokens[SupplyIndex][(int)color];
-			}
-
-			public Card[] Market
-			{
-				get { return this.gameState.market.Select(i => Rules.Cards[i]).ToArray(); }
-			}
-
-			public Noble[] Nobles
-			{
-				get { throw new NotImplementedException(); }
-			}
-
-			public int CurrentPlayer
-			{
-				get { return this.gameState.currentPlayer; }
-			}
-
-			public IPlayer GetPlayer(int playerIndex)
-			{
-				return new Player(this.gameState, playerIndex);
-			}
-
-			public void SpendToken(int playerIndex, Color color)
-			{
-				this.gameState.tokens[playerIndex][(int)color]--;
-				this.gameState.tokens[SupplyIndex][(int)color]++;
-			}
-
-			public void GainToken(int playerIndex, Color color)
-			{
-				this.gameState.tokens[playerIndex][(int)color]++;
-				this.gameState.tokens[SupplyIndex][(int)color]--;
+				return this.gameState.actions.Take(this.gameState.actionCount).Select(actionIndex => Rules.Actions[actionIndex]).ToList();
 			}
 		}
 
-		internal IPlayer GetPlayer(int playerIndex)
+		public int Supply(Color color)
 		{
-			return new Player(this, playerIndex);
+			return this.gameState.tokens[GameState.SupplyIndex][(int)color];
+		}
+
+		public Card[] Market
+		{
+			get { return this.gameState.market.Select(i => Rules.Cards[i]).ToArray(); }
+		}
+
+		public Noble[] Nobles
+		{
+			get { throw new NotImplementedException(); }
+		}
+
+		public int CurrentPlayer
+		{
+			get { return this.gameState.currentPlayer; }
+		}
+
+		public IPlayer GetPlayer(int playerIndex)
+		{
+			return new Player(this.gameState, playerIndex);
+		}
+
+		public void SpendToken(int playerIndex, Color color)
+		{
+			this.gameState.tokens[playerIndex][(int)color]--;
+			this.gameState.tokens[GameState.SupplyIndex][(int)color]++;
+		}
+
+		public void GainToken(int playerIndex, Color color)
+		{
+			this.gameState.tokens[playerIndex][(int)color]++;
+			this.gameState.tokens[GameState.SupplyIndex][(int)color]--;
 		}
 	}
 }

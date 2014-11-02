@@ -11,7 +11,6 @@ namespace Splendor.Model.Tests
 		[Fact]
 		public void CanExecuteNull_ReturnsFalse()
 		{
-			GameState state = new GameState(2);
 			TakeTokenAction takeTokenAction = new TakeTokenAction(Color.Green);
 			takeTokenAction.CanExecute(null);
 		}
@@ -38,11 +37,10 @@ namespace Splendor.Model.Tests
 		[Fact]
 		public void TakeTokenAction_Execute_AddsTokenToPlayerSupply()
 		{
-			GameState state = new GameState(2);
-			IGame game = state.GetGame();
+			IGame game = new Game(2);
 			IAction takeTokenAction = new TakeTokenAction(Color.Blue);
 			takeTokenAction.Execute(game);
-			IPlayer player = state.GetPlayer(0);
+			IPlayer player = game.GetPlayer(0);
 			player.Tokens(Color.Blue).Should().Be(1);
 		}
 

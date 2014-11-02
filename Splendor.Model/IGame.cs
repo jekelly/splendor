@@ -12,8 +12,8 @@ namespace Splendor.Model
 
 		int Supply(Color color);
 
-		//int[] Tokens { get; }
 		Card[] Market { get; }
+
 		Noble[] Nobles { get; }
 
 		int CurrentPlayer { get; }
