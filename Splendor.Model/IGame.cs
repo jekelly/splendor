@@ -16,14 +16,18 @@ namespace Splendor.Model
 
 		Noble[] Nobles { get; }
 
-		int CurrentPlayer { get; }
+		int CurrentPlayerIndex { get; }
+
+		IPlayer CurrentPlayer { get; }
 
 		IPlayer GetPlayer(int playerIndex);
-
-		void Setup(Setup setup);
 
 		void GainToken(int playerIndex, Color color);
 
 		void SpendToken(int playerIndex, Color color);
+
+		void MoveCardToTableau(int playerIndex, Card card);
+
+		void MoveCardToHand(int playerIndex, Card card);
 	}
 }

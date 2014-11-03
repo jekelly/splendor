@@ -37,11 +37,10 @@ namespace Splendor.Model.Tests
 		[Fact]
 		public void TakeTokenAction_Execute_AddsTokenToPlayerSupply()
 		{
-			IGame game = new Game(2);
+			IGame game = new Game(Rules.Setups[0]);
 			IAction takeTokenAction = new TakeTokenAction(Color.Blue);
 			takeTokenAction.Execute(game);
-			IPlayer player = game.GetPlayer(0);
-			player.Tokens(Color.Blue).Should().Be(1);
+			game.CurrentPlayer.Tokens(Color.Blue).Should().Be(1);
 		}
 
 		[Theory]

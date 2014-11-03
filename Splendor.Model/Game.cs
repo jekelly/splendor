@@ -11,14 +11,14 @@ namespace Splendor.Model
 		private readonly IRandomizer randomizer;
 		private readonly GameState gameState;
 
-		public Game(int numPlayers = 2, IRandomizer randomizer = null)
+		public Game(Setup setup, IRandomizer randomizer = null)
 		{
 			if(randomizer == null)
 			{
 				randomizer = new Randomizer();
 			}
 			this.randomizer = randomizer;
-			this.gameState = new GameState();
+			this.gameState = new GameState(setup, this.randomizer);
 		}
 
 		//public Game(Game game)
@@ -49,19 +49,19 @@ namespace Splendor.Model
 			get { throw new NotImplementedException(); }
 		}
 
-		public int CurrentPlayer
+		public int CurrentPlayerIndex
 		{
 			get { return this.gameState.currentPlayer; }
+		}
+
+		public IPlayer CurrentPlayer
+		{
+			get { return this.GetPlayer(this.CurrentPlayerIndex); }
 		}
 
 		public IPlayer GetPlayer(int playerIndex)
 		{
 			return new Player(this.gameState, playerIndex);
-		}
-
-		public void Setup(Setup setup)
-		{
-			this.gameState.Setup(setup, this.randomizer);
 		}
 
 		public void SpendToken(int playerIndex, Color color)
@@ -74,9 +74,15 @@ namespace Splendor.Model
 			this.gameState.TakeToken(playerIndex, color);
 		}
 
-		public void BuyCard(int playerIndex, Card card)
+		public void MoveCardToTableau(int playerIndex, Card card)
 		{
-			this.gameState.BuyCard(playerIndex, card);
+			this.gameState.MoveCardToTableau(playerIndex, card);
+		}
+
+		public void MoveCardToHand(int playerIndex, Card card)
+		{
+			this.gameState.MoveCardToHand(playerIndex, card);
+			this.gameState.TakeToken(playerIndex, Color.Gold);
 		}
 	}
 }

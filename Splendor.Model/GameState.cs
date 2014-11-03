@@ -12,7 +12,7 @@ namespace Splendor.Model
 			public const int SupplyIndex = 4;
 
 			public int currentPlayer;
-			public readonly int playerIndex;
+			public readonly int numPlayers;
 
 			public readonly int[][] tokens;
 
@@ -37,29 +37,7 @@ namespace Splendor.Model
 				}
 			}
 
-			public void Setup(Setup setup, IRandomizer randomizer)
-			{
-				// shuffle decks separately
-				this.ShuffleDecks(randomizer);
-				// reveal top four from each deck
-				for (int i = 0; i < this.market.Length; i++)
-				{
-					int tier = (i / Rules.CardsPerTier);
-					this.market[i] = decks[tier].Draw().id;
-				}
-				// shuffle and reveal nobles
-				// populate tokens
-				this.tokens[SupplyIndex][(int)Color.White] = setup.tokenCount;
-				this.tokens[SupplyIndex][(int)Color.Blue] = setup.tokenCount;
-				this.tokens[SupplyIndex][(int)Color.Green] = setup.tokenCount;
-				this.tokens[SupplyIndex][(int)Color.Red] = setup.tokenCount;
-				this.tokens[SupplyIndex][(int)Color.Black] = setup.tokenCount;
-				this.tokens[SupplyIndex][(int)Color.Gold] = Rules.GoldCount;
-				// determine starting player
-				this.currentPlayer = randomizer.Next(setup.playerCount);
-			}
-
-			public GameState()
+			public GameState(Setup setup, IRandomizer randomizer)
 			{
 				this.tokens = new int[5][];
 				for (int i = 0; i < 5; i++)
@@ -75,9 +53,40 @@ namespace Splendor.Model
 					this.decks[i] = new Deck(Rules.Cards, first.id, count);
 				}
 				this.market = new int[Rules.MarketSize];
-				// TODO: how many actions could someone possibly take on a single turn?
-				//this.actionCount = 0;
-				//this.currentActions = new IAction[6];
+
+				// shuffle decks separately?
+				this.ShuffleDecks(randomizer);
+				// reveal top four from each deck
+				for (int i = 0; i < this.market.Length; i++)
+				{
+					int tier = (i / Rules.CardsPerTier);
+					this.market[i] = decks[tier].Draw().id;
+				}
+				// shuffle and reveal nobles
+				// populate tokens
+				this.tokens[SupplyIndex][(int)Color.White] = setup.tokenCount;
+				this.tokens[SupplyIndex][(int)Color.Blue] = setup.tokenCount;
+				this.tokens[SupplyIndex][(int)Color.Green] = setup.tokenCount;
+				this.tokens[SupplyIndex][(int)Color.Red] = setup.tokenCount;
+				this.tokens[SupplyIndex][(int)Color.Black] = setup.tokenCount;
+				this.tokens[SupplyIndex][(int)Color.Gold] = Rules.GoldCount;
+				// setup player-specific variables
+				this.numPlayers = setup.playerCount;
+				this.hands = new int[this.numPlayers][];
+				for (int i = 0; i < this.numPlayers; i++)
+				{
+					this.hands[i] = new int[Rules.MaxHandSize];
+				}
+				this.handSize = new int[this.numPlayers];
+				this.tableau = new int[this.numPlayers][];
+				for (int i = 0; i < this.numPlayers; i++)
+				{
+					this.tableau[i] = new int[Rules.MaxTableauSize];
+				}
+				this.tableauSize = new int[this.numPlayers];
+				// determine starting player
+				this.currentPlayer = randomizer.Next(setup.playerCount);
+
 			}
 
 			public bool IsValid()
@@ -117,7 +126,7 @@ namespace Splendor.Model
 				this.tokens[GameState.SupplyIndex][(int)color]--;
 			}
 
-			public void BuyCard(int playerIndex, Card card)
+			public void MoveCardToTableau(int playerIndex, Card card)
 			{
 				int cardId = Array.IndexOf(Rules.Cards, card);
 				int tableauIndex = this.tableauSize[playerIndex];
@@ -132,12 +141,37 @@ namespace Splendor.Model
 					if (hand[i] == cardId)
 					{
 						// remove card from hand
-						hand[i] = -1;
+						hand[i] = Rules.SentinelCard.id;
 						this.handSize[playerIndex]--;
 						return;
 					}
 				}
 				// if not hand, must be from market
+				for (int i = 0; i < this.market.Length; i++)
+				{
+					if (this.market[i] == cardId)
+					{
+						// replace card in market
+						this.market[i] = this.decks[card.tier].Draw().id;
+						return;
+					}
+				}
+			}
+
+			public void MoveCardToHand(int playerIndex, Card card)
+			{
+				int cardId = Array.IndexOf(Rules.Cards, card);
+				int handIndex = this.handSize[playerIndex];
+				if (handIndex >= Rules.MaxHandSize)
+				{
+					throw new InvalidOperationException("Too many cards in hand to add another.");
+				}
+				var hand = this.hands[playerIndex];
+				var handSize = this.handSize[playerIndex];
+				// Add card to tableau
+				this.hands[playerIndex][handIndex] = cardId;
+				this.handSize[playerIndex]++;
+				// remove from market
 				for (int i = 0; i < this.market.Length; i++)
 				{
 					if (this.market[i] == cardId)

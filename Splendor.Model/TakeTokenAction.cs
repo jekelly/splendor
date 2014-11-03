@@ -41,7 +41,7 @@ namespace Splendor.Model
 			{
 				throw new ArgumentNullException("game");
 			}
-			int playerIndex = game.CurrentPlayer;
+			int playerIndex = game.CurrentPlayerIndex;
 			game.GainToken(playerIndex, this.color);
 		}
 	}

@@ -10,8 +10,12 @@ namespace Splendor.Model
 	{
 		public const int Tiers = 3;
 		public const int CardsPerTier = 4;
-		public const int GoldCount = 5;
 		public const int MarketSize = Tiers * CardsPerTier;
+
+		public const int MaxHandSize = 3;
+		public const int MaxTableauSize = 32;
+
+		public const int GoldCount = 5;
 
 		public static readonly Setup[] Setups = new Setup[] {
 			new Setup() { playerCount= 2, tokenCount= 4, nobleCount= 3 },

@@ -8,11 +8,16 @@ namespace Splendor.Model
 {
 	public class Randomizer : IRandomizer
 	{
-		private Random random;
+		private readonly Random random;
 
 		public Randomizer()
 		{
 			this.random = new Random();
+		}
+
+		public Randomizer(int seed)
+		{
+			this.random = new Random(seed);
 		}
 
 		public int Next(int max)

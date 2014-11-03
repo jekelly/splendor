@@ -18,7 +18,7 @@ namespace Splendor.Model
 		public bool CanExecute(IGame game)
 		{
 			int totalTokens = 0;
-			IPlayer player = game.GetPlayer(game.CurrentPlayer);
+			IPlayer player = game.GetPlayer(game.CurrentPlayerIndex);
 			for(Color c = Color.White; c <= Color.Gold; c++)
 			{
 				totalTokens += player.Tokens(c);
@@ -28,7 +28,7 @@ namespace Splendor.Model
 
 		public void Execute(IGame game)
 		{
-			game.SpendToken(game.CurrentPlayer, this.color);
+			game.SpendToken(game.CurrentPlayerIndex, this.color);
 		}
 	}
 }
