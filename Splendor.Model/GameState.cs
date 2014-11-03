@@ -168,7 +168,7 @@ namespace Splendor.Model
 				}
 				var hand = this.hands[playerIndex];
 				var handSize = this.handSize[playerIndex];
-				// Add card to tableau
+				// Add card to hand
 				this.hands[playerIndex][handIndex] = cardId;
 				this.handSize[playerIndex]++;
 				// remove from market
@@ -181,6 +181,11 @@ namespace Splendor.Model
 						return;
 					}
 				}
+			}
+
+			internal bool CanTakeToken(Color color)
+			{
+				return this.tokens[GameState.SupplyIndex][(int)color] > 0;
 			}
 		}
 	}

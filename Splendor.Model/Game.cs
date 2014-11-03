@@ -82,7 +82,10 @@ namespace Splendor.Model
 		public void MoveCardToHand(int playerIndex, Card card)
 		{
 			this.gameState.MoveCardToHand(playerIndex, card);
-			this.gameState.TakeToken(playerIndex, Color.Gold);
+			if(this.gameState.CanTakeToken(Color.Gold))
+			{
+				this.gameState.TakeToken(playerIndex, Color.Gold);
+			}
 		}
 	}
 }
