@@ -1,17 +1,26 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	internal class TakeTokenAction : IAction
+	internal class TakeTokensAction : IAction
 	{
-		private readonly Color color;
-		public TakeTokenAction(Color color)
+		private readonly Color[] colors;
+		public TakeTokensAction(params Color[] colors)
 		{
-			this.color = color;
+			this.colors = colors;
+			if(this.colors.Any(color => color == Color.Gold))
+			{
+				throw new NotSupportedException("Cannot take a Gold token with the TakeTokensAction.");
+			}
+			if(this.colors.Length > 3)
+			{
+				throw new NotSupportedException("Can only take 3 tokens at a time at most.");
+			}
+			if (this.colors.Length == 3 && (this.colors[0] == this.colors[1] || this.colors[0] == this.colors[2] || this.colors[1] == this.colors[2]))
+			{
+				throw new NotSupportedException("Cannot take three tokens unless they are all a different color.");
+			}
 		}
 
 		public bool CanExecute(IGame game)
@@ -20,19 +29,12 @@ namespace Splendor.Model
 			{
 				return false;
 			}
-			bool isFirstAction = game.Actions.Count == 0;
-			bool isSecondAction = game.Actions.Count == 1;
-			bool isThirdAction = game.Actions.Count == 2;
-			int count = game.Supply(this.color);
-			TakeTokenAction firstAction = !isFirstAction ? game.Actions[0] as TakeTokenAction : null;
-			TakeTokenAction secondAction = isThirdAction ? game.Actions[1] as TakeTokenAction : null;
-			// if this is the first action, the only requirement is
-			// that there are tokens left to take.
-			return (isFirstAction && count > 0) ||
-				// if this is the second action, it either needs to be a
-				// different color or we need to have at least 3 left (4 normally)
-				(isSecondAction && firstAction != null && (firstAction.color != this.color || count >= 3)) ||
-				(isThirdAction && firstAction != null && secondAction != null && firstAction.color != this.color && secondAction.color != this.color && firstAction.color != secondAction.color);
+			bool sameColor = this.colors.Length > 1 && this.colors[0] == this.colors[1];
+			if (sameColor)
+			{
+				return game.Supply(this.colors[0]) >= 4;
+			}
+			return this.colors.All(color => game.Supply(color) > 0);
 		}
 
 		public void Execute(IGame game)
@@ -42,7 +44,10 @@ namespace Splendor.Model
 				throw new ArgumentNullException("game");
 			}
 			int playerIndex = game.CurrentPlayerIndex;
-			game.GainToken(playerIndex, this.color);
+			foreach (Color color in this.colors)
+			{
+				game.GainToken(playerIndex, color);
+			}
 		}
 	}
 }

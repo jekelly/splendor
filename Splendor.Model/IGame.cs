@@ -8,15 +8,13 @@ namespace Splendor.Model
 {
 	interface IGame
 	{
-		IList<IAction> Actions { get; }
-
 		int Supply(Color color);
 
 		Card[] Market { get; }
 
 		Noble[] Nobles { get; }
 
-		IEnumerable<Move> AvailableMoves { get; }
+		IEnumerable<IAction> AvailableActions { get; }
 
 		int CurrentPlayerIndex { get; }
 

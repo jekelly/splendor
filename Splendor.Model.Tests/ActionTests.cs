@@ -8,39 +8,49 @@ namespace Splendor.Model.Tests
 {
 	public class ActionTests
 	{
-
 		[Fact]
 		public void CanExecuteNull_ReturnsFalse()
 		{
-			TakeTokenAction takeTokenAction = new TakeTokenAction(Color.Green);
-			takeTokenAction.CanExecute(null);
+			TakeTokensAction takeTokensAction = new TakeTokensAction(Color.Green);
+			takeTokensAction.CanExecute(null);
 		}
 
 		[Theory]
-		[InlineData(Color.Green, 7, true, new Color[0])]
-		[InlineData(Color.Green, 0, false, new Color[0])]
-		[InlineData(Color.Green, 1, true, new Color[] { Color.White })]
-		[InlineData(Color.Green, 4, true, new Color[] { Color.Green })]
-		[InlineData(Color.Green, 2, false, new Color[] { Color.Green })]
-		[InlineData(Color.Green, 1, true, new Color[] { Color.White, Color.Blue })]
-		[InlineData(Color.Green, 1, false, new Color[] { Color.Blue, Color.Blue })]
-		[InlineData(Color.Green, 1, false, new Color[] { Color.White, Color.Green })]
-		public void TakeTokenAction_CanExecute(Color color, int startCount, bool expectation, params Color[] previouslyBought)
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 7, 7, 7 }, true)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 1, 1, 1 }, true)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 1, 2, 3 }, true)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 0, 0, 0 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 0, 1, 1 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 1, 0, 1 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 1, 1, 0 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Green }, new int[] { 4, 4 }, true)]
+		[InlineData(new Color[] { Color.Green, Color.Green }, new int[] { 3, 3 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Green }, new int[] { 3, 3 }, false)]
+		[InlineData(new Color[] { Color.Green, Color.Green }, new int[] { 0, 0 }, false)]
+		public void TakeTokensAction_CanExecute(Color[] colors, int[] supplyCount, bool expectation)
 		{
-			IGame game = Substitute.For<IGame>();
-			game.Supply(color).Returns(startCount);
-			game.Actions.Returns(previouslyBought.Select(pb => (IAction)new TakeTokenAction(pb)).ToList());
-			IAction takeTokenAction = new TakeTokenAction(color);
-			bool result = takeTokenAction.CanExecute(game);
+			IGame game = Game(colors, supplyCount);
+			IAction takeTokensAction = new TakeTokensAction(colors);
+			bool result = takeTokensAction.CanExecute(game);
 			result.Should().Be(expectation);
 		}
 
+		private static IGame Game(Color[] colors, int[] supplyCount)
+		{
+			var game = Substitute.For<IGame>();
+			for (int i = 0; i < colors.Length; i++)
+			{
+				game.Supply(colors[i]).Returns(supplyCount[i]);
+			}
+			return game;
+		}
+
 		[Fact]
-		public void TakeTokenAction_Execute_AddsTokenToPlayerSupply()
+		public void TakeTokensAction_Execute_AddsTokenToPlayerSupply()
 		{
 			IGame game = new Game(Rules.Setups[0]);
-			IAction takeTokenAction = new TakeTokenAction(Color.Blue);
-			takeTokenAction.Execute(game);
+			IAction takeTokensAction = new TakeTokensAction(Color.Blue);
+			takeTokensAction.Execute(game);
 			game.CurrentPlayer.Tokens(Color.Blue).Should().Be(1);
 		}
 

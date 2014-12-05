@@ -1,20 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Splendor.Model
 {
-	class MoveConstraints
-	{
-		public Func<Color, bool > CanTakeTwoToken { get; set; }
-		public Func<Color, bool> CanTakeToken { get; set; }
-		public Func<Color, bool> CanReturnToken { get; set; }
-		public Func<Card, bool> CanBuildCard { get; set; }
-		public Func<Card, bool> CanReserveCard { get; set; }
-	}
-
 	internal static class Rules
 	{
 		public const int Tiers = 3;
@@ -26,24 +13,16 @@ namespace Splendor.Model
 
 		public const int GoldCount = 5;
 
-		public static readonly Move[] Moves;
+		public static readonly IAction[] Actions;
 
 		static Rules()
 		{
-			//MoveConstraints constraints = new MoveConstraints()
-			//{
-			//	CanBuildCard = (c) => true,
-			//	CanReserveCard = (c) => true,
-			//	CanReturnToken = (c) => true,
-			//	CanTakeToken = (c) => true,
-			//	CanTakeTwoToken = (c) => true,
-			//};
-			Moves = GenerateMoves();
+			Actions = GenerateActions();
 		}
 
-		private static Move[] GenerateMoves()
+		private static IAction[] GenerateActions()
 		{
-			List<Move> moves = new List<Move>();
+			List<IAction> actions = new List<IAction>();
 			// generate permutations of 3 different
 			for (int i = 0; i < 5; i++)
 			{
@@ -51,47 +30,37 @@ namespace Splendor.Model
 				{
 					for (int k = j + 1; k < 5; k++)
 					{
-						moves.Add(new TakeTokensMove((Color)i, (Color)j, (Color)k));
+						actions.Add(new TakeTokensAction((Color)i, (Color)j, (Color)k));
 					}
 				}
 			}
 			// generate permutations of 2 identical
 			for (int i = 0; i < 5; i++)
 			{
-				moves.Add(new TakeTokensMove((Color)i, (Color)i));
+				actions.Add(new TakeTokensAction((Color)i, (Color)i));
 			}
 			// generate all token return moves
 			for (int i = 0; i < 5; i++)
 			{
-				moves.Add(new ReturnTokenMove((Color)i));
+				actions.Add(new ReplaceTokenAction((Color)i));
 			}
 			// generate all build actions
 			for (int i = 0; i < Rules.Cards.Length; i++)
 			{
-				moves.Add(new BuildCardMove(i));
+				actions.Add(new BuildCardAction(Rules.Cards[i]));
 			}
 			// generate all reserve actions
 			for (int i = 0; i < Rules.Cards.Length; i++)
 			{
-				moves.Add(new ReserveCardMove(i));
+				actions.Add(new ReserveCardAction(Rules.Cards[i]));
 			}
-			return moves.ToArray();
+			return actions.ToArray();
 		}
 
 		public static readonly Setup[] Setups = new Setup[] {
 			new Setup() { playerCount= 2, tokenCount= 4, nobleCount= 3 },
 			new Setup() { playerCount= 3, tokenCount= 5, nobleCount= 4 },
 			new Setup() { playerCount= 4, tokenCount= 6, nobleCount= 5 },
-		};
-
-		public static readonly IAction[] Actions = 
-		{
-			new TakeTokenAction(Color.White),
-			new TakeTokenAction(Color.Blue),
-			new TakeTokenAction(Color.Green),
-			new TakeTokenAction(Color.Red),
-			new TakeTokenAction(Color.Black),
-			new TakeTokenAction(Color.Gold),
 		};
 
 		public static readonly Noble[] Nobles =

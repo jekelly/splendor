@@ -17,7 +17,9 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			throw new NotImplementedException();
+			bool available = game.Market.Contains(this.card) || game.CurrentPlayer.Hand.Contains(this.card);
+			bool buildable = this.card.CanBuy(game.CurrentPlayer.BuyingPower);
+			return available && buildable;
 		}
 
 		public void Execute(IGame game)

@@ -6,54 +6,54 @@ using System.Text;
 
 namespace Splendor.Model
 {
-	class Move 
-	{
+	//class Move 
+	//{
 		
-	}
+	//}
 
-	class TakeTokensMove : Move
-	{
-		public Color[] Tokens { get; private set; }
+	//class TakeTokensMove : Move
+	//{
+	//	public Color[] Tokens { get; private set; }
 
-		public TakeTokensMove(params Color[] tokens)
-		{
-			this.Tokens = tokens;
-		}
-	}
+	//	public TakeTokensMove(params Color[] tokens)
+	//	{
+	//		this.Tokens = tokens;
+	//	}
+	//}
 
-	class BuildCardMove : Move
-	{
-		public int Id { get; private set; }
+	//class BuildCardMove : Move
+	//{
+	//	public int Id { get; private set; }
 
-		public BuildCardMove(int id)
-		{
-			this.Id = id;
-		}
-	}
+	//	public BuildCardMove(int id)
+	//	{
+	//		this.Id = id;
+	//	}
+	//}
 
-	class ReserveCardMove : Move
-	{
-		public int Id { get; private set; }
+	//class ReserveCardMove : Move
+	//{
+	//	public int Id { get; private set; }
 
-		public ReserveCardMove(int id)
-		{
-			this.Id = id;
-		}
-	}
+	//	public ReserveCardMove(int id)
+	//	{
+	//		this.Id = id;
+	//	}
+	//}
 
-	class ReturnTokenMove : Move
-	{
-		public Color Token { get; private set; }
+	//class ReturnTokenMove : Move
+	//{
+	//	public Color Token { get; private set; }
 
-		public ReturnTokenMove(Color token)
-		{
-			this.Token = token;
-		}
-	}
+	//	public ReturnTokenMove(Color token)
+	//	{
+	//		this.Token = token;
+	//	}
+	//}
 
-	public static class Moves
-	{
-	}
+	//public static class Moves
+	//{
+	//}
 
 	partial class Game
 	{
@@ -75,9 +75,6 @@ namespace Splendor.Model
 
 			public readonly int[][] tableau;
 			public readonly int[] tableauSize;
-
-			public readonly int[] actions;
-			public int actionsSize;
 			
 			public void ShuffleDecks(IRandomizer randomizer)
 			{

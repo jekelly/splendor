@@ -106,16 +106,16 @@ namespace Splendor.Model.Tests
 		}
 
 		[Fact]
-		public void Moves_GeneratedProperly()
+		public void Actions_GeneratedProperly()
 		{
-			Rules.Moves.Should().HaveCount(200);
+			Rules.Actions.Should().HaveCount(200);
 		}
 		
 		[Fact]
 		public void InitialGameState_CalculatesAvailableActions()
 		{
 			IGame g = Game();
-			var results = g.AvailableMoves;
+			var results = g.AvailableActions;
 			// 3 unique: 5 choose 3 = 10
 			// 2 same: 5 colors
 			// 12 cards in market to reserve: 12

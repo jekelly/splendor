@@ -11,5 +11,6 @@ namespace Splendor.Model
 		int Tokens(Color color);
 		IEnumerable<Card> Hand { get; }
 		IEnumerable<Card> Tableau { get; }
+		int[] BuyingPower { get; }
 	}
 }
