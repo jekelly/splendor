@@ -33,30 +33,6 @@ namespace Splendor.Model
 			{
 				get { return this.gameState.tableau[this.playerIndex].Select(i => Rules.Cards[i]); }
 			}
-
-			public int[] BuyingPower
-			{
-				get
-				{
-					int[] power = new int[6];
-					for (int i = 0; i < 5; i++)
-					{
-						Color c = (Color)i;
-						power[i] = this.gameState.tokens[playerIndex][i];
-						int cards = 0;
-						for (int j = 0; j < this.gameState.tableauSize[playerIndex]; j++)
-						{
-							if ((Color)Rules.Cards[this.gameState.tableau[playerIndex][j]].gives == c)
-							{
-								cards++;
-							}
-						}
-						power[i] += cards;
-					}
-					power[(int)Color.Gold] = this.gameState.tokens[playerIndex][(int)Color.Gold];
-					return power;
-				}
-			}
 		}
 	}
 }
