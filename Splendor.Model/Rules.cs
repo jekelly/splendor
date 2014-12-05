@@ -6,6 +6,15 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
+	class MoveConstraints
+	{
+		public Func<Color, bool > CanTakeTwoToken { get; set; }
+		public Func<Color, bool> CanTakeToken { get; set; }
+		public Func<Color, bool> CanReturnToken { get; set; }
+		public Func<Card, bool> CanBuildCard { get; set; }
+		public Func<Card, bool> CanReserveCard { get; set; }
+	}
+
 	internal static class Rules
 	{
 		public const int Tiers = 3;
@@ -16,6 +25,58 @@ namespace Splendor.Model
 		public const int MaxTableauSize = 32;
 
 		public const int GoldCount = 5;
+
+		public static readonly Move[] Moves;
+
+		static Rules()
+		{
+			//MoveConstraints constraints = new MoveConstraints()
+			//{
+			//	CanBuildCard = (c) => true,
+			//	CanReserveCard = (c) => true,
+			//	CanReturnToken = (c) => true,
+			//	CanTakeToken = (c) => true,
+			//	CanTakeTwoToken = (c) => true,
+			//};
+			Moves = GenerateMoves();
+		}
+
+		private static Move[] GenerateMoves()
+		{
+			List<Move> moves = new List<Move>();
+			// generate permutations of 3 different
+			for (int i = 0; i < 5; i++)
+			{
+				for (int j = i + 1; j < 5; j++)
+				{
+					for (int k = j + 1; k < 5; k++)
+					{
+						moves.Add(new TakeTokensMove((Color)i, (Color)j, (Color)k));
+					}
+				}
+			}
+			// generate permutations of 2 identical
+			for (int i = 0; i < 5; i++)
+			{
+				moves.Add(new TakeTokensMove((Color)i, (Color)i));
+			}
+			// generate all token return moves
+			for (int i = 0; i < 5; i++)
+			{
+				moves.Add(new ReturnTokenMove((Color)i));
+			}
+			// generate all build actions
+			for (int i = 0; i < Rules.Cards.Length; i++)
+			{
+				moves.Add(new BuildCardMove(i));
+			}
+			// generate all reserve actions
+			for (int i = 0; i < Rules.Cards.Length; i++)
+			{
+				moves.Add(new ReserveCardMove(i));
+			}
+			return moves.ToArray();
+		}
 
 		public static readonly Setup[] Setups = new Setup[] {
 			new Setup() { playerCount= 2, tokenCount= 4, nobleCount= 3 },

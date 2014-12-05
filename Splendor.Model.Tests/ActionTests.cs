@@ -8,6 +8,7 @@ namespace Splendor.Model.Tests
 {
 	public class ActionTests
 	{
+
 		[Fact]
 		public void CanExecuteNull_ReturnsFalse()
 		{

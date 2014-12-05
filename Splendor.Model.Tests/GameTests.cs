@@ -105,6 +105,24 @@ namespace Splendor.Model.Tests
 			game.GetPlayer(0).Tableau.Should().Contain(card);
 		}
 
+		[Fact]
+		public void Moves_GeneratedProperly()
+		{
+			Rules.Moves.Should().HaveCount(200);
+		}
+		
+		[Fact]
+		public void InitialGameState_CalculatesAvailableActions()
+		{
+			IGame g = Game();
+			var results = g.AvailableMoves;
+			// 3 unique: 5 choose 3 = 10
+			// 2 same: 5 colors
+			// 12 cards in market to reserve: 12
+			// = 27 choices on first turn
+			results.Should().HaveCount(27);
+		}
+
 		private static IGame Game(int numPlayers = 2, IRandomizer randomizer = null)
 		{
 			return new Game(Rules.Setups[numPlayers - 2], randomizer);

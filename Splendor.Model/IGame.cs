@@ -16,6 +16,8 @@ namespace Splendor.Model
 
 		Noble[] Nobles { get; }
 
+		IEnumerable<Move> AvailableMoves { get; }
+
 		int CurrentPlayerIndex { get; }
 
 		IPlayer CurrentPlayer { get; }

@@ -1,10 +1,60 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Splendor.Model
 {
+	class Move 
+	{
+		
+	}
+
+	class TakeTokensMove : Move
+	{
+		public Color[] Tokens { get; private set; }
+
+		public TakeTokensMove(params Color[] tokens)
+		{
+			this.Tokens = tokens;
+		}
+	}
+
+	class BuildCardMove : Move
+	{
+		public int Id { get; private set; }
+
+		public BuildCardMove(int id)
+		{
+			this.Id = id;
+		}
+	}
+
+	class ReserveCardMove : Move
+	{
+		public int Id { get; private set; }
+
+		public ReserveCardMove(int id)
+		{
+			this.Id = id;
+		}
+	}
+
+	class ReturnTokenMove : Move
+	{
+		public Color Token { get; private set; }
+
+		public ReturnTokenMove(Color token)
+		{
+			this.Token = token;
+		}
+	}
+
+	public static class Moves
+	{
+	}
+
 	partial class Game
 	{
 		protected sealed class GameState
@@ -86,7 +136,6 @@ namespace Splendor.Model
 				this.tableauSize = new int[this.numPlayers];
 				// determine starting player
 				this.currentPlayer = randomizer.Next(setup.playerCount);
-
 			}
 
 			public bool IsValid()
@@ -118,6 +167,11 @@ namespace Splendor.Model
 			{
 				this.tokens[playerIndex][(int)color]--;
 				this.tokens[GameState.SupplyIndex][(int)color]++;
+			}
+
+			internal bool CanTakeToken(Color color)
+			{
+				return this.tokens[GameState.SupplyIndex][(int)color] > 0;
 			}
 
 			public void TakeToken(int playerIndex, Color color)
@@ -181,11 +235,6 @@ namespace Splendor.Model
 						return;
 					}
 				}
-			}
-
-			internal bool CanTakeToken(Color color)
-			{
-				return this.tokens[GameState.SupplyIndex][(int)color] > 0;
 			}
 		}
 	}
