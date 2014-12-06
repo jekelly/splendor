@@ -17,7 +17,7 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			return game.Market.Contains(this.card);
+			return game.CurrentPhase == Phase.Choose && game.Market.Contains(this.card);
 		}
 
 		public void Execute(IGame game)

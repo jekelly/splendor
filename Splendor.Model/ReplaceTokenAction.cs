@@ -1,34 +1,60 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	class ReplaceTokenAction : IAction
+	class ReplaceTokensAction : IAction
 	{
-		private readonly Color color;
+		private readonly Color[] colors;
 
-		public ReplaceTokenAction(Color color)
+		public ReplaceTokensAction(params Color[] colors)
 		{
-			this.color = color;
+			this.colors = colors;
 		}
 
 		public bool CanExecute(IGame game)
 		{
-			int totalTokens = 0;
-			IPlayer player = game.GetPlayer(game.CurrentPlayerIndex);
-			for(Color c = Color.White; c <= Color.Gold; c++)
+			Phase currentPhase = game.CurrentPhase;
+			if(currentPhase == Phase.EndTurn || currentPhase == Phase.Pay)
 			{
-				totalTokens += player.Tokens(c);
+				IPlayer currentPlayer = game.CurrentPlayer;
+				if(currentPhase == Phase.EndTurn)
+				{
+					int tokens = 0;
+					for (Color color = Color.White; color != Color.Gold; color++)
+					{
+						tokens += currentPlayer.Tokens(color);
+					}
+					if (tokens <= 10)
+					{
+						return false;
+					}
+				}
+				int[] numColor = new int[6];
+				numColor = this.colors.Aggregate(numColor, (nc, color) =>
+				{
+					nc[(int)color]++;
+					return nc;
+				});
+				for (int i = 0; i < 6; i++)
+				{
+					if (numColor[i] > currentPlayer.Tokens((Color)i))
+					{
+						return false;
+					}
+				}
+				return true;
 			}
-			return player.Tokens(this.color) > 0 && totalTokens > 10;
+			return false;
 		}
 
 		public void Execute(IGame game)
 		{
-			game.SpendToken(game.CurrentPlayerIndex, this.color);
+			IPlayer currentPlayer = game.CurrentPlayer;
+			foreach (Color color in this.colors)
+			{
+				currentPlayer.SpendToken(color);
+			}
 		}
 	}
 }

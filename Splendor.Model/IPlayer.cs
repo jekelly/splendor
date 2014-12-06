@@ -11,5 +11,9 @@ namespace Splendor.Model
 		int Tokens(Color color);
 		IEnumerable<Card> Hand { get; }
 		IEnumerable<Card> Tableau { get; }
+		void GainToken(Color color);
+		void SpendToken(Color color);
+		void MoveCardToTableau(Card card);
+		void MoveCardToHand(Card card);
 	}
 }

@@ -7,6 +7,34 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
+	interface IChooser
+	{
+		IAction Choose(IEnumerable<IAction> actions);
+	}
+
+	class Controller
+	{
+		private IGame game;
+		private readonly IChooser[] choosers;
+
+		public void RunGame()
+		{
+			while (game.CurrentPhase != Phase.GameOver)
+			{
+				game.Step(this.choosers[this.game.CurrentPlayerIndex]);
+			}
+		}
+	}
+
+	public enum Phase
+	{
+		NotStarted,
+		Choose,
+		Pay,
+		EndTurn,
+		GameOver,
+	}
+
 	partial class Game : IGame
 	{
 		private readonly IRandomizer randomizer;
@@ -20,6 +48,17 @@ namespace Splendor.Model
 			}
 			this.randomizer = randomizer;
 			this.gameState = new GameState(setup, this.randomizer);
+		}
+		
+		public void Step(IChooser chooser)
+		{
+			var actions = this.AvailableActions;
+			if (actions.Any())
+			{
+				var action = chooser.Choose(actions);
+				action.Execute(this);
+			}
+			this.gameState.NextPhase();
 		}
 
 		public IEnumerable<IAction> AvailableActions
@@ -106,33 +145,14 @@ namespace Splendor.Model
 			get { return this.GetPlayer(this.CurrentPlayerIndex); }
 		}
 
+		public Phase CurrentPhase
+		{
+			get { return this.gameState.currentPhase; }
+		}
+
 		public IPlayer GetPlayer(int playerIndex)
 		{
 			return new Player(this.gameState, playerIndex);
-		}
-
-		public void SpendToken(int playerIndex, Color color)
-		{
-			this.gameState.SpendToken(playerIndex, color);
-		}
-
-		public void GainToken(int playerIndex, Color color)
-		{
-			this.gameState.TakeToken(playerIndex, color);
-		}
-
-		public void MoveCardToTableau(int playerIndex, Card card)
-		{
-			this.gameState.MoveCardToTableau(playerIndex, card);
-		}
-
-		public void MoveCardToHand(int playerIndex, Card card)
-		{
-			this.gameState.MoveCardToHand(playerIndex, card);
-			if(this.gameState.CanTakeToken(Color.Gold))
-			{
-				this.gameState.TakeToken(playerIndex, Color.Gold);
-			}
 		}
 	}
 }

@@ -1,60 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
 
 namespace Splendor.Model
 {
-	//class Move 
-	//{
-		
-	//}
-
-	//class TakeTokensMove : Move
-	//{
-	//	public Color[] Tokens { get; private set; }
-
-	//	public TakeTokensMove(params Color[] tokens)
-	//	{
-	//		this.Tokens = tokens;
-	//	}
-	//}
-
-	//class BuildCardMove : Move
-	//{
-	//	public int Id { get; private set; }
-
-	//	public BuildCardMove(int id)
-	//	{
-	//		this.Id = id;
-	//	}
-	//}
-
-	//class ReserveCardMove : Move
-	//{
-	//	public int Id { get; private set; }
-
-	//	public ReserveCardMove(int id)
-	//	{
-	//		this.Id = id;
-	//	}
-	//}
-
-	//class ReturnTokenMove : Move
-	//{
-	//	public Color Token { get; private set; }
-
-	//	public ReturnTokenMove(Color token)
-	//	{
-	//		this.Token = token;
-	//	}
-	//}
-
-	//public static class Moves
-	//{
-	//}
-
 	partial class Game
 	{
 		protected sealed class GameState
@@ -62,6 +11,8 @@ namespace Splendor.Model
 			public const int SupplyIndex = 4;
 
 			public int currentPlayer;
+			public Phase currentPhase;
+
 			public readonly int numPlayers;
 
 			public readonly int[][] tokens;
@@ -75,6 +26,8 @@ namespace Splendor.Model
 
 			public readonly int[][] tableau;
 			public readonly int[] tableauSize;
+
+			public readonly int[] debt;
 			
 			public void ShuffleDecks(IRandomizer randomizer)
 			{
@@ -100,7 +53,6 @@ namespace Splendor.Model
 					this.decks[i] = new Deck(Rules.Cards, first.id, count);
 				}
 				this.market = new int[Rules.MarketSize];
-
 				// shuffle decks separately?
 				this.ShuffleDecks(randomizer);
 				// reveal top four from each deck
@@ -131,8 +83,15 @@ namespace Splendor.Model
 					this.tableau[i] = new int[Rules.MaxTableauSize];
 				}
 				this.tableauSize = new int[this.numPlayers];
+				// setup game-state variables
+				this.debt = new int[6];
+				for (int i = 0; i < 6; i++)
+				{
+					this.debt[i] = 0;
+				}
 				// determine starting player
 				this.currentPlayer = randomizer.Next(setup.playerCount);
+				this.currentPhase = Phase.Choose;
 			}
 
 			public bool IsValid()
@@ -160,77 +119,37 @@ namespace Splendor.Model
 				return true;
 			}
 
-			public void SpendToken(int playerIndex, Color color)
+			
+
+			public void TrackDebt(Card card)
 			{
-				this.tokens[playerIndex][(int)color]--;
-				this.tokens[GameState.SupplyIndex][(int)color]++;
+				this.debt[(int)Color.Black] = card.costBlack;
+				this.debt[(int)Color.White] = card.costWhite;
+				this.debt[(int)Color.Red] = card.costRed;
+				this.debt[(int)Color.Green] = card.costGreen;
+				this.debt[(int)Color.Blue] = card.costBlue;
 			}
 
-			internal bool CanTakeToken(Color color)
+			public void NextPhase()
 			{
-				return this.tokens[GameState.SupplyIndex][(int)color] > 0;
-			}
-
-			public void TakeToken(int playerIndex, Color color)
-			{
-				this.tokens[playerIndex][(int)color]++;
-				this.tokens[GameState.SupplyIndex][(int)color]--;
-			}
-
-			public void MoveCardToTableau(int playerIndex, Card card)
-			{
-				int cardId = Array.IndexOf(Rules.Cards, card);
-				int tableauIndex = this.tableauSize[playerIndex];
-				var hand = this.hands[playerIndex];
-				var handSize = this.handSize[playerIndex];
-				// Add card to tableau
-				this.tableau[playerIndex][tableauIndex] = cardId;
-				this.tableauSize[playerIndex]++;
-				// check hand
-				for (int i = 0; i < handSize; i++)
+				switch (this.currentPhase)
 				{
-					if (hand[i] == cardId)
-					{
-						// remove card from hand
-						hand[i] = Rules.SentinelCard.id;
-						this.handSize[playerIndex]--;
-						return;
-					}
-				}
-				// if not hand, must be from market
-				for (int i = 0; i < this.market.Length; i++)
-				{
-					if (this.market[i] == cardId)
-					{
-						// replace card in market
-						this.market[i] = this.decks[card.tier].Draw().id;
-						return;
-					}
-				}
-			}
-
-			public void MoveCardToHand(int playerIndex, Card card)
-			{
-				int cardId = Array.IndexOf(Rules.Cards, card);
-				int handIndex = this.handSize[playerIndex];
-				if (handIndex >= Rules.MaxHandSize)
-				{
-					throw new InvalidOperationException("Too many cards in hand to add another.");
-				}
-				var hand = this.hands[playerIndex];
-				var handSize = this.handSize[playerIndex];
-				// Add card to hand
-				this.hands[playerIndex][handIndex] = cardId;
-				this.handSize[playerIndex]++;
-				// remove from market
-				for (int i = 0; i < this.market.Length; i++)
-				{
-					if (this.market[i] == cardId)
-					{
-						// replace card in market
-						this.market[i] = this.decks[card.tier].Draw().id;
-						return;
-					}
+					case Phase.Choose:
+						this.currentPhase = Phase.Pay;
+						break;
+					case Phase.Pay:
+						Debug.Assert(this.debt.Sum() == 0);
+						this.currentPhase = Phase.EndTurn;
+						break;
+					case Phase.EndTurn:
+						this.currentPhase = Phase.Choose;
+						this.currentPlayer = (this.currentPlayer + 1) % this.numPlayers;
+						break;
+					case Phase.GameOver:
+						break;
+					case Phase.NotStarted:
+					default:
+						throw new InvalidOperationException();
 				}
 			}
 		}

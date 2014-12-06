@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
 namespace Splendor.Model
 {
@@ -17,14 +13,14 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			bool available = game.Market.Contains(this.card) || game.CurrentPlayer.Hand.Contains(this.card);
-			bool buildable = this.card.CanBuy(this.BuyingPower(game));
-			return available && buildable;
+			return game.CurrentPhase != Phase.Choose &&
+				(game.Market.Contains(this.card) || game.CurrentPlayer.Hand.Contains(this.card)) &&
+				this.card.CanBuy(this.BuyingPower(game));
 		}
 
 		public void Execute(IGame game)
 		{
-			game.MoveCardToTableau(game.CurrentPlayerIndex, this.card);
+			game.CurrentPlayer.MoveCardToTableau(this.card);
 		}
 
 		private int[] BuyingPower(IGame game)

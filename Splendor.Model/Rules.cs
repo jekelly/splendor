@@ -40,9 +40,17 @@ namespace Splendor.Model
 				actions.Add(new TakeTokensAction((Color)i, (Color)i));
 			}
 			// generate all token return moves
-			for (int i = 0; i < 5; i++)
+			for (int i = 0; i < 6; i++)
 			{
-				actions.Add(new ReplaceTokenAction((Color)i));
+				actions.Add(new ReplaceTokensAction((Color)i));
+				for (int j = 0; j < 6; j++)
+				{
+					actions.Add(new ReplaceTokensAction((Color)i, (Color)j));
+					for (int k = 0; k < 6; k++)
+					{
+						actions.Add(new ReplaceTokensAction((Color)i, (Color)j, (Color)k));
+					}
+				}
 			}
 			// generate all build actions
 			for (int i = 0; i < Rules.Cards.Length; i++)

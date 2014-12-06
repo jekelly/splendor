@@ -29,6 +29,10 @@ namespace Splendor.Model
 			{
 				return false;
 			}
+			if (game.CurrentPhase != Phase.Choose)
+			{
+				return false;
+			}
 			bool sameColor = this.colors.Length > 1 && this.colors[0] == this.colors[1];
 			if (sameColor)
 			{
@@ -43,10 +47,10 @@ namespace Splendor.Model
 			{
 				throw new ArgumentNullException("game");
 			}
-			int playerIndex = game.CurrentPlayerIndex;
+			IPlayer currentPlayer = game.CurrentPlayer;
 			foreach (Color color in this.colors)
 			{
-				game.GainToken(playerIndex, color);
+				currentPlayer.GainToken(color);
 			}
 		}
 	}

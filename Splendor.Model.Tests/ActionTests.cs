@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using NSubstitute;
 using Xunit;
@@ -13,6 +15,14 @@ namespace Splendor.Model.Tests
 		{
 			TakeTokensAction takeTokensAction = new TakeTokensAction(Color.Green);
 			takeTokensAction.CanExecute(null);
+		}
+
+		[Fact]
+		public void ExecuteNull_Throws()
+		{
+			TakeTokensAction takeTokensAction = new TakeTokensAction();
+			Action a = () => { takeTokensAction.Execute(null); };
+			a.ShouldThrow<ArgumentNullException>();
 		}
 
 		[Theory]
@@ -55,6 +65,41 @@ namespace Splendor.Model.Tests
 			result.Should().Be(expectation);
 		}
 
+		[Fact]
+		public void BuildCardAction_FromMarket_Execute()
+		{
+			IGame game = Substitute.ForPartsOf<TestGame>();
+			Card card = game.Market[0];
+			BuildCardAction buildCardAction = new BuildCardAction(card);
+			buildCardAction.Execute(game);
+			game.CurrentPlayer.Tableau.Should().OnlyContain(c => c.id == card.id);
+			game.Market.Should().NotContain((c) => c.id == card.id);
+		}
+
+		[Fact]
+		public void BuildCardAction_FromHand_Execute()
+		{
+			IGame game = Substitute.ForPartsOf<TestGame>();
+			Card card = game.Market[0];
+			game.CurrentPlayer.MoveCardToHand(card);
+			BuildCardAction buildCardAction = new BuildCardAction(card);
+			buildCardAction.Execute(game);
+			game.CurrentPlayer.Tableau.Should().OnlyContain(c => c.id == card.id);
+			game.Market.Should().NotContain((c) => c.id == card.id);
+			game.CurrentPlayer.Hand.Should().NotContain((c) => c.id == card.id);
+		}
+
+		[Theory]
+		[InlineData(new Color[] { Color.Gold })]
+		[InlineData(new Color[] { Color.Red, Color.Blue, Color.Green, Color.White })]
+		[InlineData(new Color[] { Color.Red, Color.Red, Color.Green })]
+		public void TakeTokensAction_ThrowsIfInvalidParameters(Color[] colors)
+		{
+			var game = Substitute.For<IGame>();
+			Action a = () => { TakeTokensAction takeTokensAction = new TakeTokensAction(colors); };
+			a.ShouldThrow<NotSupportedException>();
+		}
+
 		[Theory]
 		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 7, 7, 7 }, true)]
 		[InlineData(new Color[] { Color.Green, Color.Black, Color.Blue }, new int[] { 1, 1, 1 }, true)]
@@ -70,6 +115,7 @@ namespace Splendor.Model.Tests
 		public void TakeTokensAction_CanExecute(Color[] colors, int[] supplyCount, bool expectation)
 		{
 			var game = Substitute.For<IGame>();
+			game.CurrentPhase.Returns(Phase.Choose);
 			for (int i = 0; i < colors.Length; i++)
 			{
 				game.Supply(colors[i]).Returns(supplyCount[i]);
@@ -89,14 +135,16 @@ namespace Splendor.Model.Tests
 		}
 
 		[Theory]
-		[InlineData(false, Color.Green, 0, 0, 0, 0, 0, 0)]
-		[InlineData(false, Color.Green, 0, 5, 5, 0, 0, 0)]
-		[InlineData(false, Color.Green, 6, 5, 0, 0, 0, 0)]
-		[InlineData(false, Color.Green, 0, 5, 4, 1, 0, 0)]
-		[InlineData(true, Color.Green, 0, 5, 5, 1, 0, 0)]
-		public void ReplaceTokenAction_CanExecute(bool expectation, Color color, int whiteTokens, int blueTokens, int greenTokens, int redTokens, int blackTokens, int goldTokens)
+		[InlineData(false, Phase.EndTurn, new Color[] { Color.Green }, 0, 0, 0, 0, 0, 0)]
+		[InlineData(false, Phase.EndTurn, new Color[] { Color.Green }, 0, 5, 5, 0, 0, 0)]
+		[InlineData(false, Phase.EndTurn, new Color[] { Color.Green }, 6, 5, 0, 0, 0, 0)]
+		[InlineData(false, Phase.EndTurn, new Color[] { Color.Green }, 0, 5, 4, 1, 0, 0)]
+		[InlineData(true, Phase.EndTurn, new Color[] { Color.Green }, 0, 5, 5, 1, 0, 0)]
+		[InlineData(false, Phase.Pay, new Color[] { Color.Green, Color.Green }, 0, 0, 1, 0, 0, 0)]
+		public void ReplaceTokensAction_CanExecute(bool expectation, Phase phase, Color[] colors, int whiteTokens, int blueTokens, int greenTokens, int redTokens, int blackTokens, int goldTokens)
 		{
 			IGame game = Substitute.For<IGame>();
+			game.CurrentPhase.Returns(phase);
 			IPlayer player = Substitute.For<IPlayer>();
 			player.Tokens(Color.White).Returns(whiteTokens);
 			player.Tokens(Color.Blue).Returns(blueTokens);
@@ -104,10 +152,131 @@ namespace Splendor.Model.Tests
 			player.Tokens(Color.Red).Returns(redTokens);
 			player.Tokens(Color.Black).Returns(blackTokens);
 			player.Tokens(Color.Gold).Returns(goldTokens);
-			game.GetPlayer(0).ReturnsForAnyArgs(player);
-			ReplaceTokenAction rpa = new ReplaceTokenAction(color);
-			bool result = rpa.CanExecute(game);
+			game.CurrentPlayer.Returns(player);
+			ReplaceTokensAction replaceTokensAction = new ReplaceTokensAction(colors);
+			bool result = replaceTokensAction.CanExecute(game);
 			result.Should().Be(expectation);
+		}
+
+		[Theory]
+		[InlineData(new int[] { 0, 0, 0, 0, 0, 0 }, new Color[] { }, new int[] { 4, 4, 4, 4, 4, 5 })]
+		[InlineData(new int[] { 1, 0, 0, 0, 0, 0 }, new Color[] { }, new int[] { 4, 4, 4, 4, 4, 5 })]
+		[InlineData(new int[] { 1, 0, 0, 0, 0, 0 }, new Color[] { Color.White }, new int[] { 5, 4, 4, 4, 4, 5 })]
+		[InlineData(new int[] { 1, 0, 0, 0, 0, 0 }, new Color[] { Color.White, Color.Green, Color.White }, new int[] { 6, 4, 5, 4, 4, 5 })]
+		public void ReplaceTokensAction_Execute(int[] initial, Color[] colors, int[] expected)
+		{
+			IGame game = new TestGame();
+			IPlayer player = game.CurrentPlayer;
+			for(Color color = Color.White; color <= Color.Gold; color++)
+			{
+				player.Tokens(color).Returns(initial[(int)color]);
+			}
+			ReplaceTokensAction action = new ReplaceTokensAction(colors);
+			action.Execute(game);
+			for(Color color = Color.White; color <= Color.Gold; color++)
+			{
+				game.Supply(color).Should().Be(expected[(int)color]);
+			}
+		}
+
+		internal class TestPlayer : IPlayer
+		{
+			private readonly IPlayer player;
+
+			public TestPlayer(IPlayer player)
+			{
+				this.player = player;
+			}
+
+			public virtual int Tokens(Color color)
+			{
+				return this.player.Tokens(color);
+			}
+
+			public virtual IEnumerable<Card> Hand
+			{
+				get { return this.player.Hand; }
+			}
+
+			public virtual IEnumerable<Card> Tableau
+			{
+				get { return this.player.Tableau; }
+			}
+
+			public virtual void GainToken(Color color)
+			{
+				this.player.GainToken(color);
+			}
+
+			public virtual void SpendToken(Color color)
+			{
+				this.player.SpendToken(color);
+			}
+
+			public virtual void MoveCardToTableau(Card card)
+			{
+				this.player.MoveCardToTableau(card);
+			}
+
+			public virtual void MoveCardToHand(Card card)
+			{
+				this.player.MoveCardToHand(card);
+			}
+		}
+
+		internal class TestGame : IGame
+		{
+			private readonly IGame game;
+
+			public TestGame()
+			{
+				this.game = new Game(Rules.Setups[0]);
+			}
+
+			public virtual int Supply(Color color)
+			{
+				return this.game.Supply(color);
+			}
+
+			public virtual Card[] Market
+			{
+				get { return this.game.Market; }
+			}
+
+			public virtual Noble[] Nobles
+			{
+				get { return this.game.Nobles; }
+			}
+
+			public virtual IEnumerable<IAction> AvailableActions
+			{
+				get { return this.game.AvailableActions; }
+			}
+
+			public virtual int CurrentPlayerIndex
+			{
+				get { return this.game.CurrentPlayerIndex; }
+			}
+
+			public virtual Phase CurrentPhase
+			{
+				get { return this.game.CurrentPhase; }
+			}
+
+			public virtual IPlayer CurrentPlayer
+			{
+				get { return this.GetPlayer(this.CurrentPlayerIndex); }
+			}
+
+			public virtual IPlayer GetPlayer(int playerIndex)
+			{
+				return Substitute.ForPartsOf<TestPlayer>(this.game.GetPlayer(playerIndex));
+			}
+
+			public virtual void Step(IChooser chooser)
+			{
+				this.game.Step(chooser);
+			}
 		}
 	}
 }

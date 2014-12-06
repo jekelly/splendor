@@ -18,16 +18,12 @@ namespace Splendor.Model
 
 		int CurrentPlayerIndex { get; }
 
+		Phase CurrentPhase { get; }
+
 		IPlayer CurrentPlayer { get; }
 
 		IPlayer GetPlayer(int playerIndex);
 
-		void GainToken(int playerIndex, Color color);
-
-		void SpendToken(int playerIndex, Color color);
-
-		void MoveCardToTableau(int playerIndex, Card card);
-
-		void MoveCardToHand(int playerIndex, Card card);
+		void Step(IChooser chooser);
 	}
 }
