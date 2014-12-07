@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	interface IPlayer
+	public interface IPlayer
 	{
 		int Tokens(Color color);
 		IEnumerable<Card> Hand { get; }

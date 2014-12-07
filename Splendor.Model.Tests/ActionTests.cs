@@ -26,6 +26,34 @@ namespace Splendor.Model.Tests
 		}
 
 		[Theory]
+		[InlineData(0, true)]
+		[InlineData(1, true)]
+		[InlineData(2, true)]
+		[InlineData(3, false)]
+		[InlineData(4, false)]
+		public void ReserveCardAction_CanExecute_ByCardsInHand(int cardsInHand, bool canExecute)
+		{
+			IGame game = new TestGame();
+			game.CurrentPlayer.Hand.Returns(Enumerable.Range(1, cardsInHand).Select(i => new Card() { id = (byte)i }));
+			ReserveCardAction reserveCardAction = new ReserveCardAction(game.Market[0]);
+			reserveCardAction.CanExecute(game).Should().Be(canExecute);
+		}
+
+		[Theory]
+		[InlineData(Phase.Choose, true)]
+		[InlineData(Phase.EndTurn, false)]
+		[InlineData(Phase.GameOver, false)]
+		[InlineData(Phase.NotStarted, false)]
+		[InlineData(Phase.Pay, false)]
+		public void ReserveCardAction_CanExecute_ByPhase(Phase phase, bool canExecute)
+		{
+			IGame game = Substitute.ForPartsOf<TestGame>();
+			game.CurrentPhase.Returns(phase);
+			ReserveCardAction reserveCardAction = new ReserveCardAction(game.Market[0]);
+			reserveCardAction.CanExecute(game).Should().Be(canExecute);
+		}
+
+		[Theory]
 		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], true, false, true)]								// can pay from tokens, in market
 		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], false, true, true)]								// can pay from tokens, in hand
 		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], false, false, false)]							// can pay from tokens, not available
@@ -128,7 +156,7 @@ namespace Splendor.Model.Tests
 		[Fact]
 		public void TakeTokensAction_Execute_AddsTokenToPlayerSupply()
 		{
-			IGame game = new Game(Rules.Setups[0]);
+			IGame game = new Game(Setups.All[0]);
 			IAction takeTokensAction = new TakeTokensAction(Color.Blue);
 			takeTokensAction.Execute(game);
 			game.CurrentPlayer.Tokens(Color.Blue).Should().Be(1);
@@ -227,10 +255,11 @@ namespace Splendor.Model.Tests
 		internal class TestGame : IGame
 		{
 			private readonly IGame game;
+			private IPlayer currentPlayer;
 
 			public TestGame()
 			{
-				this.game = new Game(Rules.Setups[0]);
+				this.game = new Game(Setups.All[0]);
 			}
 
 			public virtual int Supply(Color color)
@@ -265,7 +294,14 @@ namespace Splendor.Model.Tests
 
 			public virtual IPlayer CurrentPlayer
 			{
-				get { return this.GetPlayer(this.CurrentPlayerIndex); }
+				get 
+				{
+					if (this.currentPlayer == null)
+					{
+						this.currentPlayer = this.GetPlayer(this.CurrentPlayerIndex);
+					}
+					return this.currentPlayer; 
+				}
 			}
 
 			public virtual IPlayer GetPlayer(int playerIndex)
@@ -276,6 +312,11 @@ namespace Splendor.Model.Tests
 			public virtual void Step(IChooser chooser)
 			{
 				this.game.Step(chooser);
+			}
+
+			public virtual void NextPhase()
+			{
+				this.game.NextPhase();
 			}
 		}
 	}

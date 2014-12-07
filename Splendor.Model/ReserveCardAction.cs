@@ -17,12 +17,12 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			return game.CurrentPhase == Phase.Choose && game.Market.Contains(this.card);
+			return game.CurrentPhase == Phase.Choose && game.Market.Contains(this.card) && game.CurrentPlayer.Hand.Count() < 3;
 		}
 
 		public void Execute(IGame game)
 		{
-			throw new NotImplementedException();
+			game.CurrentPlayer.MoveCardToHand(this.card);
 		}
 	}
 }

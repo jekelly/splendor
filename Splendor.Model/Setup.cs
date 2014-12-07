@@ -1,6 +1,6 @@
 ﻿namespace Splendor.Model
 {
-	class Setup
+	public class Setup
 	{
 		public int playerCount;
 		public int tokenCount;

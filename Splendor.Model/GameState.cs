@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Splendor.Model
 {
-	partial class Game
+	public partial class Game
 	{
 		protected sealed class GameState
 		{
@@ -28,6 +28,8 @@ namespace Splendor.Model
 			public readonly int[] tableauSize;
 
 			public readonly int[] debt;
+
+			public int lastPlayerIndex = -1;
 			
 			public void ShuffleDecks(IRandomizer randomizer)
 			{
@@ -97,7 +99,7 @@ namespace Splendor.Model
 			public bool IsValid()
 			{
 				// Ensure all tokens are accounted for
-				int tokenCount = Rules.Setups[0].tokenCount;
+				int tokenCount = Setups.All[0].tokenCount;
 				for (Color c = Color.White; c < Color.Gold; c++)
 				{
 					int sum = this.tokens[(int)c].Sum();
@@ -119,8 +121,6 @@ namespace Splendor.Model
 				return true;
 			}
 
-			
-
 			public void TrackDebt(Card card)
 			{
 				this.debt[(int)Color.Black] = card.costBlack;
@@ -128,29 +128,6 @@ namespace Splendor.Model
 				this.debt[(int)Color.Red] = card.costRed;
 				this.debt[(int)Color.Green] = card.costGreen;
 				this.debt[(int)Color.Blue] = card.costBlue;
-			}
-
-			public void NextPhase()
-			{
-				switch (this.currentPhase)
-				{
-					case Phase.Choose:
-						this.currentPhase = Phase.Pay;
-						break;
-					case Phase.Pay:
-						Debug.Assert(this.debt.Sum() == 0);
-						this.currentPhase = Phase.EndTurn;
-						break;
-					case Phase.EndTurn:
-						this.currentPhase = Phase.Choose;
-						this.currentPlayer = (this.currentPlayer + 1) % this.numPlayers;
-						break;
-					case Phase.GameOver:
-						break;
-					case Phase.NotStarted:
-					default:
-						throw new InvalidOperationException();
-				}
 			}
 		}
 	}

@@ -51,7 +51,7 @@ namespace Splendor.Model.Tests
 
 		private static IGame Game(int numPlayers = 2, IRandomizer randomizer = null)
 		{
-			return new Game(Rules.Setups[numPlayers - 2], randomizer);
+			return new Game(Setups.All[numPlayers - 2], randomizer);
 		}
 	}
 }

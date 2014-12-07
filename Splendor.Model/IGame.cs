@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	interface IGame
+	public interface IGame
 	{
 		int Supply(Color color);
 
@@ -25,5 +25,8 @@ namespace Splendor.Model
 		IPlayer GetPlayer(int playerIndex);
 
 		void Step(IChooser chooser);
+
+		void NextPhase();
+
 	}
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	partial class Game
+	public partial class Game
 	{
 		class Player : IPlayer
 		{
@@ -82,7 +82,6 @@ namespace Splendor.Model
 			{
 				this.MoveCardToTableau(playerIndex, card);
 				this.gameState.TrackDebt(card);
-				this.gameState.NextPhase();
 			}
 
 			public void MoveCardToHand(Card card)

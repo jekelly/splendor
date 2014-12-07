@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Splendor.Model
 {
-	interface IChooser
+	public interface IChooser
 	{
 		IAction Choose(IEnumerable<IAction> actions);
 	}
@@ -35,21 +36,21 @@ namespace Splendor.Model
 		GameOver,
 	}
 
-	partial class Game : IGame
+	public partial class Game : IGame
 	{
 		private readonly IRandomizer randomizer;
 		private readonly GameState gameState;
 
 		public Game(Setup setup, IRandomizer randomizer = null)
 		{
-			if(randomizer == null)
+			if (randomizer == null)
 			{
 				randomizer = new Randomizer();
 			}
 			this.randomizer = randomizer;
 			this.gameState = new GameState(setup, this.randomizer);
 		}
-		
+
 		public void Step(IChooser chooser)
 		{
 			var actions = this.AvailableActions;
@@ -58,7 +59,7 @@ namespace Splendor.Model
 				var action = chooser.Choose(actions);
 				action.Execute(this);
 			}
-			this.gameState.NextPhase();
+			this.NextPhase();
 		}
 
 		public IEnumerable<IAction> AvailableActions
@@ -138,6 +139,7 @@ namespace Splendor.Model
 		public int CurrentPlayerIndex
 		{
 			get { return this.gameState.currentPlayer; }
+			private set { this.gameState.currentPlayer = value; }
 		}
 
 		public IPlayer CurrentPlayer
@@ -154,5 +156,43 @@ namespace Splendor.Model
 		{
 			return new Player(this.gameState, playerIndex);
 		}
+
+		public void NextPhase()
+		{
+			switch (this.gameState.currentPhase)
+			{
+				case Phase.Choose:
+					this.gameState.currentPhase = Phase.Pay;
+					break;
+				case Phase.Pay:
+					Debug.Assert(this.gameState.debt.Sum() == 0);
+					this.gameState.currentPhase = Phase.EndTurn;
+					break;
+				case Phase.EndTurn:
+					if (this.gameState.lastPlayerIndex == -1)
+					{
+						int score = this.CurrentPlayer.Tableau.Sum(c => c.value);
+						if (score >= 15)
+						{
+							this.gameState.lastPlayerIndex = this.CurrentPlayerIndex;
+						}
+					}
+					this.gameState.currentPhase = Phase.Choose;
+					this.CurrentPlayerIndex = (this.CurrentPlayerIndex + 1) % this.gameState.numPlayers;
+					if (this.CurrentPlayerIndex == this.gameState.lastPlayerIndex)
+					{
+						this.gameState.currentPhase = Phase.GameOver;
+						this.CurrentPlayerIndex = -1;
+					}
+
+					break;
+				case Phase.GameOver:
+					break;
+				case Phase.NotStarted:
+				default:
+					throw new InvalidOperationException();
+			}
+		}
+
 	}
 }
