@@ -23,7 +23,8 @@ namespace Splendor.Console
 
 		static void Main(string[] args)
 		{
-			Game game = new Game(Setups.All[0]);
+			IRandomizer r = new Randomizer(0);
+			Game game = new Game(Setups.All[0], r);
 			RandomChooser c = new RandomChooser();
 			while(game.CurrentPhase != Phase.GameOver)
 			{

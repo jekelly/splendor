@@ -171,8 +171,7 @@ namespace Splendor.Model
 				case Phase.EndTurn:
 					if (this.gameState.lastPlayerIndex == -1)
 					{
-						int score = this.CurrentPlayer.Tableau.Sum(c => c.value);
-						if (score >= 15)
+						if (this.CurrentPlayer.Score >= Rules.RequiredPoints)
 						{
 							this.gameState.lastPlayerIndex = this.CurrentPlayerIndex;
 						}

@@ -13,7 +13,7 @@ namespace Splendor.Model
 
 		public bool CanExecute(IGame game)
 		{
-			return game.CurrentPhase != Phase.Choose &&
+			return game.CurrentPhase == Phase.Choose &&
 				(game.Market.Contains(this.card) || game.CurrentPlayer.Hand.Contains(this.card)) &&
 				this.card.CanBuy(this.BuyingPower(game));
 		}
@@ -26,15 +26,10 @@ namespace Splendor.Model
 		private int[] BuyingPower(IGame game)
 		{
 			int[] power = new int[6];
-
-			foreach (Card card in game.CurrentPlayer.Tableau)
-			{
-				power[(int)card.gives]++;
-			}
 			for (int i = 0; i < 5; i++)
 			{
 				Color c = (Color)i;
-				power[i] += game.CurrentPlayer.Tokens(c);
+				power[i] = game.CurrentPlayer.Gems(c) + game.CurrentPlayer.Tokens(c);
 			}
 			power[(int)Color.Gold] = game.CurrentPlayer.Tokens(Color.Gold);
 			return power;

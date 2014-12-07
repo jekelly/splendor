@@ -19,9 +19,24 @@ namespace Splendor.Model
 				this.playerIndex = playerIndex;
 			}
 
+			public int Gems(Color color)
+			{
+				return this.Tableau.Where(card => card.gives == (byte)color).Count();
+				//int total
+				//foreach (Card card in game.CurrentPlayer.Tableau)
+				//{
+				//	power[(int)card.gives]++;
+				//}
+			}
+
 			public int Tokens(Color color)
 			{
 				return this.gameState.tokens[this.playerIndex][(int)color];
+			}
+
+			public int Score
+			{
+				get { return this.Tableau.Sum(card => card.value); }
 			}
 
 			public IEnumerable<Card> Hand
@@ -76,24 +91,10 @@ namespace Splendor.Model
 			{
 				this.tokens[(int)color]--;
 				this.supply[(int)color]++;
+				this.gameState.debt[(int)color] = Math.Max(this.gameState.debt[(int)color] - 1, 0);
 			}
 
 			public void MoveCardToTableau(Card card)
-			{
-				this.MoveCardToTableau(playerIndex, card);
-				this.gameState.TrackDebt(card);
-			}
-
-			public void MoveCardToHand(Card card)
-			{
-				this.MoveCardToHand(playerIndex, card);
-				if (this.supply[(int)Color.Gold] > 0)
-				{
-					this.GainToken(Color.Gold);
-				}
-			}
-
-			private void MoveCardToTableau(int playerIndex, Card card)
 			{
 				int cardId = card.id;
 				// Add card to tableau
@@ -122,17 +123,30 @@ namespace Splendor.Model
 						return;
 					}
 				}
+				// calculate cost of card relative to player assets
+				this.gameState.debt[(int)Color.White] = Math.Max(0, card.costWhite - this.Gems(Color.White));
+				this.gameState.debt[(int)Color.Black] = Math.Max(0, card.costBlack - this.Gems(Color.Black));
+				this.gameState.debt[(int)Color.Blue] = Math.Max(0, card.costBlue - this.Gems(Color.Blue));
+				this.gameState.debt[(int)Color.Green] = Math.Max(0, card.costGreen - this.Gems(Color.Green));
+				this.gameState.debt[(int)Color.Red] = Math.Max(0, card.costRed - this.Gems(Color.Red));
 			}
 
-			private void MoveCardToHand(int playerIndex, Card card)
+			public void MoveCardToHand(Card card)
 			{
 				int cardId = card.id;
 				if (this.handSize >= Rules.MaxHandSize)
 				{
 					throw new InvalidOperationException("Too many cards in hand to add another.");
 				}
-				// Add card to hand
-				this.hand[this.handSize] = cardId;
+				// Add card to hand at first available index
+				for (int i = 0; i < Rules.MaxHandSize; i++)
+				{
+					if (this.hand[i] == Rules.SentinelCard.id)
+					{
+						this.hand[i] = cardId;
+						break;
+					}
+				}
 				this.handSize++;
 				int[] market = this.gameState.market;
 				Deck deck = this.gameState.decks[card.tier];
@@ -145,6 +159,10 @@ namespace Splendor.Model
 						market[i] = deck.Draw().id;
 						return;
 					}
+				}
+				if (this.supply[(int)Color.Gold] > 0)
+				{
+					this.GainToken(Color.Gold);
 				}
 			}
 		}

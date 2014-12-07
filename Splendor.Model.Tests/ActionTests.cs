@@ -54,17 +54,17 @@ namespace Splendor.Model.Tests
 		}
 
 		[Theory]
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], true, false, true)]								// can pay from tokens, in market
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], false, true, true)]								// can pay from tokens, in hand
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], false, false, false)]							// can pay from tokens, not available
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new Color[0], false, false, false)]							// can pay from tokens, not available
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, new Color[] { Color.White }, true, false, true)]				// can pay from tableau, in market
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 1 }, new Color[0], true, false, true)]								// can pay with gold, in market
-		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new Color[0], true, false, true)]								// can pay with tokens or gold, in market
-		[InlineData(new int[] { 3, 1, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new Color[] { Color.White, Color.White }, false, true, true)]	// can pay with tokens and tableau, in hand
-		[InlineData(new int[] { 4, 1, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new Color[] { Color.White, Color.White }, false, true, false)]	// cannot pay with tokens and tableau, in hand
-		[InlineData(new int[] { 3, 1, 1, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new Color[] { Color.White, Color.White }, false, true, false)]	// cannot pay with tokens and tableau, in hand
-		public void BuildCardAction_CanExecute(int[] costs, int[] tokens, Color[] tableau, bool inMarket, bool inHand, bool expectation)
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, true, false, true)]	// can pay from tokens, in market
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, false, true, true)]	// can pay from tokens, in hand
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, false, false, false)]	// can pay from tokens, not available
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, false, false, false)]	// can pay from tokens, not available
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 0 }, true, false, true)]	// can pay from tableau, in market
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 0, 0, 0, 0, 0, 1 }, new int[] { 0, 0, 0, 0, 0, 0 }, true, false, true)]	// can pay with gold, in market
+		[InlineData(new int[] { 1, 0, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new int[] { 0, 0, 0, 0, 0, 0 }, true, false, true)]	// can pay with tokens or gold, in market
+		[InlineData(new int[] { 3, 1, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new int[] { 2, 0, 0, 0, 0, 0 }, false, true, true)]	// can pay with tokens and tableau, in hand
+		[InlineData(new int[] { 4, 1, 0, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new int[] { 2, 0, 0, 0, 0, 0 }, false, true, false)]	// cannot pay with tokens and tableau, in hand
+		[InlineData(new int[] { 3, 1, 1, 0, 0 }, new int[] { 1, 0, 0, 0, 0, 1 }, new int[] { 2, 0, 0, 0, 0, 0 }, false, true, false)]	// cannot pay with tokens and tableau, in hand
+		public void BuildCardAction_CanExecute(int[] costs, int[] tokens, int[] tableau, bool inMarket, bool inHand, bool expectation)
 		{
 			Card card = new Card()
 			{
@@ -75,6 +75,7 @@ namespace Splendor.Model.Tests
 				costBlack = (byte)costs[4],
 			};
 			IGame game = Substitute.For<IGame>();
+			game.CurrentPhase.Returns(Phase.Choose);
 			for (int i = 0; i < tokens.Length; i++)
 			{
 				game.CurrentPlayer.Tokens((Color)i).Returns(tokens[i]);
@@ -87,7 +88,10 @@ namespace Splendor.Model.Tests
 			{
 				game.CurrentPlayer.Hand.Returns(new Card[] { card });
 			}
-			game.CurrentPlayer.Tableau.Returns(tableau.Select(c => new Card() { gives = (byte)c }));
+			for (int i = 0; i < tableau.Length; i++)
+			{
+				game.CurrentPlayer.Gems((Color)i).Returns(tableau[i]);
+			}
 			IAction buildCardAction = new BuildCardAction(card);
 			bool result = buildCardAction.CanExecute(game);
 			result.Should().Be(expectation);
@@ -195,13 +199,13 @@ namespace Splendor.Model.Tests
 		{
 			IGame game = new TestGame();
 			IPlayer player = game.CurrentPlayer;
-			for(Color color = Color.White; color <= Color.Gold; color++)
+			for (Color color = Color.White; color <= Color.Gold; color++)
 			{
 				player.Tokens(color).Returns(initial[(int)color]);
 			}
 			ReplaceTokensAction action = new ReplaceTokensAction(colors);
 			action.Execute(game);
-			for(Color color = Color.White; color <= Color.Gold; color++)
+			for (Color color = Color.White; color <= Color.Gold; color++)
 			{
 				game.Supply(color).Should().Be(expected[(int)color]);
 			}
@@ -214,6 +218,19 @@ namespace Splendor.Model.Tests
 			public TestPlayer(IPlayer player)
 			{
 				this.player = player;
+			}
+
+			public virtual int Score
+			{
+				get
+				{
+					return this.player.Score;
+				}
+			}
+
+			public virtual int Gems(Color color)
+			{
+				return this.player.Gems(color);
 			}
 
 			public virtual int Tokens(Color color)
@@ -294,13 +311,13 @@ namespace Splendor.Model.Tests
 
 			public virtual IPlayer CurrentPlayer
 			{
-				get 
+				get
 				{
 					if (this.currentPlayer == null)
 					{
 						this.currentPlayer = this.GetPlayer(this.CurrentPlayerIndex);
 					}
-					return this.currentPlayer; 
+					return this.currentPlayer;
 				}
 			}
 

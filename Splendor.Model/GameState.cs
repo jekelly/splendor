@@ -120,15 +120,6 @@ namespace Splendor.Model
 
 				return true;
 			}
-
-			public void TrackDebt(Card card)
-			{
-				this.debt[(int)Color.Black] = card.costBlack;
-				this.debt[(int)Color.White] = card.costWhite;
-				this.debt[(int)Color.Red] = card.costRed;
-				this.debt[(int)Color.Green] = card.costGreen;
-				this.debt[(int)Color.Blue] = card.costBlue;
-			}
 		}
 	}
 }

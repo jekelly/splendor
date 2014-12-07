@@ -17,6 +17,8 @@ namespace Splendor.Model
 		public const int CardsPerTier = 4;
 		public const int MarketSize = Tiers * CardsPerTier;
 
+		public const int RequiredPoints = 15;
+
 		public const int MaxHandSize = 3;
 		public const int MaxTableauSize = 32;
 

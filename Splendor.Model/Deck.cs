@@ -38,7 +38,8 @@ namespace Splendor.Model
 		{
 			if (this.head >= this.size)
 			{
-				throw new InvalidOperationException();
+				return Rules.SentinelCard;
+				//throw new InvalidOperationException();
 			}
 			return this[this.head++];
 		}
