@@ -25,6 +25,9 @@
 			public readonly int[][] tableau;
 			public readonly int[] tableauSize;
 
+			public readonly int[] nobles;
+			public readonly int[] nobleVisiting;
+
 			public readonly int[] debt;
 
 			public int lastPlayerIndex = -1;
@@ -62,6 +65,19 @@
 					this.market[i] = decks[tier].Draw().id;
 				}
 				// shuffle and reveal nobles
+				this.nobles = Enumerable.Range(1, Rules.Nobles.Length).ToArray();
+				var possibleNobles = Rules.Nobles.Length;
+				this.nobleVisiting = new int[setup.nobleCount];
+				for (int i = 0; i < setup.nobleCount; i++)
+				{
+					int index = randomizer.Next(possibleNobles);
+					int tmp = this.nobles[possibleNobles - 1];
+					this.nobles[possibleNobles - 1] = this.nobles[index];
+					this.nobles[index] = tmp;
+					possibleNobles--;
+					this.nobleVisiting[i] = SupplyIndex;
+				}
+				this.nobles = this.nobles.Reverse().Take(setup.nobleCount).ToArray();
 				// populate tokens
 				this.tokens[SupplyIndex][(int)Color.White] = setup.tokenCount;
 				this.tokens[SupplyIndex][(int)Color.Blue] = setup.tokenCount;

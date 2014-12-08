@@ -58,7 +58,7 @@
 
 		public Noble[] Nobles
 		{
-			get { throw new NotImplementedException(); }
+			get { return this.gameState.nobleVisiting.Where(nv => nv == GameState.SupplyIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]).ToArray(); }
 		}
 
 		public int CurrentPlayerIndex
@@ -91,6 +91,9 @@
 					break;
 				case Phase.Pay:
 					Debug.Assert(this.gameState.debt.Sum() == 0);
+					this.gameState.currentPhase = Phase.NobleVisit;
+					break;
+				case Phase.NobleVisit:
 					this.gameState.currentPhase = Phase.EndTurn;
 					break;
 				case Phase.EndTurn:

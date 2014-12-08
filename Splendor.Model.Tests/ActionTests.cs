@@ -248,9 +248,19 @@ namespace Splendor.Model.Tests
 				get { return this.player.Tableau; }
 			}
 
+			public virtual IEnumerable<Noble> Nobles
+			{
+				get { return this.player.Nobles; }
+			}
+
 			public virtual void GainToken(Color color)
 			{
 				this.player.GainToken(color);
+			}
+
+			public virtual void GainNoble(Noble noble)
+			{
+				this.player.GainNoble(noble);
 			}
 
 			public virtual void SpendToken(Color color)

@@ -11,7 +11,7 @@ namespace Splendor.Console
 	{
 		class RandomChooser : IChooser
 		{
-			private readonly Random rand = new Random();
+			private readonly Random rand = new Random(0);
 
 			public IAction Choose(IEnumerable<IAction> actions)
 			{

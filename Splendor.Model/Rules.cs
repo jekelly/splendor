@@ -64,21 +64,29 @@
 			{
 				actions.Add(new ReserveCardAction(Rules.Cards[i]));
 			}
+			// generate all noble visit actions
+			for (int i = 0; i < Rules.Nobles.Length; i++)
+			{
+				actions.Add(new NobleVisitAction(Rules.Nobles[i]));
+			}
 			return actions.ToArray();
 		}
 
+		public static readonly Noble SentinelNoble = new Noble() { id = 0, requires = new byte[] { 255, 255, 255, 255, 255 }, value = 0 };
 		public static readonly Noble[] Nobles =
 		{
-			new Noble() { id = 0, requiresWhite = 3, requiresBlue = 3, requiresGreen = 0, requiresRed = 0, requiresBlack = 3, value = 3 },
-			new Noble() { id = 0, requiresWhite = 0, requiresBlue = 3, requiresGreen = 3, requiresRed = 3, requiresBlack = 0, value = 3 },
-			new Noble() { id = 0, requiresWhite = 3, requiresBlue = 0, requiresGreen = 0, requiresRed = 3, requiresBlack = 3, value = 3 },
-			new Noble() { id = 0, requiresWhite = 0, requiresBlue = 0, requiresGreen = 4, requiresRed = 4, requiresBlack = 0, value = 3 },
-			new Noble() { id = 0, requiresWhite = 0, requiresBlue = 4, requiresGreen = 4, requiresRed = 0, requiresBlack = 0, value = 3 },
-			new Noble() { id = 0, requiresWhite = 0, requiresBlue = 0, requiresGreen = 0, requiresRed = 4, requiresBlack = 4, value = 3 },
-			new Noble() { id = 0, requiresWhite = 4, requiresBlue = 0, requiresGreen = 0, requiresRed = 0, requiresBlack = 4, value = 3 },
-			new Noble() { id = 0, requiresWhite = 3, requiresBlue = 3, requiresGreen = 3, requiresRed = 0, requiresBlack = 0, value = 3 },
-			new Noble() { id = 0, requiresWhite = 0, requiresBlue = 0, requiresGreen = 3, requiresRed = 3, requiresBlack = 3, value = 3 },
-			new Noble() { id = 0, requiresWhite = 4, requiresBlue = 4, requiresGreen = 0, requiresRed = 0, requiresBlack = 0, value = 3 },
+			SentinelNoble,
+			// white, blue, green, red, black
+			new Noble() { id = 1, requires = new byte[] { 3, 3, 0, 0, 3 }, value = 3 },
+			new Noble() { id = 2, requires = new byte[] { 0, 3, 3, 3, 0 }, value = 3 },
+			new Noble() { id = 3, requires = new byte[] { 3, 0, 0, 3, 3 }, value = 3 },
+			new Noble() { id = 4, requires = new byte[] { 0, 0, 4, 4, 0 }, value = 3 },
+			new Noble() { id = 5, requires = new byte[] { 0, 4, 4, 0, 0 }, value = 3 },
+			new Noble() { id = 6, requires = new byte[] { 0, 0, 0, 4, 4 }, value = 3 },
+			new Noble() { id = 7, requires = new byte[] { 4, 0, 0, 0, 4 }, value = 3 },
+			new Noble() { id = 8, requires = new byte[] { 3, 3, 3, 0, 0 }, value = 3 },
+			new Noble() { id = 9, requires = new byte[] { 0, 0, 3, 3, 3 }, value = 3 },
+			new Noble() { id = 10, requires = new byte[] { 4, 4, 0, 0, 0 }, value = 3 },
 		};
 
 		public static readonly Card SentinelCard = new Card() { id = 0, tier = 255, costBlack = 255, costBlue = 255, costGreen = 255, costRed = 255, costWhite = 255, gives = 255, value = 255 };

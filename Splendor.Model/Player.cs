@@ -20,11 +20,6 @@
 			public int Gems(Color color)
 			{
 				return this.Tableau.Where(card => card.gives == (byte)color).Count();
-				//int total
-				//foreach (Card card in game.CurrentPlayer.Tableau)
-				//{
-				//	power[(int)card.gives]++;
-				//}
 			}
 
 			public int Tokens(Color color)
@@ -34,7 +29,7 @@
 
 			public int Score
 			{
-				get { return this.Tableau.Sum(card => card.value); }
+				get { return this.Tableau.Sum(card => card.value) + this.Nobles.Sum(noble => noble.value); }
 			}
 
 			public IEnumerable<Card> Hand
@@ -47,6 +42,11 @@
 				get { return this.gameState.tableau[this.playerIndex].Where(i => i != Rules.SentinelCard.id).Select(i => Rules.Cards[i]); }
 			}
 
+			public IEnumerable<Noble> Nobles
+			{
+				get { return this.gameState.nobleVisiting.Where(nv => nv == this.playerIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]); }
+			}
+
 			private int[] tokens
 			{
 				get { return this.gameState.tokens[this.playerIndex]; }
@@ -55,6 +55,11 @@
 			private int[] supply
 			{
 				get { return this.gameState.tokens[GameState.SupplyIndex]; }
+			}
+
+			private int[] nobles
+			{
+				get { return this.gameState.nobles; }
 			}
 
 			private int[] hand
@@ -90,6 +95,19 @@
 				this.tokens[(int)color]--;
 				this.supply[(int)color]++;
 				this.gameState.debt[(int)color] = Math.Max(this.gameState.debt[(int)color] - 1, 0);
+			}
+
+			public void GainNoble(Noble noble)
+			{
+				for (int i = 0; i < this.nobles.Length; i++)
+				{
+					if (this.nobles[i] == noble.id)
+					{
+						this.gameState.nobleVisiting[i] = this.playerIndex;
+						return;
+					}
+				}
+				throw new InvalidOperationException("Tried to gain a noble that isn't part of the game.");
 			}
 
 			public void MoveCardToTableau(Card card)
