@@ -36,26 +36,29 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildCardAction.cs" />
-    <Compile Include="Card.cs" />
-    <Compile Include="Color.cs" />
+    <Compile Include="Actions\BuildCardAction.cs" />
+    <Compile Include="Primitives\Card.cs" />
+    <Compile Include="Primitives\Color.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="IAction.cs" />
-    <Compile Include="IGame.cs" />
-    <Compile Include="IPlayer.cs" />
-    <Compile Include="IRandomizer.cs" />
-    <Compile Include="Noble.cs" />
+    <Compile Include="Contract\IAction.cs" />
+    <Compile Include="Contract\IChooser.cs" />
+    <Compile Include="Contract\IGame.cs" />
+    <Compile Include="Contract\IPlayer.cs" />
+    <Compile Include="Contract\IRandomizer.cs" />
+    <Compile Include="Primitives\Noble.cs" />
+    <Compile Include="Primitives\Phase.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Randomizer.cs" />
-    <Compile Include="ReplaceTokensAction.cs" />
-    <Compile Include="ReserveCardAction.cs" />
+    <Compile Include="Actions\ReplaceTokensAction.cs" />
+    <Compile Include="Actions\ReserveCardAction.cs" />
     <Compile Include="Rules.cs" />
-    <Compile Include="Setup.cs" />
-    <Compile Include="SetupAction.cs" />
-    <Compile Include="TakeTokenAction.cs" />
+    <Compile Include="Primitives\Setup.cs" />
+    <Compile Include="Actions\SetupAction.cs" />
+    <Compile Include="Actions\TakeTokenAction.cs" />
+    <Compile Include="Setups.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

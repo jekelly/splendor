@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-
-namespace Splendor.Model
+﻿namespace Splendor.Model
 {
+	using System.Linq;
+
 	public partial class Game
 	{
 		protected sealed class GameState
@@ -30,7 +28,7 @@ namespace Splendor.Model
 			public readonly int[] debt;
 
 			public int lastPlayerIndex = -1;
-			
+
 			public void ShuffleDecks(IRandomizer randomizer)
 			{
 				for (int tier = 0; tier < this.decks.Length; tier++)

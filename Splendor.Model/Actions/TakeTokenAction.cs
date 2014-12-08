@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-
-namespace Splendor.Model
+﻿namespace Splendor.Model
 {
+	using System;
+	using System.Linq;
+
 	internal class TakeTokensAction : IAction
 	{
 		private readonly Color[] colors;

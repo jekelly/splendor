@@ -1,8 +1,7 @@
-﻿using System;
-using System.Linq;
-
-namespace Splendor.Model
+﻿namespace Splendor.Model
 {
+	using System.Linq;
+
 	class ReplaceTokensAction : IAction
 	{
 		private readonly Color[] colors;

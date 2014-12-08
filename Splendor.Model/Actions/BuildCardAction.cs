@@ -1,7 +1,7 @@
-﻿using System.Linq;
-
-namespace Splendor.Model
+﻿namespace Splendor.Model
 {
+	using System.Linq;
+
 	class BuildCardAction : IAction
 	{
 		private readonly Card card;
