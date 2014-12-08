@@ -17,7 +17,7 @@ namespace Splendor.Model.Tests
 		[InlineData(2, Color.Gold, 5)]
 		[InlineData(3, Color.Gold, 5)]
 		[InlineData(4, Color.Gold, 5)]
-		public void Setup_SetsCorrentNumberOfTokens(int numPlayers, Color color, int expectedTokenCount)
+		public void Setup_SetsCorrectNumberOfTokens(int numPlayers, Color color, int expectedTokenCount)
 		{
 			IGame game = Game(numPlayers);
 			game.Supply(color).Should().Be(expectedTokenCount);
