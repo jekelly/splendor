@@ -9,8 +9,13 @@
 	{
 		private readonly IRandomizer randomizer;
 		private readonly GameState gameState;
+		private readonly IEventSink eventSink;
+		private readonly IPlayer[] players;
+		// caches
+		private Noble[] nobles;
+		private Card[] market;
 
-		public Game(Setup setup, IRandomizer randomizer = null)
+		public Game(Setup setup, IRandomizer randomizer = null, IEventSink eventSink = null)
 		{
 			if (randomizer == null)
 			{
@@ -18,7 +23,15 @@
 			}
 			this.randomizer = randomizer;
 			this.gameState = new GameState(setup, this.randomizer);
+			this.eventSink = eventSink ?? NullEventSink.Instance;
+			this.players = new IPlayer[setup.playerCount];
+			for (int i = 0; i < this.players.Length; i++)
+			{
+				this.players[i] = new Player(this, i);
+			}
 		}
+
+		public IEventSink EventSink { get { return this.eventSink; } }
 
 		public void Step(IChooser chooser)
 		{
@@ -53,12 +66,26 @@
 
 		public Card[] Market
 		{
-			get { return this.gameState.market.Select(i => Rules.Cards[i]).ToArray(); }
+			get
+			{
+				if (this.market == null)
+				{
+					this.market = this.gameState.market.Select(i => Rules.Cards[i]).ToArray();
+				}
+				return this.market;
+			}
 		}
 
 		public Noble[] Nobles
 		{
-			get { return this.gameState.nobleVisiting.Where(nv => nv == GameState.SupplyIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]).ToArray(); }
+			get
+			{
+				if (this.nobles == null)
+				{
+					this.nobles = this.gameState.nobleVisiting.Where(nv => nv == GameState.SupplyIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]).ToArray();
+				}
+				return this.nobles;
+			}
 		}
 
 		public int CurrentPlayerIndex
@@ -79,7 +106,7 @@
 
 		public IPlayer GetPlayer(int playerIndex)
 		{
-			return new Player(this.gameState, playerIndex);
+			return this.players[playerIndex];
 		}
 
 		public void NextPhase()
@@ -97,6 +124,7 @@
 					this.gameState.currentPhase = Phase.EndTurn;
 					break;
 				case Phase.EndTurn:
+					this.EventSink.SummarizeGame(this);
 					if (this.gameState.lastPlayerIndex == -1)
 					{
 						if (this.CurrentPlayer.Score >= Rules.RequiredPoints)
@@ -120,6 +148,5 @@
 					throw new InvalidOperationException();
 			}
 		}
-
 	}
 }

@@ -9,22 +9,40 @@
 		class Player : IPlayer
 		{
 			private readonly GameState gameState;
-			private readonly int playerIndex;
+			private readonly int index;
+			private readonly Game game;
 
-			public Player(GameState gameState, int playerIndex)
+			// caches
+			private IEnumerable<Card> handCache;
+
+			public Player(Game game, int playerIndex)
 			{
-				this.gameState = gameState;
-				this.playerIndex = playerIndex;
+				this.game = game;
+				this.gameState = game.gameState;
+				this.index = playerIndex;
+			}
+
+			public int Index
+			{
+				get { return this.index; }
 			}
 
 			public int Gems(Color color)
 			{
-				return this.Tableau.Where(card => card.gives == (byte)color).Count();
+				return this.gems[(int)color];
 			}
 
 			public int Tokens(Color color)
 			{
-				return this.gameState.tokens[this.playerIndex][(int)color];
+				return this.gameState.tokens[this.index][(int)color];
+			}
+
+			public int TokenCount
+			{
+				get
+				{
+					return this.gameState.tokens[this.index].Sum();
+				}
 			}
 
 			public int Score
@@ -34,22 +52,34 @@
 
 			public IEnumerable<Card> Hand
 			{
-				get { return this.gameState.hands[this.playerIndex].Where(i => i != Rules.SentinelCard.id).Select(i => Rules.Cards[i]); }
+				get
+				{
+					if (this.handCache == null)
+					{
+						this.handCache = this.gameState.hands[this.index].Where(i => i != Rules.SentinelCard.id).Select(i => Rules.Cards[i]);
+					}
+					return this.handCache;
+				}
 			}
 
 			public IEnumerable<Card> Tableau
 			{
-				get { return this.gameState.tableau[this.playerIndex].Where(i => i != Rules.SentinelCard.id).Select(i => Rules.Cards[i]); }
+				get { return this.gameState.tableau[this.index].Where(i => i != Rules.SentinelCard.id).Select(i => Rules.Cards[i]); }
 			}
 
 			public IEnumerable<Noble> Nobles
 			{
-				get { return this.gameState.nobleVisiting.Where(nv => nv == this.playerIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]); }
+				get { return this.gameState.nobleVisiting.Where(nv => nv == this.index).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]); }
+			}
+
+			private int[] gems
+			{
+				get { return this.gameState.gems[this.index]; }
 			}
 
 			private int[] tokens
 			{
-				get { return this.gameState.tokens[this.playerIndex]; }
+				get { return this.gameState.tokens[this.index]; }
 			}
 
 			private int[] supply
@@ -64,24 +94,24 @@
 
 			private int[] hand
 			{
-				get { return this.gameState.hands[this.playerIndex]; }
+				get { return this.gameState.hands[this.index]; }
 			}
 
 			private int handSize
 			{
-				get { return this.gameState.handSize[this.playerIndex]; }
-				set { this.gameState.handSize[this.playerIndex] = value; }
+				get { return this.gameState.handSize[this.index]; }
+				set { this.gameState.handSize[this.index] = value; }
 			}
 
 			private int[] tableau
 			{
-				get { return this.gameState.tableau[this.playerIndex]; }
+				get { return this.gameState.tableau[this.index]; }
 			}
 
 			private int tableauSize
 			{
-				get { return this.gameState.tableauSize[this.playerIndex]; }
-				set { this.gameState.tableauSize[this.playerIndex] = value; }
+				get { return this.gameState.tableauSize[this.index]; }
+				set { this.gameState.tableauSize[this.index] = value; }
 			}
 
 			public void GainToken(Color color)
@@ -103,7 +133,7 @@
 				{
 					if (this.nobles[i] == noble.id)
 					{
-						this.gameState.nobleVisiting[i] = this.playerIndex;
+						this.gameState.nobleVisiting[i] = this.index;
 						return;
 					}
 				}
@@ -117,28 +147,40 @@
 				this.tableau[this.tableauSize] = cardId;
 				this.tableauSize++;
 				// check hand
+				bool inHand = false;
 				for (int i = 0; i < this.handSize; i++)
 				{
 					if (this.hand[i] == cardId)
 					{
 						// remove card from hand
+						inHand = true;
 						this.hand[i] = Rules.SentinelCard.id;
 						this.handSize--;
-						return;
+						// TODO need test for hand cache
+						this.handCache = null;
+						break;
 					}
 				}
-				// if not hand, must be from market
-				int[] market = this.gameState.market;
-				Deck deck = this.gameState.decks[card.tier];
-				for (int i = 0; i < market.Length; i++)
+				if (!inHand)
 				{
-					if (market[i] == cardId)
+					// if not hand, must be from market
+					int[] market = this.gameState.market;
+					Deck deck = this.gameState.decks[card.tier];
+					for (int i = 0; i < market.Length; i++)
 					{
-						// replace card in market
-						market[i] = deck.Draw().id;
-						return;
+						if (market[i] == cardId)
+						{
+							// replace card in market
+							market[i] = deck.Draw().id;
+							this.game.market = null;
+							break;
+						}
 					}
 				}
+				// TODO need test for gem update
+				// update player gems
+				this.gems[card.gives]++;
+				// TODO need test for cost
 				// calculate cost of card relative to player assets
 				this.gameState.debt[(int)Color.White] = Math.Max(0, card.costWhite - this.Gems(Color.White));
 				this.gameState.debt[(int)Color.Black] = Math.Max(0, card.costBlack - this.Gems(Color.Black));
@@ -164,6 +206,9 @@
 					}
 				}
 				this.handSize++;
+				// TODO need test for hand cache
+				this.handCache = null;
+
 				int[] market = this.gameState.market;
 				Deck deck = this.gameState.decks[card.tier];
 				// remove from market
@@ -173,9 +218,11 @@
 					{
 						// replace card in market
 						market[i] = deck.Draw().id;
-						return;
+						this.game.market = null;
+						break;
 					}
 				}
+				// TODO need test for gaining a gold
 				if (this.supply[(int)Color.Gold] > 0)
 				{
 					this.GainToken(Color.Gold);

@@ -13,6 +13,8 @@
 		public const int MaxHandSize = 3;
 		public const int MaxTableauSize = 32;
 
+		public const int CardinalColorCount = 5;
+
 		public const int GoldCount = 5;
 
 		public static readonly IAction[] Actions;

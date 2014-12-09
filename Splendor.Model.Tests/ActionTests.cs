@@ -220,6 +220,11 @@ namespace Splendor.Model.Tests
 				this.player = player;
 			}
 
+			public virtual int Index
+			{
+				get { return this.player.Index; }
+			}
+
 			public virtual int Score
 			{
 				get
@@ -236,6 +241,11 @@ namespace Splendor.Model.Tests
 			public virtual int Tokens(Color color)
 			{
 				return this.player.Tokens(color);
+			}
+
+			public virtual int TokenCount
+			{
+				get { return this.player.TokenCount; }
 			}
 
 			public virtual IEnumerable<Card> Hand
@@ -287,6 +297,11 @@ namespace Splendor.Model.Tests
 			public TestGame()
 			{
 				this.game = new Game(Setups.All[0]);
+			}
+
+			public virtual IEventSink EventSink
+			{
+				get { return this.game.EventSink; }
 			}
 
 			public virtual int Supply(Color color)

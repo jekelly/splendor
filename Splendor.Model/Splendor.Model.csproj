@@ -38,6 +38,8 @@
   <ItemGroup>
     <Compile Include="Actions\BuildCardAction.cs" />
     <Compile Include="Actions\NobleVisitAction.cs" />
+    <Compile Include="Contract\IEventSink.cs" />
+    <Compile Include="NullEventSink.cs" />
     <Compile Include="Primitives\Card.cs" />
     <Compile Include="Primitives\Color.cs" />
     <Compile Include="GameState.cs" />

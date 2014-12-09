@@ -3,7 +3,7 @@
 	using System;
 	using System.Linq;
 
-	internal class TakeTokensAction : IAction
+	public class TakeTokensAction : IAction
 	{
 		private readonly Color[] colors;
 		public TakeTokensAction(params Color[] colors)
@@ -52,6 +52,7 @@
 			{
 				currentPlayer.GainToken(color);
 			}
+			game.EventSink.OnTokensTaken(currentPlayer, this.colors);
 		}
 	}
 }

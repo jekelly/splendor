@@ -54,6 +54,7 @@
 			{
 				currentPlayer.SpendToken(color);
 			}
+			game.EventSink.OnTokensReturned(currentPlayer, this.colors);
 		}
 	}
 }

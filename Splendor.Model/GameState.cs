@@ -25,6 +25,9 @@
 			public readonly int[][] tableau;
 			public readonly int[] tableauSize;
 
+			// could be calculated, but expensive
+			public readonly int[][] gems;
+
 			public readonly int[] nobles;
 			public readonly int[] nobleVisiting;
 
@@ -65,8 +68,8 @@
 					this.market[i] = decks[tier].Draw().id;
 				}
 				// shuffle and reveal nobles
-				this.nobles = Enumerable.Range(1, Rules.Nobles.Length).ToArray();
-				var possibleNobles = Rules.Nobles.Length;
+				var possibleNobles = Rules.Nobles.Length - 1;
+				this.nobles = Enumerable.Range(1, possibleNobles).ToArray();
 				this.nobleVisiting = new int[setup.nobleCount];
 				for (int i = 0; i < setup.nobleCount; i++)
 				{
@@ -88,9 +91,11 @@
 				// setup player-specific variables
 				this.numPlayers = setup.playerCount;
 				this.hands = new int[this.numPlayers][];
+				this.gems = new int[this.numPlayers][];
 				for (int i = 0; i < this.numPlayers; i++)
 				{
 					this.hands[i] = new int[Rules.MaxHandSize];
+					this.gems[i] = new int[Rules.CardinalColorCount];
 				}
 				this.handSize = new int[this.numPlayers];
 				this.tableau = new int[this.numPlayers][];

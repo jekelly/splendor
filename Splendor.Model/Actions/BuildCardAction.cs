@@ -21,6 +21,7 @@
 		public void Execute(IGame game)
 		{
 			game.CurrentPlayer.MoveCardToTableau(this.card);
+			game.EventSink.OnCardBuild(game.CurrentPlayer, this.card);
 		}
 
 		private int[] BuyingPower(IGame game)

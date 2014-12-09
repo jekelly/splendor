@@ -4,6 +4,8 @@
 
 	public interface IGame
 	{
+		IEventSink EventSink { get; }
+
 		int Supply(Color color);
 
 		Card[] Market { get; }

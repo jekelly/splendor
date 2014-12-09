@@ -34,7 +34,7 @@ namespace Splendor.Model.Tests
 		[Fact]
 		public void Actions_GeneratedProperly()
 		{
-			Rules.Actions.Should().HaveCount(453);
+			Rules.Actions.Should().HaveCount(464);
 		}
 		
 		[Fact]
