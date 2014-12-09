@@ -17,16 +17,26 @@
 
 		public const int GoldCount = 5;
 
-		public static readonly IAction[] Actions;
+		public static readonly IAction[] BuildActions;
+		public static readonly IAction[] ReserveActions;
+		public static readonly IAction[] TakeActions;
+		public static readonly IAction[] ReplaceActions;
+		public static readonly IAction[] NobleActions;
 
 		static Rules()
 		{
-			Actions = GenerateActions();
-		}
-
-		private static IAction[] GenerateActions()
-		{
-			List<IAction> actions = new List<IAction>();
+			// generate all card actions
+			BuildActions = new IAction[Rules.Cards.Length];
+			ReserveActions = new IAction[Rules.Cards.Length];
+			for (int i = 0; i < Rules.Cards.Length; i++)
+			{
+				BuildActions[i] = new BuildCardAction(Rules.Cards[i]);
+				ReserveActions[i] = new ReserveCardAction(Rules.Cards[i]);
+			}
+			// generate take actions
+			// 10 (5C3) + 5 
+			int ti = 0;
+			TakeActions = new IAction[15];
 			// generate permutations of 3 different
 			for (int i = 0; i < 5; i++)
 			{
@@ -34,44 +44,41 @@
 				{
 					for (int k = j + 1; k < 5; k++)
 					{
-						actions.Add(new TakeTokensAction((Color)i, (Color)j, (Color)k));
+						TakeActions[ti++] = new TakeTokensAction((Color)i, (Color)j, (Color)k);
 					}
 				}
 			}
 			// generate permutations of 2 identical
 			for (int i = 0; i < 5; i++)
 			{
-				actions.Add(new TakeTokensAction((Color)i, (Color)i));
-			}
-			// generate all token return moves
-			for (int i = 0; i < 6; i++)
-			{
-				actions.Add(new ReplaceTokensAction((Color)i));
-				for (int j = 0; j < 6; j++)
-				{
-					actions.Add(new ReplaceTokensAction((Color)i, (Color)j));
-					for (int k = 0; k < 6; k++)
-					{
-						actions.Add(new ReplaceTokensAction((Color)i, (Color)j, (Color)k));
-					}
-				}
-			}
-			// generate all build actions
-			for (int i = 0; i < Rules.Cards.Length; i++)
-			{
-				actions.Add(new BuildCardAction(Rules.Cards[i]));
-			}
-			// generate all reserve actions
-			for (int i = 0; i < Rules.Cards.Length; i++)
-			{
-				actions.Add(new ReserveCardAction(Rules.Cards[i]));
+				TakeActions[ti++] = new TakeTokensAction((Color)i, (Color)i);
 			}
 			// generate all noble visit actions
+			NobleActions = new IAction[Rules.Nobles.Length];
 			for (int i = 0; i < Rules.Nobles.Length; i++)
 			{
-				actions.Add(new NobleVisitAction(Rules.Nobles[i]));
+				NobleActions[i] = new NobleVisitAction(Rules.Nobles[i]);
 			}
-			return actions.ToArray();
+			// generate all token return moves
+			ReplaceActions = new IAction[6];
+			for (int i = 0; i < 6; i++)
+			{
+				ReplaceActions[i] = new ReplaceTokensAction((Color)i);
+			}
+			//ti = 0;
+			//ReplaceActions = new IAction[258]; // (6 + 6*6 + 6*6*6)
+			//for (int i = 0; i < 6; i++)
+			//{
+			//	actions.Add(new ReplaceTokensAction((Color)i));
+			//	for (int j = 0; j < 6; j++)
+			//	{
+			//		actions.Add(new ReplaceTokensAction((Color)i, (Color)j));
+			//		for (int k = 0; k < 6; k++)
+			//		{
+			//			actions.Add(new ReplaceTokensAction((Color)i, (Color)j, (Color)k));
+			//		}
+			//	}
+			//}
 		}
 
 		public static readonly Noble SentinelNoble = new Noble() { id = 0, requires = new byte[] { 255, 255, 255, 255, 255 }, value = 0 };

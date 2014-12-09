@@ -48,14 +48,37 @@
 		{
 			get
 			{
-				for (int i = 0; i < Rules.Actions.Length; i++)
+				IEnumerable<IAction> candidates = null;
+				switch (this.CurrentPhase)
 				{
-					IAction action = Rules.Actions[i];
-					if (action.CanExecute(this))
+					case Phase.Choose:
+						candidates = new MultiArray<IAction>(
+							new ReferenceArray<IAction>(Rules.BuildActions, this.gameState.market, this.gameState.hands[this.CurrentPlayerIndex]),
+							new ReferenceArray<IAction>(Rules.BuildActions, this.gameState.market, this.gameState.hands[this.CurrentPlayerIndex]),
+							new ReferenceArray<IAction>(Rules.TakeActions));
+						break;
+					case Phase.Pay:
+					case Phase.EndTurn:
+						candidates = Rules.ReplaceActions;
+						break;
+					case Phase.NobleVisit:
+						candidates = Rules.NobleActions;
+						break;
+					case Phase.GameOver:
+					case Phase.NotStarted:
+					default:
+						candidates = Enumerable.Empty<IAction>();
+						break;
+				}
+				List<IAction> actions = new List<IAction>();
+				foreach (IAction candidate in candidates)
+				{
+					if (candidate.CanExecute(this))
 					{
-						yield return action;
+						actions.Add(candidate);
 					}
 				}
+				return actions;
 			}
 		}
 
@@ -117,8 +140,10 @@
 					this.gameState.currentPhase = Phase.Pay;
 					break;
 				case Phase.Pay:
-					Debug.Assert(this.gameState.debt.Sum() == 0);
-					this.gameState.currentPhase = Phase.NobleVisit;
+					if (this.gameState.debt.All(d => d == 0))
+					{
+						this.gameState.currentPhase = Phase.NobleVisit;
+					}
 					break;
 				case Phase.NobleVisit:
 					this.gameState.currentPhase = Phase.EndTurn;

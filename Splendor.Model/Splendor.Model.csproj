@@ -50,9 +50,11 @@
     <Compile Include="Contract\IGame.cs" />
     <Compile Include="Contract\IPlayer.cs" />
     <Compile Include="Contract\IRandomizer.cs" />
+    <Compile Include="Primitives\MultiArray.cs" />
     <Compile Include="Primitives\Noble.cs" />
     <Compile Include="Primitives\Phase.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="Primitives\ReferenceArray.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Randomizer.cs" />
     <Compile Include="Actions\ReplaceTokensAction.cs" />

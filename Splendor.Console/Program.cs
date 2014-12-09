@@ -52,7 +52,7 @@ namespace Splendor.Console
 			Stopwatch sw = new Stopwatch();
 			sw.Start();
 			// 1668
-			for (int i = 0; i < 100; i++)
+			for (int i = 0; i < 1000; i++)
 			{
 				IRandomizer r = new Randomizer(i);
 				Game game = new Game(Setups.All[0], r, logger);
@@ -65,7 +65,7 @@ namespace Splendor.Console
 				}
 			}
 			sw.Stop();
-			double avg = sw.ElapsedMilliseconds / 100;
+			double avg = sw.ElapsedMilliseconds / 1000;
 			System.Console.WriteLine(avg);
 		}
 	}
