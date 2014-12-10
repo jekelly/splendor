@@ -34,6 +34,7 @@
 			public readonly int[] debt;
 
 			public int lastPlayerIndex = -1;
+			public int turn;
 
 			public void ShuffleDecks(IRandomizer randomizer)
 			{
@@ -113,6 +114,7 @@
 				// determine starting player
 				this.currentPlayer = randomizer.Next(setup.playerCount);
 				this.currentPhase = Phase.Choose;
+				this.turn = 0;
 			}
 
 			public bool IsValid()

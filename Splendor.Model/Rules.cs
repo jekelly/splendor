@@ -11,7 +11,8 @@
 		public const int RequiredPoints = 15;
 
 		public const int MaxHandSize = 3;
-		public const int MaxTableauSize = 32;
+		public const int MaxTableauSize = 50; 
+		public const int MaxTokensHeld = 10;
 
 		public const int CardinalColorCount = 5;
 
@@ -63,7 +64,7 @@
 			ReplaceActions = new IAction[6];
 			for (int i = 0; i < 6; i++)
 			{
-				ReplaceActions[i] = new ReplaceTokensAction((Color)i);
+				ReplaceActions[i] = new ReplaceTokenAction((Color)i);
 			}
 			//ti = 0;
 			//ReplaceActions = new IAction[258]; // (6 + 6*6 + 6*6*6)

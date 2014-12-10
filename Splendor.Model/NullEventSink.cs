@@ -20,7 +20,7 @@
 		{
 		}
 
-		public void OnTokensReturned(IPlayer player, Color[] tokens)
+		public void OnTokenReturned(IPlayer player, Color token)
 		{
 		}
 

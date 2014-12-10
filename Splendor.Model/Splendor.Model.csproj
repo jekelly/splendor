@@ -57,7 +57,7 @@
     <Compile Include="Primitives\ReferenceArray.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Randomizer.cs" />
-    <Compile Include="Actions\ReplaceTokensAction.cs" />
+    <Compile Include="Actions\ReplaceTokenAction.cs" />
     <Compile Include="Actions\ReserveCardAction.cs" />
     <Compile Include="Rules.cs" />
     <Compile Include="Primitives\Setup.cs" />

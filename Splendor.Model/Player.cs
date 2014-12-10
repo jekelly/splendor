@@ -120,11 +120,23 @@
 				this.supply[(int)color]--;
 			}
 
-			public void SpendToken(Color color)
+			public void ReturnToken(Color color)
 			{
 				this.tokens[(int)color]--;
 				this.supply[(int)color]++;
-				this.gameState.debt[(int)color] = Math.Max(this.gameState.debt[(int)color] - 1, 0);
+			}
+
+			public void SpendToken(Color color)
+			{
+				this.ReturnToken(color);
+				if (color == Color.Gold)
+				{
+					this.gameState.debt[(int)color]++;
+				}
+				else
+				{
+					this.gameState.debt[(int)color] = Math.Max(this.gameState.debt[(int)color] - 1, 0);
+				}
 			}
 
 			public void GainNoble(Noble noble)

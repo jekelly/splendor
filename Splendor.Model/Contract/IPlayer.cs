@@ -17,5 +17,7 @@
 		void MoveCardToTableau(Card card);
 		void MoveCardToHand(Card card);
 		void GainNoble(Noble noble);
+
+		void ReturnToken(Color color);
 	}
 }

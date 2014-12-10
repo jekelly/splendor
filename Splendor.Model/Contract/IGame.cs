@@ -8,6 +8,8 @@
 
 		int Supply(Color color);
 
+		int Debt(Color color);
+
 		Card[] Market { get; }
 
 		Noble[] Nobles { get; }
@@ -25,6 +27,5 @@
 		void Step(IChooser chooser);
 
 		void NextPhase();
-
 	}
 }

@@ -38,7 +38,9 @@
 			{
 				return game.Supply(this.colors[0]) >= 4;
 			}
-			return this.colors.All(color => game.Supply(color) > 0);
+			// TODO: need test for conditions when only two/one/zero tokens are left
+			// Don't allow no tokens taken to ensure forward progress of random bots
+			return this.colors.Any(color => game.Supply(color) > 0);
 		}
 
 		public void Execute(IGame game)
@@ -50,7 +52,10 @@
 			IPlayer currentPlayer = game.CurrentPlayer;
 			foreach (Color color in this.colors)
 			{
-				currentPlayer.GainToken(color);
+				if (game.Supply(color) > 0)
+				{
+					currentPlayer.GainToken(color);
+				}
 			}
 			game.EventSink.OnTokensTaken(currentPlayer, this.colors);
 		}

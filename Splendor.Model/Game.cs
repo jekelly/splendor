@@ -7,6 +7,7 @@
 
 	public partial class Game : IGame
 	{
+		private const int MaxTurns = 500;
 		private readonly IRandomizer randomizer;
 		private readonly GameState gameState;
 		private readonly IEventSink eventSink;
@@ -41,6 +42,13 @@
 				var action = chooser.Choose(actions);
 				action.Execute(this);
 			}
+			//else
+			//{
+			//	if (this.CurrentPhase == Phase.Choose)
+			//	{
+			//		throw new InvalidOperationException();
+			//	}
+			//}
 			this.NextPhase();
 		}
 
@@ -54,7 +62,7 @@
 					case Phase.Choose:
 						candidates = new MultiArray<IAction>(
 							new ReferenceArray<IAction>(Rules.BuildActions, this.gameState.market, this.gameState.hands[this.CurrentPlayerIndex]),
-							new ReferenceArray<IAction>(Rules.BuildActions, this.gameState.market, this.gameState.hands[this.CurrentPlayerIndex]),
+							new ReferenceArray<IAction>(Rules.ReserveActions, this.gameState.market),
 							new ReferenceArray<IAction>(Rules.TakeActions));
 						break;
 					case Phase.Pay:
@@ -85,6 +93,15 @@
 		public int Supply(Color color)
 		{
 			return this.gameState.tokens[GameState.SupplyIndex][(int)color];
+		}
+
+		public int Debt(Color color)
+		{
+			if (color == Color.Gold)
+			{
+				return this.gameState.debt.Sum();
+			}
+			return this.gameState.debt[(int)color];
 		}
 
 		public Card[] Market
@@ -140,8 +157,12 @@
 					this.gameState.currentPhase = Phase.Pay;
 					break;
 				case Phase.Pay:
-					if (this.gameState.debt.All(d => d == 0))
+					if (this.gameState.debt.Take(Rules.CardinalColorCount).Sum() == this.gameState.debt[(int)Color.Gold])
 					{
+						for (int i = 0; i < 6; i++)
+						{
+							this.gameState.debt[i] = 0;
+						}
 						this.gameState.currentPhase = Phase.NobleVisit;
 					}
 					break;
@@ -149,22 +170,25 @@
 					this.gameState.currentPhase = Phase.EndTurn;
 					break;
 				case Phase.EndTurn:
-					this.EventSink.SummarizeGame(this);
-					if (this.gameState.lastPlayerIndex == -1)
+					if (this.CurrentPlayer.TokenCount <= Rules.MaxTokensHeld)
 					{
-						if (this.CurrentPlayer.Score >= Rules.RequiredPoints)
+						this.EventSink.SummarizeGame(this);
+						if (this.gameState.lastPlayerIndex == -1)
 						{
-							this.gameState.lastPlayerIndex = this.CurrentPlayerIndex;
+							if (this.CurrentPlayer.Score >= Rules.RequiredPoints)
+							{
+								this.gameState.lastPlayerIndex = this.CurrentPlayerIndex;
+							}
+						}
+						this.gameState.currentPhase = Phase.Choose;
+						this.CurrentPlayerIndex = (this.CurrentPlayerIndex + 1) % this.gameState.numPlayers;
+						this.gameState.turn++;
+						if (this.CurrentPlayerIndex == this.gameState.lastPlayerIndex || this.gameState.turn > MaxTurns)
+						{
+							this.gameState.currentPhase = Phase.GameOver;
+							this.CurrentPlayerIndex = -1;
 						}
 					}
-					this.gameState.currentPhase = Phase.Choose;
-					this.CurrentPlayerIndex = (this.CurrentPlayerIndex + 1) % this.gameState.numPlayers;
-					if (this.CurrentPlayerIndex == this.gameState.lastPlayerIndex)
-					{
-						this.gameState.currentPhase = Phase.GameOver;
-						this.CurrentPlayerIndex = -1;
-					}
-
 					break;
 				case Phase.GameOver:
 					break;
