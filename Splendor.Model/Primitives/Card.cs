@@ -31,6 +31,9 @@
 		public byte value;
 		public byte gives;
 
+		public int Value { get { return this.value; } }
+		public Color Gives { get { return (Color)this.gives; } }
+
 		public override string ToString()
 		{
 			// [value] (gives) [xW] [xU] [xG] [xR] [xB]"

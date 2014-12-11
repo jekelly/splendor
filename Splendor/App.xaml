@@ -2,6 +2,37 @@
     x:Class="Splendor.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Splendor">
+    xmlns:local="using:Splendor"
+	xmlns:mvvm="using:GalaSoft.MvvmLight">
+	<Application.Resources>
 
+		<local:CardToCostsConverter x:Key="CardToCostsConverter" />
+		<local:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+		<local:CostZeroToCollapsedConverter x:Key="CostZeroToCollapsedConverter" />
+		
+		<local:ViewModelLocator x:Key="ViewModelLocator"/>
+
+		<DataTemplate x:Key="CostTemplate">
+			<Border Width="25" Height="25" Visibility="{Binding Path=Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Path=Color, Converter={StaticResource ColorToBrushConverter}}">
+				<TextBlock Text="{Binding Cost}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
+		
+		<DataTemplate x:Key="CardTemplate">
+			<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition/>
+				</Grid.ColumnDefinitions>
+				<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+				<Image Grid.Column="1" Grid.Row="1" Source="Assets/db.jpg"/>
+				<Rectangle Grid.Column="1" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="2" Height="25"/>
+			</Grid>
+		</DataTemplate>
+	</Application.Resources>
 </Application>
