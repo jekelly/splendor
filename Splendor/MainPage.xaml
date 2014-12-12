@@ -30,6 +30,16 @@
 				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
 			</Border>
 		</DataTemplate>
+		<DataTemplate x:Key="MediumGemTemplate">
+			<Border Width="60" Height="60" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
+		<DataTemplate x:Key="MediumTokenTemplate">
+			<Border Width="60" Height="60" CornerRadius="30" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
 		<ItemsPanelTemplate x:Key="HorizontalLayout">
 			<StackPanel Orientation="Horizontal"/>
 		</ItemsPanelTemplate>
@@ -66,7 +76,25 @@
 		</Grid.ColumnDefinitions>
 		<ItemsControl ItemsSource="{Binding TokenSupply}" ItemTemplate="{StaticResource LargeTokenTemplate}" ItemsPanel="{StaticResource TokensItemsPanel}" VerticalAlignment="Center" Margin="16,36,0,36" Grid.RowSpan="2"/>
 		<ItemsControl ItemsSource="{Binding Market}" ItemTemplate="{StaticResource CardTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1"/>
-		<Button Content="Step" Grid.Column="2" HorizontalAlignment="Left" Margin="70,64,0,0" Grid.Row="1" VerticalAlignment="Top" Command="{Binding StepCommand}"/>
-		<ItemsControl ItemsSource="{Binding Players}" ItemTemplate="{StaticResource PlayerTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2" Margin="694,8,0,0"/>
+		<ItemsControl ItemsSource="{Binding OtherPlayers}" ItemTemplate="{StaticResource PlayerTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2" Margin="694,8,0,0"/>
+		<Grid DataContext="{Binding MainPlayer}" Background="#FF5B5B5B" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition/>
+				<RowDefinition Height="Auto"/>
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition Width="498"/>
+				<ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+			<ItemsControl ItemTemplate="{StaticResource MediumTokenTemplate}" ItemsSource="{Binding Tokens}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+			<ItemsControl ItemTemplate="{StaticResource MediumGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Margin="30,13,0,13" Grid.ColumnSpan="2"/>
+			<Image HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="30"/>
+			<ItemsControl ItemTemplate="{StaticResource CardTemplate}" ItemsSource="{Binding Hand}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<TextBlock Grid.Column="2" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" FontSize="32"/>
+		</Grid>
+		<Button Content="Step" Grid.Column="2" HorizontalAlignment="Left" Margin="18,422,0,0" VerticalAlignment="Top" Command="{Binding StepCommand}"/>
 	</Grid>
 </Page>

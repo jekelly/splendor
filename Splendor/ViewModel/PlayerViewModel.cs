@@ -1,9 +1,10 @@
 ﻿namespace Splendor.ViewModel
 {
 	using System.Collections.Generic;
-	using System.Linq;
-	using GalaSoft.MvvmLight;
-	using Splendor.Model;
+using System.Collections.ObjectModel;
+using System.Linq;
+using GalaSoft.MvvmLight;
+using Splendor.Model;
 
 	public class PlayerViewModel : ViewModelBase
 	{
@@ -11,6 +12,7 @@
 		private readonly IPlayer player;
 		private readonly Dictionary<Color, TokenCounterViewModel> tokens;
 		private readonly Dictionary<Color, TokenCounterViewModel> gems;
+		private readonly ObservableCollection<Card> hand;
 
 		public string Name { get; private set; }
 
@@ -29,6 +31,7 @@
 
 		public IEnumerable<TokenCounterViewModel> Tokens { get { return this.tokens.Values; } }
 		public IEnumerable<TokenCounterViewModel> Gems { get { return this.gems.Values; } }
+		public ObservableCollection<Card> Hand { get { return this.hand; } }
 
 		public PlayerViewModel(IPlayer player, EventService eventService)
 		{
@@ -37,6 +40,7 @@
 			this.Name = string.Format("Player {0}", player.Index);
 			this.tokens = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Tokens(color)));
 			this.gems = Colors.CardinalColors.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Gems(color)));
+			this.hand = new ObservableCollection<Card>();
 
 			eventService.TokenTaken += this.OnTokenTaken;
 			eventService.TokenReturned += this.OnTokenReturned;
@@ -59,7 +63,7 @@
 			if (e.Player == this.player)
 			{
 				this.UpdateTokens();
-				this.UpdateHand();
+				this.hand.Add(e.Card);
 			}
 		}
 
@@ -67,7 +71,7 @@
 		{
 			if (e.Player == this.player)
 			{
-				this.UpdateHand();
+				this.hand.Remove(e.Card);
 				this.gems[(Color)e.Card.gives].Refresh();
 				this.Score = player.Score;
 			}
@@ -80,11 +84,5 @@
 				token.Refresh();
 			}
 		}
-
-		private void UpdateHand()
-		{
-			// TODO
-		}
 	}
-
 }

@@ -21,7 +21,8 @@ namespace Splendor.ViewModel
 
 		public ICommand StepCommand { get; private set; }
 
-		public IEnumerable<PlayerViewModel> Players { get; private set; }
+		public PlayerViewModel MainPlayer { get; private set; }
+		public IEnumerable<PlayerViewModel> OtherPlayers { get; private set; }
 
 		public IEnumerable<TokenCounterViewModel> TokenSupply { get { return this.supply.Values; } }
 
@@ -29,7 +30,8 @@ namespace Splendor.ViewModel
 		{
 			this.game = gameService.CreateGame();
 
-			this.Players = this.game.Players.Select(player => new PlayerViewModel(player, eventService));
+			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
+			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));
 
 			this.supply = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => game.Supply(color)));
 
