@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,27 +77,36 @@ namespace Splendor.ViewModel
 
 		private void Step()
 		{
-			var dumbChooser = new DumbChooser();
-			this.game.Step(dumbChooser);
+			this.game.Step(game.AvailableActions.FirstOrDefault());
 		}
 
 		private void RefreshMarket()
 		{
 			HashSet<Card> toRemove = new HashSet<Card>(this.market);
+			Queue<Card> toAdd = new Queue<Card>();
 			foreach (Card card in this.game.Market)
 			{
 				if (toRemove.Contains(card))
 				{
 					toRemove.Remove(card);
 				}
-				else
+				else if (card.id != 0) // check for sentinel
 				{
-					this.market.Add(card);
+					toAdd.Enqueue(card);
 				}
 			}
-			foreach (Card card in toRemove)
+			foreach (Card card in toRemove.OrderBy(card => card.tier).ThenBy(card => card.id))
 			{
-				this.market.Remove(card);
+				int index = this.market.IndexOf(card);
+				this.market.RemoveAt(index);
+				if (toAdd.Any())
+				{
+					this.market.Insert(index, toAdd.Dequeue());
+				}
+			}
+			foreach (Card card in toAdd.OrderBy(card => card.tier).ThenBy(card => card.id))
+			{
+				this.market.Add(card);
 			}
 		}
 	}

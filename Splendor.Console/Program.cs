@@ -15,14 +15,11 @@ namespace Splendor.Console
 		{
 			private readonly Random rand = new Random(0);
 			private readonly IGame game;
-			private readonly int index;
 
 			public RandomChooser(IGame game, int index)
 			{
 				this.game = game;
-				this.index = index;
 			}
-
 
 			public IAction Choose(IEnumerable<IAction> actions)
 			{
@@ -41,7 +38,7 @@ namespace Splendor.Console
 
 			private bool IsGoodChoice(IAction action)
 			{
-				IPlayer player = this.game.GetPlayer(this.index);
+				IPlayer player = this.game.CurrentPlayer;
 				return player.TokenCount < 8 || !(action is TakeTokensAction);
 			}
 		}
@@ -59,12 +56,10 @@ namespace Splendor.Console
 						LoggingEventSink logger = null; // new LoggingEventSink(log);
 						IRandomizer r = new Randomizer(i);
 						Game game = new Game(Setups.All[0], r, logger);
-						RandomChooser[] c = new RandomChooser[2];
-						c[0] = new RandomChooser(game, 0);
-						c[1] = new RandomChooser(game, 1);
+						RandomChooser c = new RandomChooser(game, 0);
 						while (game.CurrentPhase != Phase.GameOver)
 						{
-							game.Step(c[game.CurrentPlayerIndex]);
+							game.Step(c.Choose(game.AvailableActions));
 						}
 					}
 				}

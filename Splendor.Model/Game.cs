@@ -34,21 +34,13 @@
 
 		public IEventSink EventSink { get { return this.eventSink; } }
 
-		public void Step(IChooser chooser)
+		public void Step(IAction action)
 		{
-			var actions = this.AvailableActions;
-			if (actions.Any())
+			Debug.Assert(this.AvailableActions.Contains(action));
+			if (action != null)
 			{
-				var action = chooser.Choose(actions);
 				action.Execute(this);
 			}
-			//else
-			//{
-			//	if (this.CurrentPhase == Phase.Choose)
-			//	{
-			//		throw new InvalidOperationException();
-			//	}
-			//}
 			this.NextPhase();
 		}
 

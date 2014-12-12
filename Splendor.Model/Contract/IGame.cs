@@ -26,7 +26,7 @@
 
 		IPlayer GetPlayer(int playerIndex);
 
-		void Step(IChooser chooser);
+		void Step(IAction choice);
 
 		void NextPhase();
 	}

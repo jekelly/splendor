@@ -369,9 +369,9 @@ namespace Splendor.Model.Tests
 				return Substitute.ForPartsOf<TestPlayer>(this.game.GetPlayer(playerIndex));
 			}
 
-			public virtual void Step(IChooser chooser)
+			public virtual void Step(IAction action)
 			{
-				this.game.Step(chooser);
+				this.game.Step(action);
 			}
 
 			public virtual void NextPhase()
