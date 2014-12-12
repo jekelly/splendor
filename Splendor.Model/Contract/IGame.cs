@@ -20,6 +20,8 @@
 
 		Phase CurrentPhase { get; }
 
+		IPlayer[] Players { get; }
+
 		IPlayer CurrentPlayer { get; }
 
 		IPlayer GetPlayer(int playerIndex);

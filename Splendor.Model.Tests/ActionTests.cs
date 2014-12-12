@@ -356,6 +356,14 @@ namespace Splendor.Model.Tests
 				}
 			}
 
+			public virtual IPlayer[] Players
+			{
+				get
+				{
+					throw new NotImplementedException();
+				}
+			}
+
 			public virtual IPlayer GetPlayer(int playerIndex)
 			{
 				return Substitute.ForPartsOf<TestPlayer>(this.game.GetPlayer(playerIndex));

@@ -6,7 +6,13 @@
 	public static class Colors
 	{
 		private static readonly Color[] verboseColors = Enum.GetValues(typeof(Color)).OfType<Color>().ToArray();
+		private static readonly Color[] cardinalColors = verboseColors.Where(c => c != Color.Gold).ToArray();
 		private static readonly char[] shortColors = new char[] { 'W', 'U', 'G', 'R', 'B', 'A' };
+
+		public static Color[] All { get { return verboseColors; } }
+
+		public static Color[] CardinalColors { get { return cardinalColors; } }
+
 		public static string Verbose(byte index)
 		{
 			return verboseColors[index].ToString();

@@ -234,11 +234,6 @@
 						break;
 					}
 				}
-				// TODO need test for gaining a gold
-				if (this.supply[(int)Color.Gold] > 0)
-				{
-					this.GainToken(Color.Gold);
-				}
 			}
 		}
 	}

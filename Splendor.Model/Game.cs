@@ -139,6 +139,11 @@
 			get { return this.GetPlayer(this.CurrentPlayerIndex); }
 		}
 
+		public IPlayer[] Players
+		{
+			get { return this.players; }
+		}
+
 		public Phase CurrentPhase
 		{
 			get { return this.gameState.currentPhase; }

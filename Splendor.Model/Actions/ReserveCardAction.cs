@@ -18,8 +18,16 @@
 
 		public void Execute(IGame game)
 		{
-			game.CurrentPlayer.MoveCardToHand(this.card);
-			game.EventSink.OnCardReserved(game.CurrentPlayer, this.card);
+			var currentPlayer = game.CurrentPlayer;
+			currentPlayer.MoveCardToHand(this.card);
+			game.EventSink.OnCardReserved(currentPlayer, this.card);
+
+			// TODO need test for gaining a gold
+			if (game.Supply(Color.Gold) > 0)
+			{
+				currentPlayer.GainToken(Color.Gold);
+				game.EventSink.OnTokensTaken(currentPlayer, new Color[] { Color.Gold });
+			}
 		}
 	}
 }
