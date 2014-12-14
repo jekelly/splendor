@@ -1,5 +1,6 @@
 ﻿namespace Splendor.Model
 {
+	using System;
 	using System.Linq;
 
 	public partial class Game
@@ -42,6 +43,10 @@
 				{
 					this.decks[tier].Shuffle(randomizer);
 				}
+			}
+
+			private GameState()
+			{
 			}
 
 			public GameState(Setup setup, IRandomizer randomizer)
@@ -115,6 +120,59 @@
 				this.currentPlayer = randomizer.Next(setup.playerCount);
 				this.currentPhase = Phase.Choose;
 				this.turn = 0;
+			}
+
+			private static int[] CloneArray(int[] source)
+			{
+				int length = source.Length;
+				int[] dest = new int[length];
+				Buffer.BlockCopy(source, 0, dest, 0, length * sizeof(int));
+				return dest;
+			}
+
+			private static int[][] CloneArrays(int[][] source)
+			{
+				int[][] dest = new int[source.Length][];
+				for (int i = 0; i < dest.Length; i++)
+				{
+					dest[i] = CloneArray(source[i]);
+				}
+				return dest;
+			}
+
+			private Deck[] CloneDecks(Deck[] decks)
+			{
+				Deck[] clone = new Deck[decks.Length];
+				for (int i = 0; i < clone.Length; i++)
+				{
+					clone[i] = new Deck(decks[i]);
+				}
+				return clone;
+			}
+
+			private GameState(GameState other)
+			{
+				this.currentPlayer = other.currentPlayer;
+				this.currentPhase = other.currentPhase;
+				this.numPlayers = other.numPlayers;
+				this.tokens = CloneArrays(other.tokens);
+				this.decks = CloneDecks(other.decks);
+				this.market = CloneArray(other.market);
+				this.hands = CloneArrays(other.hands);
+				this.handSize = CloneArray(other.handSize);
+				this.tableau = CloneArrays(other.tableau);
+				this.tableauSize = CloneArray(other.tableauSize);
+				this.gems = CloneArrays(other.gems);
+				this.nobles = CloneArray(other.nobles);
+				this.nobleVisiting = CloneArray(other.nobleVisiting);
+				this.debt = CloneArray(other.debt);
+				this.lastPlayerIndex = other.lastPlayerIndex;
+				this.turn = other.turn;
+			}
+
+			public GameState Clone()
+			{
+				return new GameState(this);
 			}
 
 			public bool IsValid()

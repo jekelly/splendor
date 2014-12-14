@@ -16,6 +16,19 @@
 		private Noble[] nobles;
 		private Card[] market;
 
+		private Game(Game otherGame)
+		{
+			// TODO: clone randomizer?
+			this.randomizer = new Randomizer();
+			this.eventSink = NullEventSink.Instance;
+			this.gameState = otherGame.gameState.Clone();
+			this.players = new IPlayer[otherGame.Players.Length];
+			for (int i = 0; i < this.players.Length; i++)
+			{
+				this.players[i] = new Player(this, i);
+			}
+		}
+
 		public Game(Setup setup, IRandomizer randomizer = null, IEventSink eventSink = null)
 		{
 			if (randomizer == null)
@@ -36,9 +49,9 @@
 
 		public void Step(IAction action)
 		{
-			Debug.Assert(this.AvailableActions.Contains(action));
 			if (action != null)
 			{
+				Debug.Assert(this.AvailableActions.Contains(action));
 				action.Execute(this);
 			}
 			this.NextPhase();
@@ -146,6 +159,11 @@
 			return this.players[playerIndex];
 		}
 
+		public IGame Clone()
+		{
+			return new Game(this);
+		}
+
 		public void NextPhase()
 		{
 			switch (this.gameState.currentPhase)
@@ -164,6 +182,8 @@
 					}
 					break;
 				case Phase.NobleVisit:
+					// TODO: more precise invalidation of this cache?
+					this.nobles = null;
 					this.gameState.currentPhase = Phase.EndTurn;
 					break;
 				case Phase.EndTurn:

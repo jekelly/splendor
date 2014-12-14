@@ -13,7 +13,7 @@
 
 		public bool CanExecute(IGame game)
 		{
-			return this.card != Rules.SentinelCard && game.CurrentPhase == Phase.Choose && game.Market.Contains(this.card) && game.CurrentPlayer.Hand.Count() < 3;
+			return this.card.id != Rules.SentinelCard.id && game.CurrentPhase == Phase.Choose && game.Market.Contains(this.card) && game.CurrentPlayer.Hand.Count() < 3;
 		}
 
 		public void Execute(IGame game)

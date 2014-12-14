@@ -378,6 +378,11 @@ namespace Splendor.Model.Tests
 			{
 				this.game.NextPhase();
 			}
+
+			public virtual IGame Clone()
+			{
+				return this.game.Clone();
+			}
 		}
 	}
 }

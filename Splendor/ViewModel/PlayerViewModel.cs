@@ -1,10 +1,10 @@
 ﻿namespace Splendor.ViewModel
 {
 	using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using GalaSoft.MvvmLight;
-using Splendor.Model;
+	using System.Collections.ObjectModel;
+	using System.Linq;
+	using GalaSoft.MvvmLight;
+	using Splendor.Model;
 
 	public class PlayerViewModel : ViewModelBase
 	{

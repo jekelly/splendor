@@ -29,5 +29,7 @@
 		void Step(IAction choice);
 
 		void NextPhase();
+
+		IGame Clone();
 	}
 }

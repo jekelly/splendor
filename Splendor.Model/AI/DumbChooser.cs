@@ -8,9 +8,9 @@ namespace Splendor
 {
 	class DumbChooser : IChooser
 	{
-		public IAction Choose(IEnumerable<IAction> actions)
+		public IAction Choose(IGame state)
 		{
-			return actions.First();
+			return state.AvailableActions.First();
 		}
 	}
 }

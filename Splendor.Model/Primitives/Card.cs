@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Linq;
+	using System.Runtime.InteropServices;
 
 	public static class Colors
 	{
@@ -24,8 +25,8 @@
 		}
 	}
 
-
-	public class Card
+	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+	public struct Card
 	{
 		public byte id;
 		public byte tier;
