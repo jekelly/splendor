@@ -32,6 +32,8 @@
 				return this.gems[(int)color];
 			}
 
+			public int GemCount { get { return this.gameState.gems[this.index].Sum(); } }
+
 			public int Tokens(Color color)
 			{
 				return this.gameState.tokens[this.index][(int)color];

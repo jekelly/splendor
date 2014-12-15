@@ -45,6 +45,8 @@
 			}
 		}
 
+		public int Turns { get { return this.gameState.turn; } }
+
 		public IEventSink EventSink { get { return this.eventSink; } }
 
 		public void Step(IAction action)

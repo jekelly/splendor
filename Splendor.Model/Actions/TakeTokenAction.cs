@@ -59,5 +59,10 @@
 			}
 			game.EventSink.OnTokensTaken(currentPlayer, this.colors);
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Take tokens {0}", string.Join(", ", this.colors));
+		}
 	}
 }

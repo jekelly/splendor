@@ -6,6 +6,8 @@
 	{
 		IEventSink EventSink { get; }
 
+		int Turns { get; }
+
 		int Supply(Color color);
 
 		int Debt(Color color);

@@ -238,6 +238,8 @@ namespace Splendor.Model.Tests
 				return this.player.Gems(color);
 			}
 
+			public virtual int GemCount { get { return this.player.GemCount; } }
+
 			public virtual int Tokens(Color color)
 			{
 				return this.player.Tokens(color);
@@ -303,6 +305,8 @@ namespace Splendor.Model.Tests
 			{
 				this.game = new Game(Setups.All[0]);
 			}
+
+			public virtual int Turns { get { return this.game.Turns; } }
 
 			public virtual IEventSink EventSink
 			{

@@ -11,7 +11,7 @@
 		public const int RequiredPoints = 15;
 
 		public const int MaxHandSize = 3;
-		public const int MaxTableauSize = 50; 
+		public const int MaxTableauSize = 64; 
 		public const int MaxTokensHeld = 10;
 
 		public const int CardinalColorCount = 5;

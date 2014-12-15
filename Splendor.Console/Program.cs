@@ -1,104 +1,80 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Splendor.AI;
-using Splendor.Model;
-
-namespace Splendor.Console
+﻿namespace Splendor.Console
 {
+	using System;
+	using System.Diagnostics;
+	using System.IO;
+	using System.Linq;
+	using Splendor.Model;
+	using Splendor.Model.AI;
+
 	class Program
 	{
-		class RandomChooser : IChooser
+		private const int GamesToPlay = 20000;
+
+		public static void Main(string[] args)
 		{
-			private readonly Random rand = new Random();
-			private readonly IGame game;
-
-			public RandomChooser(IGame game, int index)
-			{
-				this.game = game;
-			}
-
-			public IAction Choose(IGame state)
-			{
-				var actions = state.AvailableActions;
-				if (!actions.Any())
-				{
-					return null;
-				}
-				int size = actions.Count();
-				int rand = this.rand.Next(size);
-				IAction action = actions.ElementAt(rand);
-				if (IsGoodChoice(action))
-				{
-					return action;
-				}
-				else
-				{
-					return actions.FirstOrDefault(s => !(s is TakeTokensAction)) ?? action;
-				}
-			}
-
-			private bool IsGoodChoice(IAction action)
-			{
-				return true;
-				//IPlayer player = this.game.CurrentPlayer;
-				//return player.TokenCount < 8 || !(action is TakeTokensAction);
-			}
-		}
-
-		static void Main(string[] args)
-		{
-			Stopwatch sw = new Stopwatch();
-			sw.Start();
-			// 1668
 			int ma = 0;
 			int[] movingAverage = new int[100];
 			int[] runningTotal = new int[2];
-			runningTotal[0] = runningTotal[1] = 1;
-			const int gamesToPlay = int.MaxValue;
-			var td = new TDChooser(1);
-			for (int i = 0; i < gamesToPlay; i++)
+			IChooser[] choosers = new IChooser[2];
+			//choosers[0] = new SimpleChooser(0);
+			//choosers[1] = new IanMStrategy(1);
+			choosers[0] = new IanMStrategy(0);
+			choosers[1] = new TDChooser(1);
+			for (int i = 0; i < GamesToPlay; i++)
 			{
-				//using (System.IO.StreamWriter log = new StreamWriter("out" + i + ".log"))
+				//using (LoggingEventSink logger = new LoggingEventSink(i))
 				{
-					LoggingEventSink logger = null; // new LoggingEventSink(log);
 					IRandomizer r = new Randomizer();
-					Game game = new Game(Setups.All[0], r, logger);
-					IChooser[] c = new IChooser[2];
-					c[0] = new RandomChooser(game, 0);
-					//c[1] = new RandomChooser(game, 0); //
-					c[1] = td;
-					int t = 0;
-					while (game.CurrentPhase != Phase.GameOver)
-					{
-						t++;
-						game.Step(c[game.CurrentPlayerIndex].Choose(game));
-					}
-					int winnerIndex = game.Players[0].Score > game.Players[1].Score ? 0 : 1;
+					Game game = new Game(Setups.All[0], r, null);
+					int winnerIndex = RunGame(game, choosers);
 					runningTotal[winnerIndex]++;
-					//((TDChooser)c[1]).Learn(winnerIndex == 1);
 					movingAverage[ma] = winnerIndex;
 					ma = (ma + 1) % movingAverage.Length;
-					System.Console.WriteLine("Game over after {0} turns: {1} wins, {2} to {3} [{4}] - {5}|{6}", t, winnerIndex, game.Players[winnerIndex].Score, game.Players[(winnerIndex + 1) % 2].Score, ((double)runningTotal[0] / runningTotal[1]), movingAverage.Count(a => a == 0), movingAverage.Count(a => a == 1));
+					System.Console.WriteLine("Game over after {0} turns: {1} wins, {2} to {3} [{4}] - {5}|{6}", game.Turns, winnerIndex, game.Players[winnerIndex].Score, game.Players[(winnerIndex + 1) % 2].Score, ((double)runningTotal[0] / runningTotal[1]), movingAverage.Count(a => a == 0), movingAverage.Count(a => a == 1));
 				}
 			}
-			sw.Stop();
-			double avg = sw.ElapsedMilliseconds / gamesToPlay;
-			System.Console.WriteLine(avg);
+		}
+
+		private static int RunGame(IGame game, IChooser[] choosers)
+		{
+			while (game.CurrentPhase != Phase.GameOver)
+			{
+				var action = choosers[game.CurrentPlayerIndex].Choose(game);
+				game.Step(action);
+			}
+			int maxScore = int.MinValue;
+			int winner = int.MinValue;
+			foreach (IPlayer player in game.Players)
+			{
+				if (player.Score >= maxScore)
+				{
+					winner = player.Index;
+					maxScore = player.Score;
+				}
+			}
+			for (int i = 0; i < choosers.Length; i++)
+			{
+				choosers[i].PostGame(winner);
+			}
+			return winner;
 		}
 	}
 
-	class LoggingEventSink : IEventSink
+	class LoggingEventSink : IEventSink, IDisposable
 	{
 		private readonly TextWriter output;
-
-		public LoggingEventSink(TextWriter output)
+		
+		public LoggingEventSink(int i)
 		{
-			this.output = output;
+			if (i % 1000 == 0)
+			{
+				this.output = System.Console.Out;
+			}
+			else
+			{
+				this.output = new StreamWriter("out" + i + ".log");
+			}
 		}
 
 		public void OnCardBuild(IPlayer player, Card card)
@@ -152,6 +128,11 @@ namespace Splendor.Console
 			this.output.WriteLine(gemsSummary, player.Index, ss);
 
 			this.output.WriteLine("\tP{0} Score: {1}", player.Index, player.Score);
+		}
+
+		public void Dispose()
+		{
+			this.output.Dispose();
 		}
 	}
 }

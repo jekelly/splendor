@@ -1,16 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Splendor.Model;
-
-namespace Splendor
+﻿namespace Splendor.AI
 {
-	class DumbChooser : IChooser
+	using System.Linq;
+	using Splendor.Model;
+
+	class FirstChooser : IChooser
 	{
 		public IAction Choose(IGame state)
 		{
 			return state.AvailableActions.First();
+		}
+
+		public void PostGame(int winner)
+		{
 		}
 	}
 }

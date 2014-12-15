@@ -35,7 +35,13 @@
   <ItemGroup>
     <Compile Include="Actions\BuildCardAction.cs" />
     <Compile Include="Actions\NobleVisitAction.cs" />
+    <Compile Include="AI\ColorPreferenceChooser.cs" />
     <Compile Include="AI\DumbChooser.cs" />
+    <Compile Include="AI\GameSensor.cs" />
+    <Compile Include="AI\ISensor.cs" />
+    <Compile Include="AI\Net.cs" />
+    <Compile Include="AI\RandomChooser.cs" />
+    <Compile Include="AI\SimpleChooser.cs" />
     <Compile Include="AI\TDChooser.cs" />
     <Compile Include="Contract\IEventSink.cs" />
     <Compile Include="NullEventSink.cs" />

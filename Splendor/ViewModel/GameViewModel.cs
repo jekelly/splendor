@@ -77,6 +77,7 @@ namespace Splendor.ViewModel
 
 		private void Step()
 		{
+
 			this.game.Step(game.AvailableActions.FirstOrDefault());
 		}
 

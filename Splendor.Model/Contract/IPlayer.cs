@@ -7,6 +7,7 @@
 		int Index { get; }
 		int Score { get; }
 		int Gems(Color color);
+		int GemCount { get; }
 		int Tokens(Color color);
 		int TokenCount { get; }
 		IEnumerable<Card> Hand { get; }

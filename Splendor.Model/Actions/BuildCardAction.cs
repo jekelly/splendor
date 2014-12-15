@@ -35,5 +35,10 @@
 			power[(int)Color.Gold] = game.CurrentPlayer.Tokens(Color.Gold);
 			return power;
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Build {0}", this.card);
+		}
 	}
 }

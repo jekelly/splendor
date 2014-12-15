@@ -29,5 +29,10 @@
 				game.EventSink.OnTokensTaken(currentPlayer, new Color[] { Color.Gold });
 			}
 		}
+
+		public override string ToString()
+		{
+			return string.Format("Reserve {0}", this.card);
+		}
 	}
 }
