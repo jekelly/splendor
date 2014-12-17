@@ -26,6 +26,10 @@
 			{
 				((TDChooser)choosers[1]).Alpha = GetLearningRateForIteration(i);
 				((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
+				if (!Directory.Exists("AI"))
+				{
+					Directory.CreateDirectory("AI");
+				}
 				TextWriter output = i % 100 == 0 ? new StreamWriter("AI\\game" + i + " .log") : null;
 				using (LoggingEventSink logger = new LoggingEventSink(output))
 				{
