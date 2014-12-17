@@ -30,5 +30,9 @@
 		public void SummarizeGame(IGame game)
 		{
 		}
+
+		public void DebugMessage(string messageFormat, params object[] args)
+		{
+		}
 	}
 }

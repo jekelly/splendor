@@ -147,7 +147,9 @@
 				{
 					if (this.nobles[i] == noble.id)
 					{
+						if (this.gameState.nobleVisiting[i] != GameState.SupplyIndex) throw new InvalidOperationException();
 						this.gameState.nobleVisiting[i] = this.index;
+						this.game.nobles = null;
 						return;
 					}
 				}

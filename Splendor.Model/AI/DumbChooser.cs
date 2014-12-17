@@ -10,7 +10,7 @@
 			return state.AvailableActions.First();
 		}
 
-		public void PostGame(int winner)
+		public void PostGame(int winner, IEventSink eventSink)
 		{
 		}
 	}

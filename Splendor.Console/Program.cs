@@ -20,13 +20,17 @@
 			//choosers[0] = new SimpleChooser(0);
 			//choosers[1] = new IanMStrategy(1);
 			choosers[0] = new IanMStrategy(0);
-			choosers[1] = new TDChooser(1);
+			//choosers[0] = new TDChooser(0, false);
+			choosers[1] = new TDChooser(1, true);
 			for (int i = 0; i < GamesToPlay; i++)
 			{
-				//using (LoggingEventSink logger = new LoggingEventSink(i))
+				((TDChooser)choosers[1]).Alpha = GetLearningRateForIteration(i);
+				((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
+				TextWriter output = i % 100 == 0 ? new StreamWriter("AI\\game" + i + " .log") : null;
+				using (LoggingEventSink logger = new LoggingEventSink(output))
 				{
 					IRandomizer r = new Randomizer();
-					Game game = new Game(Setups.All[0], r, null);
+					Game game = new Game(Setups.All[0], r, logger);
 					int winnerIndex = RunGame(game, choosers);
 					runningTotal[winnerIndex]++;
 					movingAverage[ma] = winnerIndex;
@@ -34,6 +38,23 @@
 					System.Console.WriteLine("Game over after {0} turns: {1} wins, {2} to {3} [{4}] - {5}|{6}", game.Turns, winnerIndex, game.Players[winnerIndex].Score, game.Players[(winnerIndex + 1) % 2].Score, ((double)runningTotal[0] / runningTotal[1]), movingAverage.Count(a => a == 0), movingAverage.Count(a => a == 1));
 				}
 			}
+		}
+
+		private static double GetLearningRateForIteration(int i)
+		{
+			if (i < 100)
+			{
+				return 0.1;
+			}
+			if (i < 1000)
+			{
+				return 0.01;
+			}
+			if (i < 10000)
+			{
+				return 0.001;
+			}
+			return 0.0001;
 		}
 
 		private static int RunGame(IGame game, IChooser[] choosers)
@@ -55,7 +76,7 @@
 			}
 			for (int i = 0; i < choosers.Length; i++)
 			{
-				choosers[i].PostGame(winner);
+				choosers[i].PostGame(winner, game.EventSink);
 			}
 			return winner;
 		}
@@ -65,16 +86,9 @@
 	{
 		private readonly TextWriter output;
 		
-		public LoggingEventSink(int i)
+		public LoggingEventSink(TextWriter output)
 		{
-			if (i % 1000 == 0)
-			{
-				this.output = System.Console.Out;
-			}
-			else
-			{
-				this.output = new StreamWriter("out" + i + ".log");
-			}
+			this.output = output ?? new StringWriter();
 		}
 
 		public void OnCardBuild(IPlayer player, Card card)
@@ -105,6 +119,7 @@
 		public void OnNobleVisit(IPlayer player, Noble noble)
 		{
 			string text = string.Format("P{0} is visited by Noble {1}.", player.Index, noble);
+			this.output.WriteLine(text);
 		}
 
 		public void SummarizeGame(IGame game)
@@ -114,6 +129,11 @@
 				IPlayer p = game.GetPlayer(i);
 				this.SummarizePlayer(p);
 			}
+		}
+
+		public void DebugMessage(string message, params object[] args)
+		{
+			this.output.WriteLine("\tDEBUG: " + string.Format(message, args));
 		}
 
 		private void SummarizePlayer(IPlayer player)

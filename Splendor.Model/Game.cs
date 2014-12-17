@@ -129,7 +129,15 @@
 			{
 				if (this.nobles == null)
 				{
-					this.nobles = this.gameState.nobleVisiting.Where(nv => nv == GameState.SupplyIndex).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]).ToArray();
+					List<Noble> nobles = new List<Noble>();
+					for(int i = 0; i < this.gameState.nobles.Length; i++)
+					{
+						if (this.gameState.nobleVisiting[i] == GameState.SupplyIndex)
+						{
+							nobles.Add(Rules.Nobles[this.gameState.nobles[i]]);
+						}
+					}
+					this.nobles = nobles.ToArray();
 				}
 				return this.nobles;
 			}
@@ -184,8 +192,6 @@
 					}
 					break;
 				case Phase.NobleVisit:
-					// TODO: more precise invalidation of this cache?
-					this.nobles = null;
 					this.gameState.currentPhase = Phase.EndTurn;
 					break;
 				case Phase.EndTurn:
