@@ -8,7 +8,7 @@ namespace Splendor.Model.AI
 {
 	interface ISensor<T>
 	{
-		int Dimensions { get; }
+		int DimensionCount { get; }
 		string[] Descriptions { get; }
 		double[] Sense(T environment);
 	}

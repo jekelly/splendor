@@ -39,6 +39,21 @@
 				return this.gameState.tokens[this.index][(int)color];
 			}
 
+			public int[] BuyingPower
+			{
+				get
+				{
+					int[] power = new int[6];
+					for (int i = 0; i < 5; i++)
+					{
+						Color c = (Color)i;
+						power[i] = this.Gems(c) + this.Tokens(c);
+					}
+					power[(int)Color.Gold] = game.CurrentPlayer.Tokens(Color.Gold);
+					return power;
+				}
+			}
+
 			public int TokenCount
 			{
 				get

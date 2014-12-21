@@ -250,6 +250,11 @@ namespace Splendor.Model.Tests
 				get { return this.player.TokenCount; }
 			}
 
+			public virtual int[] BuyingPower
+			{
+				get { return this.player.BuyingPower; }
+			}
+
 			public virtual IEnumerable<Card> Hand
 			{
 				get { return this.player.Hand; }

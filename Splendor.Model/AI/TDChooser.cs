@@ -10,7 +10,7 @@
 	{
 		// TODO: control this via a policy instead of hardcoding e-greedy
 		private const double epsilon = 0;
-		private const int HiddenUnits = 16;
+		private const int HiddenUnits = 80;
 
 		private readonly Random rand;
 		private readonly int playerIndex;
@@ -36,7 +36,7 @@
 			this.playerIndex = playerIndex;
 			this.shouldTrain = shouldTrain;
 
-			ISensor<IGame> gameSensor = new GameSensor4(playerIndex);
+			ISensor<IGame> gameSensor = new GameSensor3(playerIndex);
 			this.net = new Net<IGame>(gameSensor, HiddenUnits);
 			this.history = new List<IGame>();
 		}
@@ -71,6 +71,9 @@
 				//Debug.WriteLine("-----------------------------------------------");
 				for (int i = 0; i < actions.Length; i++)
 				{
+					// hack to avoid the allure of gold
+					ReserveCardAction rca = actions[i] as ReserveCardAction;
+					if (rca != null) continue;
 					IGame clone = state.Clone();
 					Debug.Assert(actions.Length == clone.AvailableActions.Count());
 					clone.Step(actions[i]);
@@ -89,6 +92,10 @@
 				}
 				//Debug.WriteLine("Choose action {0}: {1}", maxValueIndex, actions[maxValueIndex]);
 				//Debug.WriteLine("");
+			}
+			if (maxValueIndex == -1)
+			{
+				maxValueIndex = this.rand.Next(actions.Length);
 			}
 			//epsilon = 1.0 / this.history.Count;
 			return actions[maxValueIndex];

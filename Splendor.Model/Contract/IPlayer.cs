@@ -10,6 +10,7 @@
 		int GemCount { get; }
 		int Tokens(Color color);
 		int TokenCount { get; }
+		int[] BuyingPower { get; }
 		IEnumerable<Card> Hand { get; }
 		IEnumerable<Card> Tableau { get; }
 		IEnumerable<Noble> Nobles { get; }
@@ -18,7 +19,6 @@
 		void MoveCardToTableau(Card card);
 		void MoveCardToHand(Card card);
 		void GainNoble(Noble noble);
-
 		void ReturnToken(Color color);
 	}
 }

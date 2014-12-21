@@ -15,7 +15,7 @@
 		//private const double L1_LEARNING_RATE = 0.05;	// alpha, scales learning in the input->hidden layer
 		//private const double L2_LEARNING_RATE = 0.05;	// beta, scale learning in the hidden->output layer
 		private const double DISCOUNT_RATE = 1.0;		// "gamma", controls the importance of future rewards
-		private const double TRACE_DECAY = 0.2;			// "lambda", controls the degree to which previous weight values are updated
+		private const double TRACE_DECAY = 0;			// "lambda", controls the degree to which previous weight values are updated
 
 		// network weights
 		private readonly double[][] w1;
@@ -35,7 +35,7 @@
 		{
 			this.sensor = sensor;
 			this.hiddenUnitCount = hiddenUnitCount;
-			this.inputSize = sensor.Dimensions;
+			this.inputSize = sensor.DimensionCount;
 			this.w1 = new double[this.inputSize + 1][];
 
 			for (int w = 0; w <= this.inputSize; w++)

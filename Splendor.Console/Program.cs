@@ -21,10 +21,11 @@
 			//choosers[1] = new IanMStrategy(1);
 			choosers[0] = new IanMStrategy(0);
 			//choosers[0] = new TDChooser(0, false);
+			//choosers[0] = new RandomChooser(0);
 			choosers[1] = new TDChooser(1, true);
 			for (int i = 0; i < GamesToPlay; i++)
 			{
-				((TDChooser)choosers[1]).Alpha = GetLearningRateForIteration(i);
+				((TDChooser)choosers[1]).Alpha = GetLearningRateForIteration(i) * 0.1;
 				((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
 				if (!Directory.Exists("AI"))
 				{
@@ -46,19 +47,19 @@
 
 		private static double GetLearningRateForIteration(int i)
 		{
-			if (i < 100)
-			{
-				return 0.1;
-			}
 			if (i < 1000)
 			{
-				return 0.01;
+				return 0.65;
+			}
+			if (i < 5000)
+			{
+				return 0.065;
 			}
 			if (i < 10000)
 			{
-				return 0.001;
+				return 0.0065;
 			}
-			return 0.0001;
+			return 0.00065;
 		}
 
 		private static int RunGame(IGame game, IChooser[] choosers)

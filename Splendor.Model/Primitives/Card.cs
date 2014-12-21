@@ -41,6 +41,25 @@
 		public int Value { get { return this.value; } }
 		public Color Gives { get { return (Color)this.gives; } }
 
+		public int Cost(Color color)
+		{
+			switch(color)
+			{
+				case Color.White:
+					return this.costWhite;
+				case Color.Blue:
+					return this.costBlue;
+				case Color.Green:
+					return this.costGreen;
+				case Color.Red: 
+					return this.costRed;
+				case Color.Black:
+					return this.costBlack;
+				default:
+					throw new InvalidOperationException();
+			}
+		}
+
 		public override string ToString()
 		{
 			// [value] (gives) [xW] [xU] [xG] [xR] [xB]"
