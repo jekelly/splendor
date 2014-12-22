@@ -1,6 +1,7 @@
 ﻿namespace Splendor.Model.AI
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Linq;
 
 	public class RandomChooser : IChooser
@@ -23,7 +24,7 @@
 			return actions.ElementAt(rand);
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}

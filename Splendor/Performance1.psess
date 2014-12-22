@@ -71,6 +71,12 @@
     <Report>
       <Path>Splendor.Console141221.vspx</Path>
     </Report>
+    <Report>
+      <Path>Splendor.Console141221(1).vspx</Path>
+    </Report>
+    <Report>
+      <Path>Splendor.Console141221(2).vspx</Path>
+    </Report>
   </Reports>
   <Launches>
     <ProjBinary>

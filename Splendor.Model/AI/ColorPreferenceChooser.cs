@@ -1,6 +1,7 @@
 ﻿namespace Splendor.Model.AI
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics;
 	using System.Linq;
 
@@ -90,7 +91,7 @@
 			return actions[index];
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}
@@ -204,7 +205,7 @@
 			return totalCost;
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}
@@ -255,7 +256,7 @@
 			return actions[index];
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}
@@ -337,7 +338,7 @@
 			return colorValues.Select((v, i) => new { Value = v, Color = (Color)i }).OrderByDescending(a => a.Value).Select(v => v.Color).First();
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 			this.favoriteColor = Color.Gold;
 		}

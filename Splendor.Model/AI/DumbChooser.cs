@@ -1,5 +1,6 @@
 ﻿namespace Splendor.AI
 {
+	using System.Collections.Generic;
 	using System.Linq;
 	using Splendor.Model;
 
@@ -10,7 +11,7 @@
 			return state.AvailableActions.First();
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}

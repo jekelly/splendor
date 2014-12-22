@@ -9,8 +9,8 @@
 	public class TDChooser : IChooser
 	{
 		// TODO: control this via a policy instead of hardcoding e-greedy
-		private const double epsilon = 0;
-		private const int HiddenUnits = 80;
+		private const double epsilon = 0.01;
+		private const int HiddenUnits = 30;
 
 		private readonly Random rand;
 		private readonly int playerIndex;
@@ -39,6 +39,39 @@
 			ISensor<IGame> gameSensor = new GameSensor3(playerIndex);
 			this.net = new Net<IGame>(gameSensor, HiddenUnits);
 			this.history = new List<IGame>();
+		}
+
+		private const int MaxPly = 0;
+		private double AlphaBetaEval(IGame state, IEventSink eventSink, int ply, double alpha, double beta)
+		{
+			IAction[] actions = state.AvailableActions.ToArray();
+			if (ply == MaxPly)
+			{
+				return this.net.Eval(state, eventSink);
+			}
+			bool maxPlayer = (ply % 2) == 0;
+			if (maxPlayer)
+			{
+				for (int i = 0; i < actions.Length; i++)
+				{
+					IGame childState = state.Clone();
+					childState.Step(actions[i]);
+					alpha = Math.Max(alpha, this.AlphaBetaEval(childState, eventSink, ply + 1, alpha, beta));
+					if (beta <= alpha) break;
+				}
+				return alpha;
+			}
+			else
+			{
+				for (int i = 0; i < actions.Length; i++)
+				{
+					IGame childState = state.Clone();
+					childState.Step(actions[i]);
+					beta = Math.Min(beta, this.AlphaBetaEval(childState, eventSink, ply + 1, alpha, beta));
+					if (beta <= alpha) break;
+				}
+				return beta;
+			}
 		}
 
 		public IAction Choose(IGame state)
@@ -81,7 +114,8 @@
 					{
 						clone.Step(clone.AvailableActions.FirstOrDefault());
 					}
-					var value = this.net.Eval(clone, state.EventSink);
+					//var value = this.Eval(clone, state.EventSink);
+					double value = this.AlphaBetaEval(clone, state.EventSink, 0, double.MinValue, double.MaxValue);
 					if (value > maxValue)
 					{
 						maxValue = value;
@@ -101,16 +135,25 @@
 			return actions[maxValueIndex];
 		}
 
+		private double Eval(IGame state, IEventSink eventSink)
+		{
+			return this.net.Eval(state, eventSink);
+		}
+
 		//private double Evaluate(IGame state)
 		//{
 		//	return this.net.Eval(state);
 		//}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 			if (this.shouldTrain)
 			{
-				this.net.Learn(this.history.ToArray(), (winner == this.playerIndex ? 1.0 : 0), eventSink);
+				for (int i = 0; i < history.Length; i++)
+				{
+					this.net.Learn(history[i].ToArray(), (winner == i ? 1.0 : -1.0), eventSink);
+				}
+				
 			}
 			this.history.Clear();
 		}

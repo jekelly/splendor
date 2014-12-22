@@ -1,9 +1,10 @@
 ﻿namespace Splendor.Model.AI
 {
 	using System;
-	using System.Linq;
 	using System.Diagnostics;
 	using System.IO;
+	using System.Linq;
+	using System.Threading.Tasks;
 	using PCLStorage;
 
 	class Net<T>
@@ -144,10 +145,12 @@
 		{
 			// normalize between -1 / sqrt(inputs) and 1 /sqrt(inputs)
 			//double x = 1.0d / Math.Sqrt(inputs);
-			double x = 0.1d;
-			double v = (r.NextDouble() * 2.0) - 1.0d;
-			return v * x;
-
+			//return r.NextDouble() - 0.5d;
+			// box-mueller
+			double u1 = r.NextDouble();
+			double u2 = r.NextDouble();
+			double normal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
+			return 0.1 * normal;
 		}
 
 		public double Eval(T environment, IEventSink eventSink)
@@ -165,14 +168,16 @@
 			Debug.Assert(inputs[inputs.Length - 1] == 1.0);
 
 			// for each hidden unit, calculate it's output from the input
-			for (int h = 0; h < this.hiddenUnitCount; h++)
+			//for (int h = 0; h < this.hiddenUnitCount; h++)
+			Parallel.For(0, this.hiddenUnitCount, (h) =>
 			{
+				//Parallel.For(0, this.inputSize + 1, (i) => hiddenOutput[h] += inputs[i] * this.w1[i][h]);
 				for (int i = 0; i <= this.inputSize; i++)
 				{
 					hiddenOutput[h] += inputs[i] * this.w1[i][h];
 				}
 				hiddenOutput[h] = sigmoid(hiddenOutput[h]);
-			}
+			});
 			double output = 0;
 			// for each hidden output, accumulate to the final result
 			for (int h = 0; h <= this.hiddenUnitCount; h++)
@@ -191,13 +196,18 @@
 
 		private static double sigmoid(double input)
 		{
-			return (1.0d / (1.0d + Math.Exp(-input)));
+			// special logrithm
+			//return (1.0d / (1.0d + Math.Exp(-input)));
+			// tanh
+			return Math.Tanh(input);
 		}
 
 		// assumes pure sigmoid function; need a different derivative calculation otherwise
 		private void UpdateEligibilityTraces(double output, double[] input, double[] h)
 		{
-			double temp = output * (1 - output);
+			//double temp = output * (1 - output);
+			double temp = (1.0 - output);
+			temp *= temp;
 
 			for (int j = 0; j <= this.hiddenUnitCount; j++)
 			{

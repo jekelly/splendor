@@ -1,6 +1,7 @@
 ﻿namespace Splendor.Model.AI
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Linq;
 
 	public class SimpleChooser : IChooser
@@ -38,7 +39,7 @@
 			return player.TokenCount < 8 || !(action is TakeTokensAction);
 		}
 
-		public void PostGame(int winner, IEventSink eventSink)
+		public void PostGame(int winner, IEventSink eventSink, List<IGame>[] history)
 		{
 		}
 	}

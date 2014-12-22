@@ -79,6 +79,30 @@
 			}
 		}
 
+		public static IEnumerable<IDimension<IGame>> ScaledNobleDesirability(int playerIndex)
+		{
+			for (int i = 1; i < Rules.Nobles.Length; i++)
+			{
+				Noble noble = Rules.Nobles[i];
+				yield return new GameDimension(string.Format("Noble {0} desirability to {1}", i, playerIndex), (game) =>
+					{
+						if (!game.Nobles.Contains(noble))
+						{
+							return 0.0;
+						}
+						IPlayer player = game.Players[playerIndex];
+						int debt = 0;
+						int cost = 0;
+						for (int c = 0; c < 5; c++)
+						{
+							cost += noble.requires[c];
+							debt += Math.Max(0, noble.requires[c] - player.Gems((Color)c));
+						}
+						return (1.0 - ((double)debt / cost));
+					});
+			}
+		}
+
 		public static IEnumerable<IDimension<IGame>> ScaledCardAffordability(int playerIndex)
 		{
 			for (int i = 1; i < Rules.Cards.Length; i++)
@@ -86,16 +110,21 @@
 				Card card = Rules.Cards[i];
 				yield return new GameDimension(string.Format("Card {0} affordability for {1}", i, playerIndex), (game) =>
 					{
+						if (!game.Market.Contains(card))
+						{
+							return 0.0;
+						}
 						IPlayer player = game.Players[playerIndex];
 						int[] bp = player.BuyingPower;
-						double affordability = 0.0;
-						affordability += Math.Max(0, card.costBlack - bp[(int)Color.Black]);
-						affordability += Math.Max(0, card.costBlue - bp[(int)Color.Blue]);
-						affordability += Math.Max(0, card.costGreen - bp[(int)Color.Green]);
-						affordability += Math.Max(0, card.costRed - bp[(int)Color.Red]);
-						affordability += Math.Max(0, card.costWhite - bp[(int)Color.White]);
-						affordability = Math.Max(0, affordability - bp[(int)Color.Gold]);
-						return affordability / 10.0; // todo: is this the right scale factor?
+						int debt = 0;
+						debt += Math.Max(0, card.costBlack - bp[(int)Color.Black]);
+						debt += Math.Max(0, card.costBlue - bp[(int)Color.Blue]);
+						debt += Math.Max(0, card.costGreen - bp[(int)Color.Green]);
+						debt += Math.Max(0, card.costRed - bp[(int)Color.Red]);
+						debt += Math.Max(0, card.costWhite - bp[(int)Color.White]);
+						debt = Math.Max(0, debt - bp[(int)Color.Gold]);
+						int cost = card.costBlack + card.costBlue + card.costGreen + card.costRed + card.costWhite;
+						return 1.0 - ((double)debt / (double)cost);
 					});
 			}
 		}
@@ -108,7 +137,7 @@
 			for (int i = 1; i < Rules.Cards.Length; i++)
 			{
 				Card card = Rules.Cards[i];
-				yield return new GameDimension(string.Format("Card {0} in Market?", i), game => (game.Players[playerIndex].Hand.Contains(card) || game.Market.Contains(card)) ? 1.0 : 0.0);
+				yield return new GameDimension(string.Format("Card {0} in Market?", i), game => (game.Players[playerIndex].Hand.Contains(card) || game.Market.Contains(card)) ? 1.0 : -1.0);
 			}
 		}
 	}
@@ -172,11 +201,13 @@
 			this.playerIndex = playerIndex;
 			List<IDimension<IGame>> gameDimensions = new List<IDimension<IGame>>();
 			gameDimensions.Add(GameDimensions.ScaledScore(playerIndex));
-			gameDimensions.Add(GameDimensions.RelativeScore(playerIndex, (playerIndex + 1) % 2));
+			gameDimensions.Add(GameDimensions.ScaledScore((playerIndex + 1) % 2));
+			//gameDimensions.Add(GameDimensions.RelativeScore(playerIndex, (playerIndex + 1) % 2));
 			gameDimensions.AddRange(GameDimensions.ScaledGems(playerIndex));
 			gameDimensions.AddRange(GameDimensions.ScaledTokens(playerIndex));
 			gameDimensions.AddRange(GameDimensions.ScaledCardAffordability(playerIndex));
-			gameDimensions.AddRange(GameDimensions.CardAvailable(playerIndex));
+			gameDimensions.AddRange(GameDimensions.ScaledNobleDesirability(playerIndex));
+			//gameDimensions.AddRange(GameDimensions.CardAvailable(playerIndex));
 
 			this.dimensions = gameDimensions.ToArray();
 		}
@@ -249,20 +280,20 @@
 			// am i near the token limit?
 			for (int t = 0; t < 10; t++)
 			{
-				env[i++] = player.TokenCount > t ? 1.0 : 0.0;
+				env[i++] = player.TokenCount > t ? 1.0 : -1.0;
 			}
 			for (Color c = Color.White; c <= Color.Gold; c++)
 			{
 				for (int cc = 0; cc < 4; cc++)
 				{
-					env[i++] = player.Tokens(c) > cc ? 1.0 : 0.0;
+					env[i++] = player.Tokens(c) > cc ? 1.0 : -1.0;
 				}
 			}
 			for (Color c = Color.White; c <= Color.Black; c++)
 			{
 				for (int cc = 0; cc < 4; cc++)
 				{
-					env[i++] = player.Gems(c) > cc ? 1.0 : 0.0;
+					env[i++] = player.Gems(c) > cc ? 1.0 : -1.0;
 				}
 			}
 			if (i != dimensions)
@@ -349,16 +380,16 @@
 			// whats my percentile score differential with my opponent?
 			env[i++] = (player.Score - opponent.Score) == 0 ? 0 : (double)(player.Score - opponent.Score) / (player.Score + opponent.Score);
 			// am i near the token limit?
-			env[i++] = player.TokenCount > 2 ? 1.0 : 0.0;
-			env[i++] = player.TokenCount > 4 ? 1.0 : 0.0;
-			env[i++] = player.TokenCount > 6 ? 1.0 : 0.0;
-			env[i++] = player.TokenCount > 8 ? 1.0 : 0.0;
+			env[i++] = player.TokenCount > 2 ? 1.0 : -1.0;
+			env[i++] = player.TokenCount > 4 ? 1.0 : -1.0;
+			env[i++] = player.TokenCount > 6 ? 1.0 : -1.0;
+			env[i++] = player.TokenCount > 8 ? 1.0 : -1.0;
 			// how many gems of each color do i have from buildings?
 			//for (int c = 0; c < Rules.CardinalColorCount; c++)
 			//{
 			//	for (int cc = 0; cc < 3; cc++)
 			//	{
-			//		env[i++] = player.Gems((Color)c) > cc ? 1.0 : 0.0;
+			//		env[i++] = player.Gems((Color)c) > cc ? 1.0 : -1.0;
 			//	}
 			//	env[i++] = player.Gems((Color)c) >= 4 ? player.Gems((Color)c) - 3 / 2.0 : 0.0;
 			//}
@@ -368,18 +399,18 @@
 			//	// TODO: need a way to figure out how many tokens are available for the given setup?
 			//	for (int cc = 0; cc < 5; cc++)
 			//	{
-			//		env[i++] = player.Tokens((Color)c) > cc ? 1.0 : 0.0;
+			//		env[i++] = player.Tokens((Color)c) > cc ? 1.0 : -1.0;
 			//	}
 			//}
 			// what cards are in my hand?
 			for (int c = 1; c < Rules.Cards.Length; c++)
 			{
-				env[i++] = player.Hand.Contains(Rules.Cards[c]) ? 1.0 : 0.0;
+				env[i++] = player.Hand.Contains(Rules.Cards[c]) ? 1.0 : -1.0;
 			}
 			// what cards are in the market?
 			for (int c = 1; c < Rules.Cards.Length; c++)
 			{
-				env[i++] = environment.Market.Contains(Rules.Cards[c]) ? 1.0 : 0.0;
+				env[i++] = environment.Market.Contains(Rules.Cards[c]) ? 1.0 : -1.0;
 			}
 			if (i != dimensions)
 			{
@@ -474,23 +505,23 @@
 			int i = 0;
 			for (int d = 0; d < 20; d++)
 			{
-				env[i++] = player.Score > d ? 1.0 : 0.0;
+				env[i++] = player.Score > d ? 1.0 : -1.0;
 			}
 			for (int d = 0; d < 20; d++)
 			{
-				env[i++] = opponent.Score > d ? 1.0 : 0.0;
+				env[i++] = opponent.Score > d ? 1.0 : -1.0;
 			}
 			for (int c = 0; c < 6; c++)
 			{
 				for (int cc = 0; cc < 5; cc++)
 				{
-					env[i++] = environment.Supply((Color)c) > cc ? 1.0 : 0.0;
+					env[i++] = environment.Supply((Color)c) > cc ? 1.0 : -1.0;
 				}
 			}
 			// how many turns have elapsed?
 			for (int t = 0; t < 100; t += 10)
 			{
-				env[i++] = environment.Turns > t ? 1.0 : 0.0;
+				env[i++] = environment.Turns > t ? 1.0 : -1.0;
 			}
 			// normalized value of each card in market
 			for (int m = 0; m < Rules.MarketSize; m++)
@@ -645,30 +676,30 @@
 			int i = 0;
 			for (int d = 0; d < 15; d++)
 			{
-				env[i++] = player.Score > d ? 1.0 : 0.0;
+				env[i++] = player.Score > d ? 1.0 : -1.0;
 			}
 			for (int d = 0; d < 15; d++)
 			{
-				env[i++] = opponent.Score > d ? 1.0 : 0.0;
+				env[i++] = opponent.Score > d ? 1.0 : -1.0;
 			}
 			for (int c = 0; c < 6; c++)
 			{
 				for (int cc = 0; cc < 5; cc++)
 				{
-					env[i++] = environment.Supply((Color)c) > cc ? 1.0 : 0.0;
+					env[i++] = environment.Supply((Color)c) > cc ? 1.0 : -1.0;
 				}
 			}
 			// how many turns have elapsed?
 			for (int t = 0; t < 100; t += 10)
 			{
-				env[i++] = environment.Turns > t ? 1.0 : 0.0;
+				env[i++] = environment.Turns > t ? 1.0 : -1.0;
 			}
 			// how many gems of each color do i have from buildings?
 			for (int c = 0; c < Rules.CardinalColorCount; c++)
 			{
 				for (int cc = 0; cc < 3; cc++)
 				{
-					env[i++] = player.Gems((Color)c) > cc ? 1.0 : 0.0;
+					env[i++] = player.Gems((Color)c) > cc ? 1.0 : -1.0;
 				}
 				env[i++] = player.Gems((Color)c) >= 4 ? player.Gems((Color)c) - 3 / 2.0 : 0.0;
 			}
@@ -678,7 +709,7 @@
 				// TODO: need a way to figure out how many tokens are available for the given setup?
 				for (int cc = 0; cc < 5; cc++)
 				{
-					env[i++] = player.Tokens((Color)c) > cc ? 1.0 : 0.0;
+					env[i++] = player.Tokens((Color)c) > cc ? 1.0 : -1.0;
 				}
 			}
 			// how many tokens of each color does my opponent have?
@@ -686,23 +717,23 @@
 			{
 				for (int cc = 0; cc < 5; cc++)
 				{
-					env[i++] = opponent.Tokens((Color)c) > cc ? 1.0 : 0.0;
+					env[i++] = opponent.Tokens((Color)c) > cc ? 1.0 : -1.0;
 				}
 			}
 			// what cards are in my hand?
 			for (int c = 1; c < Rules.Cards.Length; c++)
 			{
-				env[i++] = player.Hand.Contains(Rules.Cards[c]) ? 1.0 : 0.0;
+				env[i++] = player.Hand.Contains(Rules.Cards[c]) ? 1.0 : -1.0;
 			}
 			// what cards are in the market?
 			for (int c = 1; c < Rules.Cards.Length; c++)
 			{
-				env[i++] = environment.Market.Contains(Rules.Cards[c]) ? 1.0 : 0.0;
+				env[i++] = environment.Market.Contains(Rules.Cards[c]) ? 1.0 : -1.0;
 			}
 			// what nobles are available?
 			for (int n = 1; n < Rules.Nobles.Length; n++)
 			{
-				env[i++] = environment.Nobles.Contains(Rules.Nobles[n]) ? 1.0 : 0.0;
+				env[i++] = environment.Nobles.Contains(Rules.Nobles[n]) ? 1.0 : -1.0;
 			}
 			if (i != dimensions)
 			{

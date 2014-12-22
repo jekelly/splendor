@@ -1,6 +1,7 @@
 ﻿namespace Splendor.Console
 {
 	using System;
+	using System.Collections.Generic;
 	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
@@ -47,25 +48,33 @@
 
 		private static double GetLearningRateForIteration(int i)
 		{
-			if (i < 1000)
-			{
-				return 0.65;
-			}
-			if (i < 5000)
-			{
-				return 0.065;
-			}
-			if (i < 10000)
-			{
-				return 0.0065;
-			}
-			return 0.00065;
+			return 0.15;
+			//if (i < 1000)
+			//{
+			//	return 0.65;
+			//}
+			//if (i < 5000)
+			//{
+			//	return 0.065;
+			//}
+			//if (i < 10000)
+			//{
+			//	return 0.0065;
+			//}
+			//return 0.00065;
 		}
 
 		private static int RunGame(IGame game, IChooser[] choosers)
 		{
+			List<IGame>[] history = new List<IGame>[2];
+			history[0] = new List<IGame>();
+			history[1] = new List<IGame>();
 			while (game.CurrentPhase != Phase.GameOver)
 			{
+				if(game.CurrentPhase == Phase.Choose)
+				{
+					history[game.CurrentPlayerIndex].Add(game.Clone());
+				}
 				var action = choosers[game.CurrentPlayerIndex].Choose(game);
 				game.Step(action);
 			}
@@ -81,7 +90,7 @@
 			}
 			for (int i = 0; i < choosers.Length; i++)
 			{
-				choosers[i].PostGame(winner, game.EventSink);
+				choosers[i].PostGame(winner, game.EventSink, history);
 			}
 			return winner;
 		}
