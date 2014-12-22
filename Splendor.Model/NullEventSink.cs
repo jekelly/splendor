@@ -33,6 +33,7 @@
 
 		public void DebugMessage(string messageFormat, params object[] args)
 		{
+			System.Diagnostics.Debug.WriteLine(messageFormat, args);
 		}
 	}
 }

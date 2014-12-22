@@ -44,6 +44,14 @@
     <Reference Include="NSubstitute">
       <HintPath>..\Splendor\packages\NSubstitute.1.7.2.0\lib\NET45\NSubstitute.dll</HintPath>
     </Reference>
+    <Reference Include="PCLStorage, Version=1.0.0.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Splendor\packages\PCLStorage.1.0.0\lib\net45\PCLStorage.dll</HintPath>
+    </Reference>
+    <Reference Include="PCLStorage.Abstractions, Version=1.0.0.0, Culture=neutral, PublicKeyToken=286fe515a2c35b64, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Splendor\packages\PCLStorage.1.0.0\lib\net45\PCLStorage.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
@@ -65,8 +73,10 @@
   <ItemGroup>
     <Compile Include="ActionTests.cs" />
     <Compile Include="GameTests.cs" />
+    <Compile Include="NetTests.cs" />
     <Compile Include="PlayerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RandomExtensionsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Splendor.Model\Splendor.Model.csproj">

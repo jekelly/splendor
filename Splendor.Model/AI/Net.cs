@@ -7,6 +7,12 @@
 	using System.Threading.Tasks;
 	using PCLStorage;
 
+	interface IWeightStorage
+	{
+		void SaveWeights(double[] weights);
+		double[] LoadWeights();
+	}
+
 	class Net<T>
 	{
 		private readonly ISensor<T> sensor;
@@ -15,8 +21,8 @@
 
 		//private const double L1_LEARNING_RATE = 0.05;	// alpha, scales learning in the input->hidden layer
 		//private const double L2_LEARNING_RATE = 0.05;	// beta, scale learning in the hidden->output layer
-		private const double DISCOUNT_RATE = 1.0;		// "gamma", controls the importance of future rewards
-		private const double TRACE_DECAY = 0;			// "lambda", controls the degree to which previous weight values are updated
+		private const double DISCOUNT_RATE = 0.0;		// "gamma", controls the importance of future rewards
+		private const double TRACE_DECAY = 0.0;			// "lambda", controls the degree to which previous weight values are updated
 
 		// network weights
 		private readonly double[][] w1;
@@ -146,11 +152,7 @@
 			// normalize between -1 / sqrt(inputs) and 1 /sqrt(inputs)
 			//double x = 1.0d / Math.Sqrt(inputs);
 			//return r.NextDouble() - 0.5d;
-			// box-mueller
-			double u1 = r.NextDouble();
-			double u2 = r.NextDouble();
-			double normal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
-			return 0.1 * normal;
+			return r.NextGaussian(0.0, 0.1);
 		}
 
 		public double Eval(T environment, IEventSink eventSink)
@@ -197,25 +199,28 @@
 		private static double sigmoid(double input)
 		{
 			// special logrithm
-			//return (1.0d / (1.0d + Math.Exp(-input)));
+			return (1.0d / (1.0d + Math.Exp(-input)));
 			// tanh
-			return Math.Tanh(input);
+			//return Math.Tanh(input);
+		}
+
+		private static double dsigmoid(double sigmoid)
+		{
+			return sigmoid * (1.0 - sigmoid);
+			// return (1.0 - output * output);
 		}
 
 		// assumes pure sigmoid function; need a different derivative calculation otherwise
 		private void UpdateEligibilityTraces(double output, double[] input, double[] h)
 		{
-			//double temp = output * (1 - output);
-			double temp = (1.0 - output);
-			temp *= temp;
+			double temp = dsigmoid(output);
 
 			for (int j = 0; j <= this.hiddenUnitCount; j++)
 			{
-				this.e2[j] = TRACE_DECAY * e2[j] + temp * h[j];
+				this.e2[j] = TRACE_DECAY * this.e2[j] + temp * h[j];
 				for (int i = 0; i <= this.inputSize; i++)
 				{
-					double e = TRACE_DECAY * this.e1[i][j] + temp * w2[j] * (h[j] * (1 - h[j])) * input[i]; ;
-					this.e1[i][j] = e;
+					this.e1[i][j] = TRACE_DECAY * this.e1[i][j] + temp * this.w2[j] * dsigmoid(h[j]) * input[i];
 				}
 			}
 		}
@@ -235,6 +240,14 @@
 					total1 += Math.Abs(d1);
 				}
 			}
+		}
+
+		public void BPLearn(T input, double target, IEventSink eventSink)
+		{
+			double output = this.Eval(input, true, eventSink);
+			double error = target - output;
+			this.UpdateWeights(error);
+			eventSink.DebugMessage("Error: {0}", error);
 		}
 
 		public void Learn(T[] states, double finalReward, IEventSink eventSink)
@@ -272,10 +285,10 @@
 				output[t] = this.Eval(states[t], updateEligibilityTraces: true, eventSink: NullEventSink.Instance);
 				eventSink.DebugMessage("Eval 2 at time step {0}: {1}", t, output[t]);
 			}
-			if (++this.trainingIteration % 100 == 0)
-			{
-				this.SaveWeights();
-			}
+			//if (++this.trainingIteration % 100 == 0)
+			//{
+			//	this.SaveWeights();
+			//}
 		}
 	}
 }
