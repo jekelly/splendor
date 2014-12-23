@@ -9,14 +9,16 @@
 	public class TDChooser : IChooser
 	{
 		// TODO: control this via a policy instead of hardcoding e-greedy
-		private const double epsilon = 0.01;
-		private const int HiddenUnits = 30;
+		private const double epsilon = 0.00;
+		private const int HiddenUnits = 80;
 
 		private readonly Random rand;
 		private readonly int playerIndex;
 		private readonly Net<IGame> net;
 		private readonly List<IGame> history;
 		private readonly bool shouldTrain;
+
+		private readonly ISensor<IGame>[] sensors;
 
 		public double Alpha
 		{
@@ -36,8 +38,11 @@
 			this.playerIndex = playerIndex;
 			this.shouldTrain = shouldTrain;
 
-			ISensor<IGame> gameSensor = new GameSensor3(playerIndex);
-			this.net = new Net<IGame>(gameSensor, HiddenUnits);
+			this.sensors = new ISensor<IGame>[2];
+			this.sensors[(playerIndex + 1) % 2] = new GameSensor3((playerIndex + 1) % 2);
+			this.sensors[playerIndex] = new GameSensor3(playerIndex);
+
+			this.net = new Net<IGame>(this.sensors[playerIndex], HiddenUnits);
 			this.history = new List<IGame>();
 		}
 
@@ -151,9 +156,12 @@
 			{
 				for (int i = 0; i < history.Length; i++)
 				{
-					this.net.Learn(history[i].ToArray(), (winner == i ? 1.0 : -1.0), eventSink);
+					var sensor = this.net.Sensor;
+					this.net.Sensor = this.sensors[i];
+					this.net.Learn(history[i].ToArray(), (winner == i ? 1.0 : 0.0), eventSink);
+					this.net.Sensor = sensor;
 				}
-				
+
 			}
 			this.history.Clear();
 		}

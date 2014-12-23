@@ -11,6 +11,10 @@
 	class Program
 	{
 		private const int GamesToPlay = 20000;
+		// problem: spins on taking tokens too much
+		// ideas: switch to tanh activation
+		// add discrete inputs for gems
+
 
 		public static void Main(string[] args)
 		{
@@ -18,15 +22,15 @@
 			int[] movingAverage = new int[100];
 			int[] runningTotal = new int[2];
 			IChooser[] choosers = new IChooser[2];
-			//choosers[0] = new SimpleChooser(0);
+			choosers[0] = new SimpleChooser(0);
 			//choosers[1] = new IanMStrategy(1);
-			choosers[0] = new IanMStrategy(0);
+			//choosers[0] = new IanMStrategy(0);
 			//choosers[0] = new TDChooser(0, false);
 			//choosers[0] = new RandomChooser(0);
 			choosers[1] = new TDChooser(1, true);
 			for (int i = 0; i < GamesToPlay; i++)
 			{
-				((TDChooser)choosers[1]).Alpha = GetLearningRateForIteration(i) * 0.1;
+				((TDChooser)choosers[1]).Alpha = 0.2 * GetLearningRateForIteration(i);
 				((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
 				if (!Directory.Exists("AI"))
 				{
@@ -48,20 +52,19 @@
 
 		private static double GetLearningRateForIteration(int i)
 		{
-			return 0.15;
-			//if (i < 1000)
-			//{
-			//	return 0.65;
-			//}
-			//if (i < 5000)
-			//{
-			//	return 0.065;
-			//}
-			//if (i < 10000)
-			//{
-			//	return 0.0065;
-			//}
-			//return 0.00065;
+			if (i < 1000)
+			{
+				return 0.25;
+			}
+			if (i < 5000)
+			{
+				return 0.025;
+			}
+			if (i < 10000)
+			{
+				return 0.0025;
+			}
+			return 0.00025;
 		}
 
 		private static int RunGame(IGame game, IChooser[] choosers)

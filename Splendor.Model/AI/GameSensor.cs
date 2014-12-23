@@ -67,6 +67,26 @@
 			}
 		}
 
+		public static IEnumerable<IDimension<IGame>> DiscreteGems(int playerIndex)
+		{
+			for (int i = 0; i < Rules.CardinalColorCount; i++)
+			{
+				int c = i;
+				for (int j = 0; j < 3; j++)
+				{
+					yield return new GameDimension(string.Format("{0} > than {1} for player {2}", (Color)c, j, playerIndex), (game) =>
+						{
+							int count = game.Players[playerIndex].Gems((Color)c);
+							return (count > j) ? 1.0 : 0.0;
+						});
+				}
+				yield return new GameDimension(string.Format("{0} - 3 / 2 for player {1}", (Color)c, playerIndex), (game) =>
+					{
+						return (game.Players[playerIndex].Gems((Color)c) - 3.0) / 2.0;
+					});
+			}
+		}
+
 		/// <summary>
 		/// Scaled count of tokens of a specific color, ranges from 0 to 1.0.
 		/// </summary>
@@ -203,7 +223,7 @@
 			gameDimensions.Add(GameDimensions.ScaledScore(playerIndex));
 			gameDimensions.Add(GameDimensions.ScaledScore((playerIndex + 1) % 2));
 			//gameDimensions.Add(GameDimensions.RelativeScore(playerIndex, (playerIndex + 1) % 2));
-			gameDimensions.AddRange(GameDimensions.ScaledGems(playerIndex));
+			gameDimensions.AddRange(GameDimensions.DiscreteGems(playerIndex));
 			gameDimensions.AddRange(GameDimensions.ScaledTokens(playerIndex));
 			gameDimensions.AddRange(GameDimensions.ScaledCardAffordability(playerIndex));
 			gameDimensions.AddRange(GameDimensions.ScaledNobleDesirability(playerIndex));

@@ -15,14 +15,14 @@
 
 	class Net<T>
 	{
-		private readonly ISensor<T> sensor;
+		private ISensor<T> sensor;
 		private readonly int hiddenUnitCount;
 		private readonly int inputSize;
 
 		//private const double L1_LEARNING_RATE = 0.05;	// alpha, scales learning in the input->hidden layer
 		//private const double L2_LEARNING_RATE = 0.05;	// beta, scale learning in the hidden->output layer
-		private const double DISCOUNT_RATE = 0.0;		// "gamma", controls the importance of future rewards
-		private const double TRACE_DECAY = 0.0;			// "lambda", controls the degree to which previous weight values are updated
+		private const double DISCOUNT_RATE = 0.9;		// "gamma", controls the importance of future rewards
+		private const double TRACE_DECAY = 0.4;		// "lambda", controls the degree to which previous weight values are updated
 
 		// network weights
 		private readonly double[][] w1;
@@ -37,6 +37,8 @@
 
 		public double Alpha { get; set; }
 		public double Beta { get; set; }
+
+		public ISensor<T> Sensor { get { return this.sensor; } set { if (this.inputSize != value.DimensionCount) throw new InvalidOperationException();  this.sensor = value; } }
 
 		public Net(ISensor<T> sensor, int hiddenUnitCount)
 		{
@@ -218,9 +220,10 @@
 			for (int j = 0; j <= this.hiddenUnitCount; j++)
 			{
 				this.e2[j] = TRACE_DECAY * this.e2[j] + temp * h[j];
+				double tempH = dsigmoid(h[j]) * this.w2[j];
 				for (int i = 0; i <= this.inputSize; i++)
 				{
-					this.e1[i][j] = TRACE_DECAY * this.e1[i][j] + temp * this.w2[j] * dsigmoid(h[j]) * input[i];
+					this.e1[i][j] = TRACE_DECAY * this.e1[i][j] + temp * tempH * input[i];
 				}
 			}
 		}
@@ -253,8 +256,6 @@
 		public void Learn(T[] states, double finalReward, IEventSink eventSink)
 		{
 			double[] output = new double[states.Length];
-			double[] rewards = new double[states.Length];
-
 			// initialize training storage
 			for (int i = 0; i < this.e1.Length; i++)
 			{
@@ -262,33 +263,30 @@
 			}
 			Array.Clear(this.e2, 0, this.e2.Length);
 			output[0] = this.Eval(states[0], updateEligibilityTraces: true, eventSink: NullEventSink.Instance);
-			rewards[states.Length - 1] = finalReward;
 			//UpdateElig
 			for (int t = 1; t < states.Length; t++)
 			{
+				// evaluate Y[t]
 				output[t] = this.Eval(states[t], updateEligibilityTraces: false, eventSink: NullEventSink.Instance);
 				eventSink.DebugMessage("Eval 1 at time step {0}: {1}", t, output[t]);
 				// TODO: inefficient, could only store current/last instead of all
 				double error = 0.0;
-				if (t == states.Length - 1)
-				{
-					error = rewards[t] - output[t];
-					eventSink.DebugMessage("Reward for the game: {0}", finalReward);
-				}
-				else
-				{
-					error = DISCOUNT_RATE * (output[t] - output[t - 1]);
-				}
+				// error = (y[t] + lambda * Y[t] - Y[t-1]). no y[t] measured until the last state.
+				eventSink.DebugMessage("Found error {0} at time step {1}", error, t);
 				eventSink.DebugMessage("Found error {0} at time step {1}", error, t);
 				this.UpdateWeights(error);
-				// claim is this must run twice to form TD errors...why?
+				// reevaluate Y[t] (soon to be Y[t-1]) with new weights
 				output[t] = this.Eval(states[t], updateEligibilityTraces: true, eventSink: NullEventSink.Instance);
 				eventSink.DebugMessage("Eval 2 at time step {0}: {1}", t, output[t]);
 			}
-			//if (++this.trainingIteration % 100 == 0)
-			//{
-			//	this.SaveWeights();
-			//}
+			// after last observed state, we know if we actually won or lost, so do one last update
+			double finalError = finalReward - output[states.Length - 1];
+			eventSink.DebugMessage("Final error: {0}", finalError);
+			this.UpdateWeights(finalError);
+			if (++this.trainingIteration % 100 == 0)
+			{
+				this.SaveWeights();
+			}
 		}
 	}
 }
