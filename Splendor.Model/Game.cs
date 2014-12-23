@@ -59,6 +59,20 @@
 			this.NextPhase();
 		}
 
+		class ActionCollection : IEnumerable<IAction>
+		{
+
+			public IEnumerator<IAction> GetEnumerator()
+			{
+				throw new NotImplementedException();
+			}
+
+			System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+			{
+				throw new NotImplementedException();
+			}
+		}
+
 		public IEnumerable<IAction> AvailableActions
 		{
 			get

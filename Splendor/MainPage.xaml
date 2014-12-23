@@ -16,9 +16,15 @@
 		<x:Double x:Key="SupplyTokenSize">100</x:Double>
 		<CornerRadius x:Key="SupplyTokenCornerRadius">100</CornerRadius>
 		<DataTemplate x:Key="LargeTokenTemplate">
-			<Border Width="{StaticResource SupplyTokenSize}" Height="{StaticResource SupplyTokenSize}" CornerRadius="{StaticResource SupplyTokenCornerRadius}" Margin="8" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" BorderThickness="3" BorderBrush="DarkSlateGray">
-				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="Gray" LineHeight="36"	/>
-			</Border>
+			<Button Command="{Binding Path=SelectCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Border Width="{StaticResource SupplyTokenSize}" Height="{StaticResource SupplyTokenSize}" CornerRadius="{StaticResource SupplyTokenCornerRadius}" Margin="8" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" BorderThickness="3" BorderBrush="DarkSlateGray">
+							<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="Gray" LineHeight="36"	/>
+						</Border>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
 		</DataTemplate>
 		<DataTemplate x:Key="SmallGemTemplate">
 			<Border Width="40" Height="40" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
@@ -36,9 +42,15 @@
 			</Border>
 		</DataTemplate>
 		<DataTemplate x:Key="MediumTokenTemplate">
-			<Border Width="60" Height="60" CornerRadius="30" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
-				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
-			</Border>
+			<Button Command="{Binding Path=CommandService.ReplaceTokenCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding Color}">
+				<Button.Template>
+					<ControlTemplate>
+						<Border Width="60" Height="60" CornerRadius="30" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+							<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+						</Border>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
 		</DataTemplate>
 		<ItemsPanelTemplate x:Key="HorizontalLayout">
 			<StackPanel Orientation="Horizontal"/>

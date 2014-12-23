@@ -25,11 +25,16 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition/>
+					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
-				<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="0,2,0,0"/>
+				<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
 				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
-				<Image Grid.Column="1" Grid.Row="1" Source="Assets/db.jpg"/>
-				<Rectangle Grid.Column="1" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="2" Height="25"/>
+				<Image Grid.Column="1" Grid.Row="1" Source="Assets/db.jpg" Grid.ColumnSpan="2"/>
+				<Rectangle Grid.Column="2" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="0,3,2,3" Height="25"/>
+				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+					<Button Content="B" Command="{Binding Path=CommandService.BuildCardCommand,Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+					<Button Content="R" Command="{Binding Path=CommandService.ReserveCardCommand,Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+				</StackPanel>
 			</Grid>
 		</DataTemplate>
 	</Application.Resources>

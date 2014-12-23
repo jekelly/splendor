@@ -2,7 +2,7 @@
 {
 	using System.Collections.Generic;
 
-	internal static class Rules
+	public static class Rules
 	{
 		public const int Tiers = 3;
 		public const int CardsPerTier = 4;

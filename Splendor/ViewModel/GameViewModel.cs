@@ -9,14 +9,33 @@ using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using Splendor.Model;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace Splendor.ViewModel
 {
+	//class GameThread
+	//{
+	//	private readonly Task gameTask;
+	//	private readonly IGame game;
+
+	//	public IGame Game { get { return this.game;  } }
+
+	//	public GameThread()
+	//	{
+	//		this.gameTask = Task.Run(() =>
+	//			{
+
+	//			});
+	//	}
+	//}
+
 	public class GameViewModel : ViewModelBase
 	{
 		private readonly IGame game;
 		private readonly ObservableCollection<Card> market;
 		private readonly Dictionary<Color, TokenCounterViewModel> supply;
+		private readonly IChooser[] choosers;
 
 		public ObservableCollection<Card> Market { get { return this.market; } }
 
@@ -27,9 +46,13 @@ namespace Splendor.ViewModel
 
 		public IEnumerable<TokenCounterViewModel> TokenSupply { get { return this.supply.Values; } }
 
-		public GameViewModel(GameService gameService, EventService eventService)
+		public GameViewModel(GameService gameService, EventService eventService, CommandService commandService)
 		{
 			this.game = gameService.CreateGame();
+
+			this.choosers = new IChooser[2];
+			this.choosers[0] = new HumanChooser(commandService);
+			this.choosers[1] = new Splendor.Model.AI.RandomChooser(1);
 
 			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
 			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));
@@ -75,10 +98,13 @@ namespace Splendor.ViewModel
 			this.supply[e.Color].Refresh();
 		}
 
-		private void Step()
+		private async void Step()
 		{
-
-			this.game.Step(game.AvailableActions.FirstOrDefault());
+			while (this.game.CurrentPhase != Phase.GameOver)
+			{
+				var action = await Task.Run(() => this.choosers[this.game.CurrentPlayerIndex].Choose(this.game));
+				this.game.Step(action);
+			}
 		}
 
 		private void RefreshMarket()

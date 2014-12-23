@@ -7,6 +7,7 @@
 	{
 		static ViewModelLocator()
 		{
+			SimpleIoc.Default.Register<CommandService>();
 			SimpleIoc.Default.Register<GameService>();
 			SimpleIoc.Default.Register<EventService>();
 			SimpleIoc.Default.Register<GameViewModel>();
@@ -17,5 +18,7 @@
 		}
 
 		public GameViewModel GameViewModel { get { return SimpleIoc.Default.GetInstance<GameViewModel>(); } }
+
+		public CommandService CommandService { get { return SimpleIoc.Default.GetInstance<CommandService>(); } }
 	}
 }
