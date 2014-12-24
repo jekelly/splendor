@@ -3,12 +3,22 @@
 	using System;
 	using Splendor.Model;
 
+	public sealed class NobleEventArgs : EventArgs
+	{
+		public Noble Noble { get; private set; }
+		public NobleEventArgs(Noble noble)
+		{
+			this.Noble = noble;
+		}
+	}
+
 	public class EventService
 	{
 		public event EventHandler<TokenEventArgs> TokenTaken;
 		public event EventHandler<TokenEventArgs> TokenReturned;
 		public event EventHandler<CardEventArgs> CardBuilt;
 		public event EventHandler<CardEventArgs> CardReserved;
+		public event EventHandler<NobleEventArgs> NobleVisited;
 
 		public IEventSink CreateEventSink()
 		{
@@ -61,6 +71,10 @@
 
 			public void OnNobleVisit(IPlayer player, Noble noble)
 			{
+				if(this.eventService.NobleVisited != null)
+				{
+					this.eventService.NobleVisited(this, new NobleEventArgs(noble));
+				}
 			}
 
 			public void SummarizeGame(IGame game)

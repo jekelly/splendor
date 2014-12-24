@@ -10,6 +10,18 @@
 	using GalaSoft.MvvmLight;
 	using Splendor.Model;
 
+	public class NobleVisitCommand : ActionCommand<Noble>
+	{
+		public NobleVisitCommand(CommandService commandService)
+			: base(commandService)
+		{ }
+
+		protected override IAction GetActionFromParameter(Noble parameter)
+		{
+			return Rules.NobleActions[parameter.id];
+		}
+	}
+
 
 	public class CommandService
 	{
@@ -18,6 +30,7 @@
 		private readonly ActionCommand<Card> reserveCardCommand;
 		private readonly ActionCommand<Color[]> takeTokensCommand;
 		private readonly ActionCommand<Color> replaceTokenCommand;
+		private readonly NobleVisitCommand nobleVisitCommand;
 
 		private HashSet<IAction> availableActions;
 		private IAction action;
@@ -26,6 +39,7 @@
 		public ICommand BuildCardCommand { get { return this.buildCardCommand; } }
 		public ICommand TakeTokensCommand { get { return this.takeTokensCommand; } }
 		public ICommand ReplaceTokenCommand { get { return this.replaceTokenCommand; } }
+		public ICommand NobleVisitCommand { get { return this.nobleVisitCommand; } }
 
 		public CommandService()
 		{
@@ -34,6 +48,7 @@
 			this.buildCardCommand = new BuildCardCommand(this);
 			this.takeTokensCommand = new TakeTokenCommand(this);
 			this.replaceTokenCommand = new ReturnTokenCommand(this);
+			this.nobleVisitCommand = new NobleVisitCommand(this);
 		}
 
 		public bool IsActionAvailable(IAction action)
@@ -86,6 +101,7 @@
 			this.reserveCardCommand.Refresh();
 			this.replaceTokenCommand.Refresh();
 			this.takeTokensCommand.Refresh();
+			this.nobleVisitCommand.Refresh();
 		}
 	}
 
@@ -197,6 +213,8 @@
 		private readonly Dictionary<Color, TokenCounterViewModel> tokens;
 		private readonly Dictionary<Color, TokenCounterViewModel> gems;
 		private readonly ObservableCollection<Card> hand;
+		private readonly ObservableCollection<Noble> nobles;
+
 
 		public string Name { get; private set; }
 
@@ -216,6 +234,7 @@
 		public IEnumerable<TokenCounterViewModel> Tokens { get { return this.tokens.Values; } }
 		public IEnumerable<TokenCounterViewModel> Gems { get { return this.gems.Values; } }
 		public ObservableCollection<Card> Hand { get { return this.hand; } }
+		public ObservableCollection<Noble> Nobles { get { return this.nobles; } }
 
 		public PlayerViewModel(IPlayer player, EventService eventService)
 		{
@@ -225,11 +244,22 @@
 			this.tokens = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Tokens(color)));
 			this.gems = Colors.CardinalColors.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Gems(color)));
 			this.hand = new ObservableCollection<Card>();
+			this.nobles = new ObservableCollection<Noble>();
 
 			eventService.TokenTaken += this.OnTokenTaken;
 			eventService.TokenReturned += this.OnTokenReturned;
 			eventService.CardBuilt += this.OnCardBuilt;
 			eventService.CardReserved += this.OnCardReserved;
+			eventService.NobleVisited += this.OnNobleVisited;
+		}
+
+		private void OnNobleVisited(object sender, NobleEventArgs e)
+		{
+			if (this.player.Nobles.Contains(e.Noble))
+			{
+				this.nobles.Add(e.Noble);
+				this.Score = this.player.Score;
+			}
 		}
 
 		private void OnTokenTaken(object sender, TokenEventArgs e)

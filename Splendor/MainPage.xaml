@@ -97,13 +97,14 @@
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
 			<ColumnDefinition Width="Auto"/>
-			<ColumnDefinition Width="805*"/>
-			<ColumnDefinition Width="429*"/>
+			<ColumnDefinition Width="557*"/>
+			<ColumnDefinition Width="344*"/>
+			<ColumnDefinition Width="Auto"/>
 		</Grid.ColumnDefinitions>
 		<ItemsControl ItemsSource="{Binding TokenSupply}" ItemTemplate="{StaticResource LargeTokenTemplate}" ItemsPanel="{StaticResource TokensItemsPanel}" VerticalAlignment="Center" Margin="16,36,0,36" Grid.RowSpan="2"/>
 		<ItemsControl ItemsSource="{Binding Market}" ItemTemplate="{StaticResource CardTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1"/>
-		<ItemsControl ItemsSource="{Binding OtherPlayers}" ItemTemplate="{StaticResource PlayerTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Left" Grid.Column="1" Grid.ColumnSpan="2" Margin="694,8,0,0"/>
-		<Grid DataContext="{Binding MainPlayer}" Background="#FF5B5B5B" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+		<ItemsControl ItemsSource="{Binding OtherPlayers}" ItemTemplate="{StaticResource PlayerTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.Column="3" Margin="0,10,15,0"/>
+		<Grid DataContext="{Binding MainPlayer}" Background="#FF5B5B5B" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
@@ -118,9 +119,11 @@
 			<ItemsControl ItemTemplate="{StaticResource MediumGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Margin="30,13,0,13" Grid.ColumnSpan="2"/>
 			<Image HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="30"/>
-			<ItemsControl ItemTemplate="{StaticResource CardTemplate}" ItemsSource="{Binding Hand}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<ItemsControl ItemTemplate="{StaticResource CardTemplate}" ItemsSource="{Binding Hand}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="2"/>
 			<TextBlock Grid.Column="2" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" FontSize="32"/>
+			<ItemsControl ItemTemplate="{StaticResource NobleTemplate}" ItemsSource="{Binding Nobles}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="2" Grid.RowSpan="2"/>
 		</Grid>
-		<Button Content="Step" Grid.Column="2" HorizontalAlignment="Left" Margin="18,422,0,0" VerticalAlignment="Top" Command="{Binding StepCommand}"/>
+		<Button Content="Step" Grid.Column="3" HorizontalAlignment="Left" Margin="269,526,0,0" VerticalAlignment="Top" Command="{Binding StepCommand}"/>
+		<ItemsControl ItemsSource="{Binding Nobles}" ItemTemplate="{StaticResource NobleTemplate}" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.Column="2" Margin="0,10,26,0"/>
 	</Grid>
 </Page>

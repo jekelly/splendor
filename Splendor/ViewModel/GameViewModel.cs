@@ -34,14 +34,18 @@ namespace Splendor.ViewModel
 	{
 		private readonly IGame game;
 		private readonly ObservableCollection<Card> market;
+		private readonly ObservableCollection<Noble> nobles;
 		private readonly Dictionary<Color, TokenCounterViewModel> supply;
 		private readonly IChooser[] choosers;
 
 		public ObservableCollection<Card> Market { get { return this.market; } }
 
+		public ObservableCollection<Noble> Nobles { get { return this.nobles; } }
+
 		public ICommand StepCommand { get; private set; }
 
 		public PlayerViewModel MainPlayer { get; private set; }
+
 		public IEnumerable<PlayerViewModel> OtherPlayers { get; private set; }
 
 		public IEnumerable<TokenCounterViewModel> TokenSupply { get { return this.supply.Values; } }
@@ -52,7 +56,7 @@ namespace Splendor.ViewModel
 
 			this.choosers = new IChooser[2];
 			this.choosers[0] = new HumanChooser(commandService);
-			this.choosers[1] = new Splendor.Model.AI.RandomChooser(1);
+			this.choosers[1] = new Splendor.Model.AI.IanMStrategy(1);
 
 			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
 			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));
@@ -61,6 +65,8 @@ namespace Splendor.ViewModel
 
 			this.market = new ObservableCollection<Card>();
 			this.RefreshMarket();
+			this.nobles = new ObservableCollection<Noble>();
+			this.RefreshNobles();
 
 			this.StepCommand = new RelayCommand(this.Step);
 
@@ -68,6 +74,12 @@ namespace Splendor.ViewModel
 			eventService.CardReserved += this.OnCardReserved;
 			eventService.TokenReturned += this.OnTokenReturned;
 			eventService.TokenTaken += this.OnTokenTaken;
+			eventService.NobleVisited += this.OnNobleVisited;
+		}
+
+		private void OnNobleVisited(object sender, NobleEventArgs e)
+		{
+			this.RefreshNobles();
 		}
 
 		private void OnCardBuilt(object sender, CardEventArgs e)
@@ -104,6 +116,26 @@ namespace Splendor.ViewModel
 			{
 				var action = await Task.Run(() => this.choosers[this.game.CurrentPlayerIndex].Choose(this.game));
 				this.game.Step(action);
+			}
+		}
+
+		private void RefreshNobles()
+		{
+			HashSet<Noble> toRemove = new HashSet<Noble>(this.nobles);
+			foreach(var noble in this.game.Nobles)
+			{
+				if(toRemove.Contains(noble))
+				{
+					toRemove.Remove(noble);
+				}
+				else
+				{
+					this.nobles.Add(noble);
+				}
+			}
+			foreach(var noble in toRemove)
+			{
+				this.nobles.Remove(noble);
 			}
 		}
 

@@ -29,4 +29,30 @@
 			throw new System.NotImplementedException();
 		}
 	}
+	public sealed class NobleToCostsConverter : IValueConverter
+	{
+		class ColorCost
+		{
+			public Color Color { get; set; }
+			public int Cost { get; set; }
+		}
+
+		public object Convert(object value, System.Type targetType, object parameter, string language)
+		{
+			Noble noble = (Noble)value;
+			var costs = new List<ColorCost>(5);
+			for(int i = 0; i < 5; i++)
+			{
+				costs.Add(new ColorCost() { Color = (Color)i, Cost = noble.requires[i] });
+			}
+			return costs;
+		}
+
+		public object ConvertBack(object value, System.Type targetType, object parameter, string language)
+		{
+			throw new System.NotImplementedException();
+		}
+	}
+
+	
 }
