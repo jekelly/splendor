@@ -20,5 +20,7 @@
 		public GameViewModel GameViewModel { get { return SimpleIoc.Default.GetInstance<GameViewModel>(); } }
 
 		public CommandService CommandService { get { return SimpleIoc.Default.GetInstance<CommandService>(); } }
+
+		public EventService EventService { get { return SimpleIoc.Default.GetInstance<EventService>(); } }
 	}
 }

@@ -1,19 +1,21 @@
 ﻿<Application
-    x:Class="Splendor.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="using:Splendor.ViewModel">
-	
+    xmlns:vm="using:Splendor.ViewModel" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:Interactivity="using:Microsoft.Xaml.Interactivity" xmlns:Core="using:Microsoft.Xaml.Interactions.Core" xmlns:Media="using:Microsoft.Xaml.Interactions.Media" mc:Ignorable="d"
+    x:Class="Splendor.App"
+    >
+
 	<Application.Resources>
 		<vm:CardToCostsConverter x:Key="CardToCostsConverter" />
 		<vm:CardToImageSourceConverter x:Key="CardToImageSourceConverter" />
 		<vm:NobleToCostsConverter x:Key="NobleToCostsConverter" />
 		<vm:ColorToBrushConverter x:Key="ColorToBrushConverter" />
 		<vm:CostZeroToCollapsedConverter x:Key="CostZeroToCollapsedConverter" />
+		<vm:BoolToBorderBrushHighlightConverter x:Key="BoolToBorderBrushHighlightConverter" />
 		<vm:ViewModelLocator x:Key="ViewModelLocator"/>
 
 		<DataTemplate x:Key="CostTemplate">
-			<Border Width="25" Height="25" Visibility="{Binding Path=Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Path=Color, Converter={StaticResource ColorToBrushConverter}}">
+			<Border Width="25" Height="25" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}">
 				<TextBlock Text="{Binding Cost}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
 			</Border>
 		</DataTemplate>
@@ -32,38 +34,121 @@
 				<TextBlock TextWrapping="Wrap" Text="3" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
 				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource NobleToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
 				<Image Grid.Column="1" Grid.Row="1" Source="Assets/db.jpg" Grid.ColumnSpan="2"/>
-				<Button Content="V" Command="{Binding Path=CommandService.NobleVisitCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+				<Button Content="V" Command="{Binding CommandService.NobleVisitCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 			</Grid>
 		</DataTemplate>
 
 		<DataTemplate x:Key="CardTemplate">
-			<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition/>
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition/>
-					<ColumnDefinition Width="Auto"/>
-				</Grid.ColumnDefinitions>
-				<Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" Source="{Binding Converter={StaticResource CardToImageSourceConverter}}" Stretch="UniformToFill"/>
-				<Border Grid.ColumnSpan="3">
-					<Border.Background>
-						<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-							<GradientStop Color="#FF4A4A4A" Offset="0"/>
-							<GradientStop Color="Transparent" Offset="1"/>
-						</LinearGradientBrush>
-					</Border.Background>
-				</Border>
-				<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
-				<Rectangle Grid.Column="2" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="0,3,2,3" Height="25"/>
-				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-					<Button Content="B" Command="{Binding Path=CommandService.BuildCardCommand,Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
-					<Button Content="R" Command="{Binding Path=CommandService.ReserveCardCommand,Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
-				</StackPanel>
-				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
-			</Grid>
+			<Border CornerRadius="4">
+				<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto"/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto"/>
+						<ColumnDefinition/>
+						<ColumnDefinition Width="Auto"/>
+					</Grid.ColumnDefinitions>
+					<Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" Source="{Binding Converter={StaticResource CardToImageSourceConverter}}" Stretch="UniformToFill"/>
+					<Border Grid.ColumnSpan="3">
+						<Border.Background>
+							<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+								<GradientStop Color="#FF4A4A4A" Offset="0"/>
+								<GradientStop Color="Transparent" Offset="1"/>
+							</LinearGradientBrush>
+						</Border.Background>
+					</Border>
+					<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
+					<Rectangle Grid.Column="2" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="0,3,2,3" Height="25"/>
+					<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+						<Button Content="B" Command="{Binding CommandService.BuildCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+						<Button Content="R" Command="{Binding CommandService.ReserveCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+					</StackPanel>
+					<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+				</Grid>
+			</Border>
 		</DataTemplate>
+
+		<x:Double x:Key="SupplyTokenSize">100</x:Double>
+
+		<CornerRadius x:Key="SupplyTokenCornerRadius">100</CornerRadius>
+
+		<DataTemplate x:Key="LargeTokenTemplate">
+			<Button Command="{Binding SelectCommand}">
+				<Button.Template>
+					<ControlTemplate>
+						<Border Width="{StaticResource SupplyTokenSize}" Height="{StaticResource SupplyTokenSize}" CornerRadius="{StaticResource SupplyTokenCornerRadius}" Margin="8" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" BorderThickness="3" BorderBrush="{Binding IsEnabled, Converter={StaticResource BoolToBorderBrushHighlightConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+							<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="36" FontWeight="Bold" Foreground="Gray" LineHeight="36"	/>
+						</Border>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+		</DataTemplate>
+
+		<DataTemplate x:Key="SmallGemTemplate">
+			<Border Width="40" Height="40" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+				<Interactivity:Interaction.Behaviors>
+					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+						<vm:CardBuiltTrigger.Actions>
+							<vm:ScaleAction/>
+						</vm:CardBuiltTrigger.Actions>
+					</vm:CardBuiltTrigger>
+				</Interactivity:Interaction.Behaviors>
+				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
+
+		<DataTemplate x:Key="SmallTokenTemplate">
+			<Border Width="40" Height="40" CornerRadius="40" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+				<Interactivity:Interaction.Behaviors>
+					<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+						<vm:TokenGainedTrigger.Actions>
+							<vm:ScaleAction/>
+						</vm:TokenGainedTrigger.Actions>
+					</vm:TokenGainedTrigger>
+				</Interactivity:Interaction.Behaviors>
+				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
+
+		<DataTemplate x:Key="MediumGemTemplate">
+			<Border x:Name="MediumGemRootBorder" Width="60" Height="60" Margin="2" BorderThickness="1" BorderBrush="Black" RenderTransformOrigin="0.5,0.5">
+				<Border.Visibility>
+					<Binding Converter="{StaticResource CostZeroToCollapsedConverter}" Path="Cost"/>
+				</Border.Visibility>
+				<Border.Background>
+					<Binding Converter="{StaticResource ColorToBrushConverter}" Path="Color"/>
+				</Border.Background>
+				<Interactivity:Interaction.Behaviors>
+					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+						<vm:CardBuiltTrigger.Actions>
+							<vm:ScaleAction/>
+						</vm:CardBuiltTrigger.Actions>
+					</vm:CardBuiltTrigger>
+				</Interactivity:Interaction.Behaviors>
+				<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+			</Border>
+		</DataTemplate>
+
+		<DataTemplate x:Key="MediumTokenTemplate">
+			<Button Command="{Binding CommandService.ReplaceTokenCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding Color}">
+				<Button.Template>
+					<ControlTemplate>
+						<Border Width="60" Height="60" CornerRadius="30" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+							<Interactivity:Interaction.Behaviors>
+								<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+									<vm:TokenGainedTrigger.Actions>
+										<vm:ScaleAction/>
+									</vm:TokenGainedTrigger.Actions>
+								</vm:TokenGainedTrigger>
+							</Interactivity:Interaction.Behaviors>
+							<TextBlock Text="{Binding Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#FFC3C3C3" FontSize="16" FontWeight="Bold"/>
+						</Border>
+					</ControlTemplate>
+				</Button.Template>
+			</Button>
+		</DataTemplate>
+
 	</Application.Resources>
 </Application>

@@ -215,7 +215,6 @@
 		private readonly ObservableCollection<Card> hand;
 		private readonly ObservableCollection<Noble> nobles;
 
-
 		public string Name { get; private set; }
 
 		public int Score
@@ -241,8 +240,8 @@
 			this.player = player;
 
 			this.Name = string.Format("Player {0}", player.Index);
-			this.tokens = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Tokens(color)));
-			this.gems = Colors.CardinalColors.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => player.Gems(color)));
+			this.tokens = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(this.player.Index, color, () => player.Tokens(color)));
+			this.gems = Colors.CardinalColors.ToDictionary(color => color, color => new TokenCounterViewModel(this.player.Index, color, () => player.Gems(color)));
 			this.hand = new ObservableCollection<Card>();
 			this.nobles = new ObservableCollection<Noble>();
 

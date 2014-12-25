@@ -1,9 +1,9 @@
 ﻿namespace Splendor.ViewModel
 {
 	using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Splendor.Model;
+	using System.Diagnostics;
+	using System.Linq;
+	using Splendor.Model;
 
 	class HumanChooser : IChooser
 	{
@@ -17,12 +17,12 @@ using Splendor.Model;
 
 		public IAction Choose(IGame state)
 		{
-			if(!state.AvailableActions.Any())
+			if (!state.AvailableActions.Any())
 			{
 				return null;
 			}
 			// TODO: make this a user-configurable setting
-			if(state.CurrentPhase == Phase.Pay)
+			if (state.CurrentPhase == Phase.Pay)
 			{
 				var action = state.AvailableActions.First();
 				Debug.Assert(action != replaceGoldAction || state.AvailableActions.Count() == 1);

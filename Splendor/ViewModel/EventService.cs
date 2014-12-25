@@ -56,7 +56,7 @@
 				{
 					if (this.eventService.TokenTaken != null)
 					{
-						this.eventService.TokenTaken(this, new TokenEventArgs(color));
+						this.eventService.TokenTaken(this, new TokenEventArgs(color, player.Index));
 					}
 				}
 			}
@@ -65,7 +65,7 @@
 			{
 				if (this.eventService.TokenReturned != null)
 				{
-					this.eventService.TokenReturned(this, new TokenEventArgs(tokens));
+					this.eventService.TokenReturned(this, new TokenEventArgs(tokens, player.Index));
 				}
 			}
 

@@ -1,42 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using Splendor.Model;
-using Windows.UI.Core;
-using Windows.UI.Xaml;
-
-namespace Splendor.ViewModel
+﻿namespace Splendor.ViewModel
 {
-	//class GameThread
-	//{
-	//	private readonly Task gameTask;
-	//	private readonly IGame game;
-
-	//	public IGame Game { get { return this.game;  } }
-
-	//	public GameThread()
-	//	{
-	//		this.gameTask = Task.Run(() =>
-	//			{
-
-	//			});
-	//	}
-	//}
+	using System.Collections.Generic;
+	using System.Collections.ObjectModel;
+	using System.Linq;
+	using System.Threading.Tasks;
+	using System.Windows.Input;
+	using GalaSoft.MvvmLight;
+	using Splendor.Model;
 
 	public class GameViewModel : ViewModelBase
 	{
 		private readonly IGame game;
+		private readonly Task gameTask;
 		private readonly ObservableCollection<Card> market;
 		private readonly ObservableCollection<Noble> nobles;
 		private readonly Dictionary<Color, TokenCounterViewModel> supply;
 		private readonly IChooser[] choosers;
+
+		private bool isRunning;
 
 		public ObservableCollection<Card> Market { get { return this.market; } }
 
@@ -61,14 +42,14 @@ namespace Splendor.ViewModel
 			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
 			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));
 
-			this.supply = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(color, () => game.Supply(color)));
+			this.supply = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(-1, color, () => game.Supply(color)));
 
 			this.market = new ObservableCollection<Card>();
 			this.RefreshMarket();
 			this.nobles = new ObservableCollection<Noble>();
 			this.RefreshNobles();
 
-			this.StepCommand = new RelayCommand(this.Step);
+			this.gameTask = this.RunGameAsync();
 
 			eventService.CardBuilt += this.OnCardBuilt;
 			eventService.CardReserved += this.OnCardReserved;
@@ -110,13 +91,18 @@ namespace Splendor.ViewModel
 			this.supply[e.Color].Refresh();
 		}
 
-		private async void Step()
+		private async Task RunGameAsync()
 		{
+			if(this.isRunning)
+			{
+				return;
+			}
 			while (this.game.CurrentPhase != Phase.GameOver)
 			{
 				var action = await Task.Run(() => this.choosers[this.game.CurrentPlayerIndex].Choose(this.game));
 				this.game.Step(action);
 			}
+			this.isRunning = false;
 		}
 
 		private void RefreshNobles()
