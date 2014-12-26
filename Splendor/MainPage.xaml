@@ -25,16 +25,17 @@
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="Auto"/>
-					<ColumnDefinition/>
+					<ColumnDefinition Width="25*"/>
+					<ColumnDefinition Width="7*"/>
 					<ColumnDefinition Width="Auto"/>
 					<ColumnDefinition Width="Auto"/>
 				</Grid.ColumnDefinitions>
-				<ItemsControl ItemTemplate="{StaticResource SmallTokenTemplate}" ItemsSource="{Binding Tokens}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="2" Grid.ColumnSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="18,8"/>
-				<ItemsControl ItemTemplate="{StaticResource SmallGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="10,10,6,9"/>
-				<TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Grid.ColumnSpan="2" Margin="0,13"/>
+				<ItemsControl ItemTemplate="{StaticResource SmallTokenTemplate}" ItemsSource="{Binding Tokens}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="2" Grid.ColumnSpan="5" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="18,8"/>
+				<ItemsControl ItemTemplate="{StaticResource SmallGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="10,8,6,9"/>
+				<TextBlock Grid.Column="1" TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Margin="0,13,0,15"/>
 				<Image HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="30"/>
-				<TextBlock Grid.Column="3" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" FontSize="32"/>
-				<Grid Grid.Column="2">
+				<TextBlock Grid.Column="4" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8,8,8,10" FontSize="32"/>
+				<Grid Grid.Column="3" Margin="0,0,0,2">
 					<Path Data="M20.9636,0 C23.1797,1E-05 24.2878,1.75695 24.2878,5.27087 L23.9584,19.5859 L27.7019,8.44528 C28.8,5.17097 30.1477,3.53386 31.7449,3.53386 C32.6633,3.53386 33.3521,3.76316 33.8113,4.22176 C34.2705,4.68026 34.5001,5.37817 34.5001,6.31527 C34.5001,7.27207 34.3403,8.39838 34.0209,9.69418 L30.3074,24.1089 C30.507,24.7887 30.6767,25.8381 30.8165,27.2572 C31.4554,26.8975 32.3438,26.5177 33.4819,26.1178 C34.3004,24.7489 35.2088,23.7223 36.2071,23.0381 C37.2054,22.3538 38.3035,22.0117 39.5014,22.0117 C40.6594,22.0117 42.067,22.7126 43.7241,24.1145 L44.323,24.5886 L37.8542,30.7353 L32.3438,38.1119 C30.1676,40.1509 28.221,41.7601 26.504,42.9396 L26.504,47.2278 C23.9683,48.2659 21.5625,48.785 19.2865,48.785 C16.9306,48.785 14.6546,48.2659 12.4583,47.2278 L12.4583,43.9293 L9.87492,40.9308 C8.34881,38.092 7.2845,34.4337 6.68219,29.9558 L7.0102,26.3578 L1.28823,16.4311 C0.429413,14.9362 0,13.7401 0,12.843 C0,12.0456 0.264772,11.3729 0.794326,10.8248 C1.32387,10.2767 1.96831,10.0026 2.72761,10.0026 C3.84691,10.0026 4.96608,10.921 6.08509,12.7578 L11.2707,21.2929 L8.05741,9.07418 C7.6572,7.55687 7.4571,6.50867 7.4571,5.92967 C7.4571,4.81167 7.7016,3.97806 8.19081,3.42906 C8.67991,2.87999 9.41362,2.60547 10.3919,2.60547 C12.069,2.60547 13.2769,3.88326 14.0157,6.43877 L17.6094,18.9869 L17.6094,4.67186 C17.6094,3.11456 17.889,1.94662 18.448,1.16796 C19.007,0.389331 19.8455,1E-05 20.9636,0 z" Fill="Black" RenderTransformOrigin="0.5,0.5" Stretch="Uniform" UseLayoutRounding="False">
 						<Path.RenderTransform>
 							<TransformGroup>
@@ -47,6 +48,7 @@
 					</Path>
 					<TextBlock TextWrapping="Wrap" Text="{Binding Hand.Count}" FontSize="14.667" Foreground="White" Margin="16,25,20,12"/>
 				</Grid>
+				<TextBlock Grid.Column="2" TextWrapping="Wrap" Text="{Binding Nobles.Count}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8.375,8.3,7.625,9.7" FontSize="32"/>
 			</Grid>
 		</DataTemplate>
 	</Page.Resources>
@@ -71,7 +73,7 @@
 			</ItemsControl.ItemContainerTransitions>
 		</ItemsControl>
 		<ItemsControl ItemsSource="{Binding OtherPlayers}" ItemTemplate="{StaticResource PlayerTemplate}" ItemsPanel="{StaticResource MarketItemsPanel}" VerticalAlignment="Top" HorizontalAlignment="Right" Grid.Column="3" Margin="0,10,15,0"/>
-		<Grid DataContext="{Binding MainPlayer}" Background="#FF5B5B5B" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2">
+		<Grid DataContext="{Binding MainPlayer}" Background="#FF5B5B5B" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto"/>
 				<RowDefinition/>
@@ -79,21 +81,21 @@
 			</Grid.RowDefinitions>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto"/>
-				<ColumnDefinition Width="498"/>
 				<ColumnDefinition Width="Auto"/>
+				<ColumnDefinition/>
 			</Grid.ColumnDefinitions>
-			<ItemsControl ItemTemplate="{StaticResource MediumTokenTemplate}" ItemsSource="{Binding Tokens}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-			<ItemsControl ItemTemplate="{StaticResource MediumGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Margin="30,13,0,13" Grid.ColumnSpan="2"/>
+			<ItemsControl ItemTemplate="{StaticResource MediumTokenTemplate}" ItemsSource="{Binding Tokens}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Height="64" Width="384"/>
+			<ItemsControl ItemTemplate="{StaticResource MediumGemTemplate}" ItemsSource="{Binding Gems}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Height="64" Margin="32,10,32,9" Width="320"/>
+			<TextBlock TextWrapping="Wrap" Text="{Binding Name}" VerticalAlignment="Center" FontSize="24" Margin="30,13,0,13" Grid.ColumnSpan="2" Height="29"/>
 			<Image HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Width="30"/>
-			<ItemsControl x:Name="Hand" ItemTemplate="{StaticResource CardTemplate}" ItemsSource="{Binding Hand}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.RowSpan="2">
+			<ItemsControl x:Name="Hand" ItemTemplate="{StaticResource CardTemplate}" ItemsSource="{Binding Hand}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="1" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center">
 				<ItemsControl.ItemContainerTransitions>
 					<TransitionCollection>
 						<AddDeleteThemeTransition/>
 					</TransitionCollection>
 				</ItemsControl.ItemContainerTransitions>
 			</ItemsControl>
-			<TextBlock Grid.Column="2" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="8" FontSize="32"/>
+			<TextBlock Grid.Column="2" TextWrapping="Wrap" Text="{Binding Score}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="114,9,104,8" FontSize="32" Height="38" Width="17"/>
 			<ItemsControl x:Name="Nobles" ItemTemplate="{StaticResource NobleTemplate}" ItemsSource="{Binding Nobles}" ItemsPanel="{StaticResource HorizontalLayout}" Grid.Row="1" Grid.Column="2" Grid.RowSpan="2"/>
 		</Grid>
 		<Button Content="Step" Grid.Column="3" HorizontalAlignment="Left" Margin="269,526,0,0" VerticalAlignment="Top" Command="{Binding StepCommand}"/>

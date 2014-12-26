@@ -9,6 +9,7 @@
 		<vm:CardToCostsConverter x:Key="CardToCostsConverter" />
 		<vm:CardToImageSourceConverter x:Key="CardToImageSourceConverter" />
 		<vm:NobleToCostsConverter x:Key="NobleToCostsConverter" />
+		<vm:NobleToImageSourceConverter x:Key="NobleToImageSourceConverter"/>
 		<vm:ColorToBrushConverter x:Key="ColorToBrushConverter" />
 		<vm:CostZeroToCollapsedConverter x:Key="CostZeroToCollapsedConverter" />
 		<vm:BoolToBorderBrushHighlightConverter x:Key="BoolToBorderBrushHighlightConverter" />
@@ -21,7 +22,7 @@
 		</DataTemplate>
 
 		<DataTemplate x:Key="NobleTemplate">
-			<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
+			<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="175" Height="120">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto"/>
 					<RowDefinition/>
@@ -33,7 +34,7 @@
 				</Grid.ColumnDefinitions>
 				<TextBlock TextWrapping="Wrap" Text="3" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
 				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource NobleToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
-				<Image Grid.Column="1" Grid.Row="1" Source="Assets/db.jpg" Grid.ColumnSpan="2"/>
+				<Image Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2" Source="{Binding Converter={StaticResource NobleToImageSourceConverter}}" />
 				<Button Content="V" Command="{Binding CommandService.NobleVisitCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 			</Grid>
 		</DataTemplate>

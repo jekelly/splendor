@@ -120,6 +120,7 @@
     <Compile Include="ViewModel\Behaviors\TokenTakenBehavior.cs" />
     <Compile Include="ViewModel\Converters\BoolToBorderBrushHighlighConverter.cs" />
     <Compile Include="ViewModel\Converters\CardToImageSourceConverter.cs" />
+    <Compile Include="ViewModel\Converters\NobleToImageSourceConverter.cs" />
     <Compile Include="ViewModel\HumanChooser.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Compile Include="ViewModel\CardEventArgs.cs" />
@@ -148,6 +149,36 @@
     <Content Include="Assets\SmallLogo.scale-100.png" />
     <Content Include="Assets\SplashScreen.scale-100.png" />
     <Content Include="Assets\StoreLogo.scale-100.png" />
+    <Content Include="Assets\Themes\Space\Nobles\noble10.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble1.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble2.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble3.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble4.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble5.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble6.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble7.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble8.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Themes\Space\Nobles\noble9.scale-100.jpg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\Themes\Space\Tier1\black.scale-100.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -219,7 +250,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Assets\Themes\Space\Nobles\" />
     <Folder Include="View\" />
   </ItemGroup>
   <ItemGroup>
