@@ -23,6 +23,8 @@
 
 		public int Count { get; private set; }
 
+		public Color Color { get; private set; }
+
 		public void Refresh()
 		{
 			// Filter out Gold as it is used as the sentinel for the selection array.
@@ -31,8 +33,6 @@
 			this.selectCommand.RaiseCanExecuteChanged();
 			this.RaisePropertyChanged("Count");
 		}
-
-		public Color Color { get; private set; }
 
 		static TokenCounterViewModel()
 		{

@@ -77,6 +77,9 @@
 
 		<DataTemplate x:Key="LargeTokenTemplate">
 			<Button Command="{Binding SelectCommand}">
+				<Interactivity:Interaction.Behaviors>
+					<vm:AnimationSourceBehavior Identifier="{Binding Color}"/>
+				</Interactivity:Interaction.Behaviors>
 				<Button.Template>
 					<ControlTemplate>
 						<Border Width="{StaticResource SupplyTokenSize}" Height="{StaticResource SupplyTokenSize}" CornerRadius="{StaticResource SupplyTokenCornerRadius}" Margin="8" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" BorderThickness="3" BorderBrush="{Binding IsEnabled, Converter={StaticResource BoolToBorderBrushHighlightConverter}, RelativeSource={RelativeSource Mode=TemplatedParent}}">
@@ -136,11 +139,12 @@
 			<Button Command="{Binding CommandService.ReplaceTokenCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding Color}">
 				<Button.Template>
 					<ControlTemplate>
-						<Border Width="60" Height="60" CornerRadius="30" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+						<Border Width="60" Height="60" CornerRadius="30" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
 							<Interactivity:Interaction.Behaviors>
 								<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 									<vm:TokenGainedTrigger.Actions>
-										<vm:ScaleAction/>
+										<!--<vm:ScaleAction/>-->
+										<vm:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
 									</vm:TokenGainedTrigger.Actions>
 								</vm:TokenGainedTrigger>
 							</Interactivity:Interaction.Behaviors>

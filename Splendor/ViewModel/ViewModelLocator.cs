@@ -7,6 +7,7 @@
 	{
 		static ViewModelLocator()
 		{
+			SimpleIoc.Default.Register<AnimationService>();
 			SimpleIoc.Default.Register<CommandService>();
 			SimpleIoc.Default.Register<GameService>();
 			SimpleIoc.Default.Register<EventService>();

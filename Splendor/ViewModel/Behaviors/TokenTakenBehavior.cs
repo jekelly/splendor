@@ -1,14 +1,168 @@
 ﻿namespace Splendor.ViewModel
 {
 	using System;
+	using System.Collections.Generic;
 	using GalaSoft.MvvmLight.Ioc;
 	using Microsoft.Xaml.Interactivity;
 	using Splendor.Model;
 	using Windows.Foundation;
 	using Windows.UI.Xaml;
+	using Windows.UI.Xaml.Controls;
 	using Windows.UI.Xaml.Media;
 	using Windows.UI.Xaml.Media.Animation;
-	
+	using Windows.UI.Xaml.Media.Imaging;
+
+	public class AnimationService
+	{
+		private readonly Dictionary<object, UIElement> sources;
+		public AnimationService()
+		{
+			this.sources = new Dictionary<object, UIElement>();
+		}
+
+		internal void Register(object identifier, UIElement dependencyObject)
+		{
+			if (identifier == null) return;
+			this.sources.Add(identifier, dependencyObject);
+		}
+
+		internal void Unregister(object identifier)
+		{
+			if (identifier == null) return;
+			this.sources.Remove(identifier);
+		}
+
+		internal UIElement GetSource(object identifier)
+		{
+			return this.sources[identifier];
+		}
+	}
+
+	public sealed class AnimationSourceBehavior : DependencyObject, Microsoft.Xaml.Interactivity.IBehavior
+	{
+		private readonly AnimationService animationService;
+
+		public object Identifier
+		{
+			get { return (object)GetValue(IdentifierProperty); }
+			set 
+			{
+ 				if(this.Identifier != value)
+				{
+					this.animationService.Unregister(this.Identifier);
+					SetValue(IdentifierProperty, value);
+					this.animationService.Register(this.Identifier, (UIElement)this.AssociatedObject);
+				}
+			}
+		}
+
+		public static readonly DependencyProperty IdentifierProperty = DependencyProperty.Register("Identifier", typeof(object), typeof(AnimationSourceBehavior), new PropertyMetadata(null));
+
+		public AnimationSourceBehavior()
+		{
+			this.animationService = SimpleIoc.Default.GetInstance<AnimationService>();
+		}
+
+		public DependencyObject AssociatedObject
+		{
+			get;
+			private set;
+		}
+
+		public void Attach(DependencyObject associatedObject)
+		{
+			this.AssociatedObject = associatedObject;
+			this.animationService.Register(this.Identifier, (UIElement)this.AssociatedObject);
+		}
+
+		public void Detach()
+		{
+			this.animationService.Unregister(this.Identifier);
+			this.AssociatedObject = null;
+		}
+	}
+
+	public sealed class TranslateAndScaleAction : DependencyObject, Microsoft.Xaml.Interactivity.IAction
+	{
+		private readonly string guid;
+		private readonly AnimationService animationService;
+
+
+
+		public object SourceId
+		{
+			get { return (object)GetValue(SourceIdProperty); }
+			set { SetValue(SourceIdProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for SourceId.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty SourceIdProperty =
+			DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null, OnSourceIdentifierChanged));
+
+		
+
+		private static void OnSourceIdentifierChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			throw new NotImplementedException();
+		}
+
+		public TranslateAndScaleAction()
+		{
+			this.guid = Guid.NewGuid().ToString();
+			this.animationService = SimpleIoc.Default.GetInstance<AnimationService>();
+		}
+
+		private static Panel FindVisualRootPanel(DependencyObject obj)
+		{
+			Panel panel = null;
+			while (obj != null)
+			{
+				panel = obj as Panel ?? panel;
+				obj = VisualTreeHelper.GetParent(obj);
+			}
+			return panel;
+		}
+
+		private Canvas GetAnimationLayer(DependencyObject obj)
+		{
+			Panel p = FindVisualRootPanel(obj);
+			foreach (var child in p.Children)
+			{
+				if (((FrameworkElement)child).Name == this.guid)
+				{
+					return child as Canvas;
+				}
+			}
+			Canvas c = new Canvas();
+			c.Name = this.guid;
+			p.Children.Add(p);
+			return c;
+		}
+
+		public object Execute(object sender, object parameter)
+		{
+			if (this.SourceId == null)
+			{
+				return null;
+			}
+			var sourceObj = this.animationService.GetSource(this.SourceId);
+			var target = ((IBehavior)sender).AssociatedObject as UIElement;
+			RenderTargetBitmap rtb = new RenderTargetBitmap();
+			rtb.RenderAsync(sourceObj).AsTask();
+			Image i = new Image();
+			Panel rootPanel = FindVisualRootPanel(sourceObj);
+			Canvas canvas = this.GetAnimationLayer(sourceObj);
+			i.Source = rtb;
+
+			GeneralTransform t = sourceObj.TransformToVisual(rootPanel);
+			var startOffset = t.TransformPoint(new Point(0, 0));
+			Canvas.SetLeft(i, startOffset.X);
+			Canvas.SetLeft(i, startOffset.Y);
+			canvas.Children.Add(i);
+			return null;
+		}
+	}
+
 	public sealed class ScaleAction : DependencyObject, Microsoft.Xaml.Interactivity.IAction
 	{
 		public object Execute(object sender, object parameter)
