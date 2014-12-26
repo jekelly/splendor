@@ -2,10 +2,12 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Threading.Tasks;
 	using GalaSoft.MvvmLight.Ioc;
 	using Microsoft.Xaml.Interactivity;
 	using Splendor.Model;
 	using Windows.Foundation;
+	using Windows.UI.Core;
 	using Windows.UI.Xaml;
 	using Windows.UI.Xaml.Controls;
 	using Windows.UI.Xaml.Media;
@@ -45,18 +47,30 @@
 		public object Identifier
 		{
 			get { return (object)GetValue(IdentifierProperty); }
-			set 
+			set
 			{
- 				if(this.Identifier != value)
+				if (this.Identifier != value)
 				{
-					this.animationService.Unregister(this.Identifier);
 					SetValue(IdentifierProperty, value);
-					this.animationService.Register(this.Identifier, (UIElement)this.AssociatedObject);
 				}
 			}
 		}
 
-		public static readonly DependencyProperty IdentifierProperty = DependencyProperty.Register("Identifier", typeof(object), typeof(AnimationSourceBehavior), new PropertyMetadata(null));
+		public static readonly DependencyProperty IdentifierProperty = DependencyProperty.Register("Identifier", typeof(object), typeof(AnimationSourceBehavior), new PropertyMetadata(null, OnIdentiferChanged));
+
+		private static void OnIdentiferChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		{
+			AnimationSourceBehavior behavior = (AnimationSourceBehavior)d;
+
+			if (e.OldValue != null)
+			{
+				behavior.animationService.Unregister(e.OldValue);
+			}
+			if (e.NewValue != null && behavior.AssociatedObject != null)
+			{
+				behavior.animationService.Register(e.NewValue, (UIElement)behavior.AssociatedObject);
+			}
+		}
 
 		public AnimationSourceBehavior()
 		{
@@ -124,31 +138,78 @@
 			}
 			Canvas c = new Canvas();
 			c.Name = this.guid;
-			p.Children.Add(p);
+			p.Children.Add(c);
 			return c;
 		}
 
 		public object Execute(object sender, object parameter)
 		{
+			return this.ExecuteAsync(sender, parameter);
+		}
+
+		private async Task ExecuteAsync(object sender, object parameter)
+		{
 			if (this.SourceId == null)
 			{
-				return null;
+				return;
 			}
 			var sourceObj = this.animationService.GetSource(this.SourceId);
 			var target = ((IBehavior)sender).AssociatedObject as UIElement;
 			RenderTargetBitmap rtb = new RenderTargetBitmap();
-			rtb.RenderAsync(sourceObj).AsTask();
+			await rtb.RenderAsync(sourceObj);
 			Image i = new Image();
-			Panel rootPanel = FindVisualRootPanel(sourceObj);
 			Canvas canvas = this.GetAnimationLayer(sourceObj);
 			i.Source = rtb;
+			i.RenderTransform = new CompositeTransform();
 
-			GeneralTransform t = sourceObj.TransformToVisual(rootPanel);
+			GeneralTransform t = sourceObj.TransformToVisual(Window.Current.Content);
 			var startOffset = t.TransformPoint(new Point(0, 0));
 			Canvas.SetLeft(i, startOffset.X);
-			Canvas.SetLeft(i, startOffset.Y);
+			Canvas.SetTop(i, startOffset.Y);
 			canvas.Children.Add(i);
-			return null;
+
+			// figure out translation
+			Point targetTranslation = target.TransformToVisual(Window.Current.Content).TransformPoint(new Point(0, 0));
+			double scaleX = target.RenderSize.Width / sourceObj.RenderSize.Width;
+			double scaleY = target.RenderSize.Height / sourceObj.RenderSize.Height;
+			Storyboard sb = new Storyboard();
+			TimeSpan time = TimeSpan.FromMilliseconds(500);	
+			DoubleAnimation xa = new DoubleAnimation()
+			{
+				Duration = time,
+				To = targetTranslation.X,
+			};
+			Storyboard.SetTargetProperty(xa, "(Canvas.Left)");
+			Storyboard.SetTarget(xa, i);
+			DoubleAnimation ya = new DoubleAnimation()
+			{
+				Duration = time,
+				To = targetTranslation.Y,
+			};
+			Storyboard.SetTargetProperty(ya, "(Canvas.Top)");
+			Storyboard.SetTarget(ya, i);
+			DoubleAnimation xs = new DoubleAnimation()
+			{
+				Duration = time,
+				To = scaleX,
+			};
+			Storyboard.SetTargetProperty(xs, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+			Storyboard.SetTarget(xs, i);
+			DoubleAnimation ys = new DoubleAnimation()
+			{
+				Duration = time,
+				To = scaleY,
+			};
+			Storyboard.SetTargetProperty(ys, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+			Storyboard.SetTarget(ys, i);
+
+
+			sb.Children.Add(xa);
+			sb.Children.Add(ya);
+			sb.Children.Add(xs);
+			sb.Children.Add(ys);
+			sb.Begin();
+			sb.Completed += (o, e) => { canvas.Children.Remove(i); };
 		}
 	}
 
@@ -191,11 +252,11 @@
 			eventService.TokenTaken += this.OnTokenTaken;
 		}
 
-		private void OnTokenTaken(object sender, TokenEventArgs e)
+		private async void OnTokenTaken(object sender, TokenEventArgs e)
 		{
 			if (e.Color == this.Color && e.PlayerIndex == this.PlayerIndex)
 			{
-				Interaction.ExecuteActions(this, this.Actions, null);
+				await this.InvokeAsync(null);
 			}
 		}
 	}
@@ -207,11 +268,11 @@
 			eventService.CardBuilt += this.OnCardBuilt;
 		}
 
-		private void OnCardBuilt(object sender, CardEventArgs e)
+		private async void OnCardBuilt(object sender, CardEventArgs e)
 		{
 			if (e.Card.Gives == this.Color && e.Player.Index == this.PlayerIndex)
 			{
-				Interaction.ExecuteActions(this, this.Actions, null);
+				await this.InvokeAsync(null);
 			}
 		}
 	}
@@ -220,8 +281,6 @@
 	{
 		private readonly EventService eventService;
 		private DependencyObject associatedObject;
-
-
 
 		public ActionCollection Actions
 		{
@@ -245,10 +304,12 @@
 			set { this.SetValue(PlayerIndexProperty, value); }
 		}
 
+		private readonly CoreDispatcher uiDispatcher;
 		public EventServiceTrigger()
 		{
 			this.Actions = new ActionCollection();
 			this.eventService = SimpleIoc.Default.GetInstance<EventService>();
+			this.uiDispatcher = CoreWindow.GetForCurrentThread().Dispatcher;
 		}
 
 		public DependencyObject AssociatedObject
@@ -267,6 +328,23 @@
 		public void Detach()
 		{
 			this.associatedObject = null;
+		}
+
+		protected async Task InvokeAsync(object parameter)
+		{
+			List<Task> tasks = new List<Task>();
+			await this.uiDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+				{
+					foreach(Microsoft.Xaml.Interactivity.IAction action in this.Actions)
+					{
+						var result = action.Execute(this, parameter);
+						if (result is Task) 
+						{
+							tasks.Add((Task)result); 
+						}
+					}
+				});
+			await Task.WhenAll(tasks.ToArray());
 		}
 	}
 }

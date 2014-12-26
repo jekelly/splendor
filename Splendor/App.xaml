@@ -108,7 +108,7 @@
 				<Interactivity:Interaction.Behaviors>
 					<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 						<vm:TokenGainedTrigger.Actions>
-							<vm:ScaleAction/>
+							<vm:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
 						</vm:TokenGainedTrigger.Actions>
 					</vm:TokenGainedTrigger>
 				</Interactivity:Interaction.Behaviors>
@@ -143,7 +143,6 @@
 							<Interactivity:Interaction.Behaviors>
 								<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 									<vm:TokenGainedTrigger.Actions>
-										<!--<vm:ScaleAction/>-->
 										<vm:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
 									</vm:TokenGainedTrigger.Actions>
 								</vm:TokenGainedTrigger>
