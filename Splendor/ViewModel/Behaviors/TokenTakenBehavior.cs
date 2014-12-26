@@ -93,7 +93,7 @@
 			set { SetValue(SourceIdProperty, value); }
 		}
 
-		public static readonly DependencyProperty SourceIdProperty = DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null);
+		public static readonly DependencyProperty SourceIdProperty = DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null));
 
 		public TranslateAndScaleAction()
 		{
