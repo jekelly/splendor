@@ -87,24 +87,13 @@
 		private readonly string guid;
 		private readonly AnimationService animationService;
 
-
-
 		public object SourceId
 		{
 			get { return (object)GetValue(SourceIdProperty); }
 			set { SetValue(SourceIdProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for SourceId.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty SourceIdProperty =
-			DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null, OnSourceIdentifierChanged));
-
-		
-
-		private static void OnSourceIdentifierChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-		{
-			throw new NotImplementedException();
-		}
+		public static readonly DependencyProperty SourceIdProperty = DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null);
 
 		public TranslateAndScaleAction()
 		{
@@ -229,10 +218,18 @@
 
 	public abstract class EventServiceTrigger : DependencyObject, IBehavior
 	{
-		private readonly ActionCollection actions;
 		private readonly EventService eventService;
 		private DependencyObject associatedObject;
 
+
+
+		public ActionCollection Actions
+		{
+			get { return (ActionCollection)GetValue(ActionsProperty); }
+			set { SetValue(ActionsProperty, value); }
+		}
+
+		public static readonly DependencyProperty ActionsProperty = DependencyProperty.Register("Actions", typeof(ActionCollection), typeof(EventServiceTrigger), new PropertyMetadata(null));
 		public static readonly DependencyProperty ColorProperty = DependencyProperty.Register("Color", typeof(Color), typeof(EventServiceTrigger), new PropertyMetadata(Color.Gold));
 		public static readonly DependencyProperty PlayerIndexProperty = DependencyProperty.Register("PlayerIndex", typeof(int), typeof(EventServiceTrigger), new PropertyMetadata(-1));
 
@@ -248,11 +245,9 @@
 			set { this.SetValue(PlayerIndexProperty, value); }
 		}
 
-		public ActionCollection Actions { get { return this.actions; } }
-
 		public EventServiceTrigger()
 		{
-			this.actions = new ActionCollection();
+			this.Actions = new ActionCollection();
 			this.eventService = SimpleIoc.Default.GetInstance<EventService>();
 		}
 
