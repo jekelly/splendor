@@ -1,6 +1,7 @@
 ﻿namespace Splendor.ViewModel
 {
 	using GalaSoft.MvvmLight.Ioc;
+	using Splendor.View;
 	using Splendor.ViewModel;
 
 	public class ViewModelLocator

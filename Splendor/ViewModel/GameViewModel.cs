@@ -104,6 +104,11 @@
 			}
 			while (this.game.CurrentPhase != Phase.GameOver)
 			{
+				if(this.game.CurrentPhase == Phase.Choose && this.game.CurrentPlayerIndex != 0)
+				{
+					// add a one-second delay to the CPU players
+					await Task.Delay(1000);
+				}
 				var action = await Task.Run(() => this.choosers[this.game.CurrentPlayerIndex].Choose(this.game));
 				this.game.Step(action);
 			}

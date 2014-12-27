@@ -1,7 +1,14 @@
 ﻿<Application
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:vm="using:Splendor.ViewModel" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:Interactivity="using:Microsoft.Xaml.Interactivity" xmlns:Core="using:Microsoft.Xaml.Interactions.Core" xmlns:Media="using:Microsoft.Xaml.Interactions.Media" mc:Ignorable="d"
+	xmlns:v="using:Splendor.View" 
+    xmlns:vm="using:Splendor.ViewModel" 
+	xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+	xmlns:Interactivity="using:Microsoft.Xaml.Interactivity" 
+	xmlns:Core="using:Microsoft.Xaml.Interactions.Core" 
+	xmlns:Media="using:Microsoft.Xaml.Interactions.Media" 
+	mc:Ignorable="d"
     x:Class="Splendor.App"
     >
 
@@ -78,7 +85,7 @@
 		<DataTemplate x:Key="LargeTokenTemplate">
 			<Button Command="{Binding GameViewModel.SelectTokenCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}">
 				<Interactivity:Interaction.Behaviors>
-					<vm:AnimationSourceBehavior Identifier="{Binding Color}"/>
+					<v:AnimationSourceBehavior Identifier="{Binding Color}"/>
 				</Interactivity:Interaction.Behaviors>
 				<Button.Template>
 					<ControlTemplate>
@@ -95,7 +102,7 @@
 				<Interactivity:Interaction.Behaviors>
 					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 						<vm:CardBuiltTrigger.Actions>
-							<vm:ScaleAction/>
+							<v:ScaleAction/>
 						</vm:CardBuiltTrigger.Actions>
 					</vm:CardBuiltTrigger>
 				</Interactivity:Interaction.Behaviors>
@@ -108,7 +115,7 @@
 				<Interactivity:Interaction.Behaviors>
 					<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 						<vm:TokenGainedTrigger.Actions>
-							<vm:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
+							<v:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
 						</vm:TokenGainedTrigger.Actions>
 					</vm:TokenGainedTrigger>
 				</Interactivity:Interaction.Behaviors>
@@ -127,7 +134,7 @@
 				<Interactivity:Interaction.Behaviors>
 					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 						<vm:CardBuiltTrigger.Actions>
-							<vm:ScaleAction/>
+							<v:ScaleAction/>
 						</vm:CardBuiltTrigger.Actions>
 					</vm:CardBuiltTrigger>
 				</Interactivity:Interaction.Behaviors>
@@ -143,7 +150,7 @@
 							<Interactivity:Interaction.Behaviors>
 								<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 									<vm:TokenGainedTrigger.Actions>
-										<vm:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
+										<v:TranslateAndScaleAction SourceId="{Binding Color, Mode=OneWay}" />
 									</vm:TokenGainedTrigger.Actions>
 								</vm:TokenGainedTrigger>
 							</Interactivity:Interaction.Behaviors>
