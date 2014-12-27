@@ -1,5 +1,6 @@
 ﻿namespace Splendor.ViewModel
 {
+	using System;
 	using System.Collections.Generic;
 	using System.Collections.ObjectModel;
 	using System.Linq;
@@ -15,6 +16,7 @@
 		private readonly ObservableCollection<Card> market;
 		private readonly ObservableCollection<Noble> nobles;
 		private readonly Dictionary<Color, TokenCounterViewModel> supply;
+		private readonly TokenSelectionViewModel tokenSelection;
 		private readonly IChooser[] choosers;
 
 		private bool isRunning;
@@ -31,6 +33,8 @@
 
 		public IEnumerable<TokenCounterViewModel> TokenSupply { get { return this.supply.Values; } }
 
+		public ICommand SelectTokenCommand { get { return this.tokenSelection.SelectCommand; } }
+
 		public GameViewModel(GameService gameService, EventService eventService, CommandService commandService)
 		{
 			this.game = gameService.CreateGame();
@@ -42,7 +46,8 @@
 			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
 			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));
 
-			this.supply = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(-1, color, () => game.Supply(color)));
+			this.tokenSelection = new TokenSelectionViewModel(() => this.game.AvailableActions.OfType<TakeTokensAction>().Any(), commandService);
+			this.supply = Colors.All.ToDictionary(color => color, color => new TokenCounterViewModel(-1, color, () => Math.Max(0, game.Supply(color) - this.tokenSelection.SelectionCount(color))));
 
 			this.market = new ObservableCollection<Card>();
 			this.RefreshMarket();

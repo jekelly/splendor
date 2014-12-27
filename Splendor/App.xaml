@@ -76,7 +76,7 @@
 		<CornerRadius x:Key="SupplyTokenCornerRadius">100</CornerRadius>
 
 		<DataTemplate x:Key="LargeTokenTemplate">
-			<Button Command="{Binding SelectCommand}">
+			<Button Command="{Binding GameViewModel.SelectTokenCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}">
 				<Interactivity:Interaction.Behaviors>
 					<vm:AnimationSourceBehavior Identifier="{Binding Color}"/>
 				</Interactivity:Interaction.Behaviors>

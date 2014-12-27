@@ -8,54 +8,42 @@
 	using GalaSoft.MvvmLight.Ioc;
 	using Splendor.Model;
 
-	public class TokenCounterViewModel : ViewModelBase
+	class TokenSelectionViewModel : ViewModelBase, IRefreshable
 	{
-		private readonly int playerIndex;
-		private readonly Func<int> getCount;
+		private int selectionIndex = -1;
+		private readonly Func<bool> canTakeTokens;
 		private readonly CommandService commandService;
-		private static int selectionIndex = -1;
-		private readonly static Color[] selectedTokens;
-		private readonly RelayCommand selectCommand;
+		private readonly Color[] selectedTokens;
+		private readonly RelayCommand<TokenCounterViewModel> selectCommand;
+
+		public int SelectionCount(Color color)
+		{
+			if(color == Color.Gold)
+			{
+				return 0;
+			}
+			return this.selectedTokens.Count(c => c == color);
+		}
 
 		public ICommand SelectCommand { get { return this.selectCommand; } }
 
-		public int PlayerIndex { get { return this.playerIndex; } }
-
-		public int Count { get; private set; }
-
-		public Color Color { get; private set; }
-
-		public void Refresh()
+		public TokenSelectionViewModel(Func<bool> canTakeTokens, CommandService commandService)
 		{
-			// Filter out Gold as it is used as the sentinel for the selection array.
-			int selected = (this.Color == Model.Color.Gold) ? 0 : selectedTokens.Count(st => st == this.Color);
-			this.Count = this.getCount() - selected;
-			this.selectCommand.RaiseCanExecuteChanged();
-			this.RaisePropertyChanged("Count");
+			this.commandService = commandService;
+			this.canTakeTokens = canTakeTokens;
+			this.selectedTokens = Enumerable.Repeat(Color.Gold, 3).ToArray();
+			this.selectionIndex = -1;
+			this.selectCommand = new RelayCommand<TokenCounterViewModel>(this.Select, this.CanSelect);
+			this.commandService.RegisterCommand(this);
 		}
 
-		static TokenCounterViewModel()
+		private bool CanSelect(TokenCounterViewModel tokens)
 		{
-			selectedTokens = Enumerable.Repeat(Color.Gold, 3).ToArray();
-			selectionIndex = -1;
-		}
-
-		public TokenCounterViewModel(int playerIndex, Color color, Func<int> getCount)
-		{
-			this.playerIndex = playerIndex;
-			this.Color = color;
-			this.getCount = getCount;
-			//eventService.TokenTaken += this.OnTokenChange;
-			//eventService.TokenReturned += this.OnTokenChange;
-			this.commandService = SimpleIoc.Default.GetInstance<CommandService>();
-			this.selectCommand = new RelayCommand(this.Select, this.CanSelect);
-
-			this.Refresh();
-		}
-
-		private bool CanSelect()
-		{
-			if (this.Color == Color.Gold)
+			if (!this.canTakeTokens())
+			{
+				return false;
+			}
+			if (tokens.Color == Color.Gold)
 			{
 				return false;
 			}
@@ -64,33 +52,70 @@
 			//{
 			//	return false;
 			//}
-			if (selectionIndex >= 2)
+			if (this.selectionIndex >= 2)
 			{
 				return false;
 			}
-			if (selectionIndex == -1)
+			if (this.selectionIndex == -1)
 			{
 				return true;
 			}
-			if (selectionIndex == 0 && selectedTokens[0] == this.Color)
+			if (this.selectionIndex == 0 && this.selectedTokens[0] == tokens.Color)
 			{
-				return this.Count > 1;
+				return tokens.Count > 3;
 			}
-			return selectedTokens[0] != this.Color && selectedTokens[1] != this.Color && selectedTokens[0] != selectedTokens[1];
+			return selectedTokens[0] != tokens.Color && 
+				this.selectedTokens[1] != tokens.Color &&
+				this.selectedTokens[0] != this.selectedTokens[1];
 		}
 
-		private void Select()
+		private void Select(TokenCounterViewModel tokens)
 		{
-			selectedTokens[++selectionIndex] = this.Color;
-			if (selectionIndex == 2 || selectionIndex == 1 && selectedTokens[0] == selectedTokens[1])
+			this.selectedTokens[++this.selectionIndex] = tokens.Color;
+			if (this.selectionIndex == 2 || this.selectionIndex == 1 && this.selectedTokens[0] == this.selectedTokens[1])
 			{
-				Array.Sort(selectedTokens);
-				this.commandService.TakeTokensCommand.Execute(selectedTokens);
-				selectedTokens[0] = Model.Color.Gold;
-				selectedTokens[1] = Model.Color.Gold;
-				selectedTokens[2] = Model.Color.Gold;
-				selectionIndex = -1;
+				Array.Sort(this.selectedTokens);
+				this.commandService.TakeTokensCommand.Execute(this.selectedTokens);
+				this.selectedTokens[0] = Model.Color.Gold;
+				this.selectedTokens[1] = Model.Color.Gold;
+				this.selectedTokens[2] = Model.Color.Gold;
+				this.selectionIndex = -1;
 			}
+			tokens.Refresh();
+			this.Refresh();
+		}
+
+		public void Refresh()
+		{
+			this.selectCommand.RaiseCanExecuteChanged();
+		}
+	}
+
+	public class TokenCounterViewModel : ViewModelBase
+	{
+		private readonly int playerIndex;
+		private readonly Func<int> getCount;
+		private readonly CommandService commandService;
+
+		public int PlayerIndex { get { return this.playerIndex; } }
+
+		public int Count { get; private set; }
+		public Color Color { get; private set; }
+
+		public void Refresh()
+		{
+			this.Count = this.getCount();
+			this.RaisePropertyChanged("Count");
+		}
+
+		public TokenCounterViewModel(int playerIndex, Color color, Func<int> getCount)
+		{
+			this.playerIndex = playerIndex;
+			this.Color = color;
+			this.getCount = getCount;
+
+			this.commandService = SimpleIoc.Default.GetInstance<CommandService>();
+
 			this.Refresh();
 		}
 

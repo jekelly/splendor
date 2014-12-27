@@ -8,6 +8,8 @@
 	using System.Threading.Tasks;
 	using System.Windows.Input;
 	using GalaSoft.MvvmLight;
+	using GalaSoft.MvvmLight.Command;
+	using GalaSoft.MvvmLight.Ioc;
 	using Splendor.Model;
 
 	public class NobleVisitCommand : ActionCommand<Noble>
@@ -22,10 +24,15 @@
 		}
 	}
 
+	public interface IRefreshable
+	{
+		void Refresh();
+	}
 
 	public class CommandService
 	{
 		private readonly ManualResetEventSlim actionAvailable;
+		private readonly List<IRefreshable> refreshables;
 		private readonly ActionCommand<Card> buildCardCommand;
 		private readonly ActionCommand<Card> reserveCardCommand;
 		private readonly ActionCommand<Color[]> takeTokensCommand;
@@ -43,12 +50,20 @@
 
 		public CommandService()
 		{
+			this.refreshables = new List<IRefreshable>();
 			this.actionAvailable = new ManualResetEventSlim(false);
+
 			this.reserveCardCommand = new ReserveCardCommand(this);
 			this.buildCardCommand = new BuildCardCommand(this);
 			this.takeTokensCommand = new TakeTokenCommand(this);
 			this.replaceTokenCommand = new ReturnTokenCommand(this);
 			this.nobleVisitCommand = new NobleVisitCommand(this);
+
+			this.RegisterCommand(this.reserveCardCommand);
+			this.RegisterCommand(this.buildCardCommand);
+			this.RegisterCommand(this.takeTokensCommand);
+			this.RegisterCommand(this.replaceTokenCommand);
+			this.RegisterCommand(this.nobleVisitCommand);
 		}
 
 		public bool IsActionAvailable(IAction action)
@@ -97,11 +112,14 @@
 
 		private void RefreshCommands()
 		{
-			this.buildCardCommand.Refresh();
-			this.reserveCardCommand.Refresh();
-			this.replaceTokenCommand.Refresh();
-			this.takeTokensCommand.Refresh();
-			this.nobleVisitCommand.Refresh();
+			foreach (IRefreshable refreshable in this.refreshables)
+			{
+				refreshable.Refresh();
+			}
+		}
+		public void RegisterCommand(IRefreshable refreshable)
+		{
+			this.refreshables.Add(refreshable);
 		}
 	}
 
@@ -169,7 +187,7 @@
 		}
 	}
 
-	public abstract class ActionCommand<T> : ICommand
+	public abstract class ActionCommand<T> : ICommand, IRefreshable
 	{
 		private readonly CommandService commandService;
 
