@@ -20,6 +20,7 @@
 		<vm:ColorToBrushConverter x:Key="ColorToBrushConverter" />
 		<vm:CostZeroToCollapsedConverter x:Key="CostZeroToCollapsedConverter" />
 		<vm:BoolToBorderBrushHighlightConverter x:Key="BoolToBorderBrushHighlightConverter" />
+		<vm:CardEventArgsToCardConverter x:Key="CardEventArgsToCardConverter"/>
 		<vm:ViewModelLocator x:Key="ViewModelLocator"/>
 
 		<DataTemplate x:Key="CostTemplate">
@@ -47,34 +48,54 @@
 		</DataTemplate>
 
 		<DataTemplate x:Key="CardTemplate">
+			<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition/>
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto"/>
+					<ColumnDefinition/>
+					<ColumnDefinition Width="Auto"/>
+				</Grid.ColumnDefinitions>
+				<Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" Source="{Binding Converter={StaticResource CardToImageSourceConverter}}" Stretch="UniformToFill"/>
+				<Border Grid.ColumnSpan="3">
+					<Border.Background>
+						<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+							<GradientStop Color="#FF4A4A4A" Offset="0"/>
+							<GradientStop Color="Transparent" Offset="1"/>
+						</LinearGradientBrush>
+					</Border.Background>
+				</Border>
+				<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
+				<Rectangle Grid.Column="2" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="0,3,2,3" Height="25"/>
+				<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+					<Button Content="B" Command="{Binding CommandService.BuildCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+					<Button Content="R" Command="{Binding CommandService.ReserveCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
+				</StackPanel>
+				<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
+			</Grid>
+		</DataTemplate>
+
+		<DataTemplate x:Key="MarketCardTemplate">
 			<Border CornerRadius="4">
-				<Grid Background="#FF5B5B5B" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="127" Height="178">
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition/>
-					</Grid.RowDefinitions>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="Auto"/>
-						<ColumnDefinition/>
-						<ColumnDefinition Width="Auto"/>
-					</Grid.ColumnDefinitions>
-					<Image Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3" Grid.RowSpan="2" Source="{Binding Converter={StaticResource CardToImageSourceConverter}}" Stretch="UniformToFill"/>
-					<Border Grid.ColumnSpan="3">
-						<Border.Background>
-							<LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-								<GradientStop Color="#FF4A4A4A" Offset="0"/>
-								<GradientStop Color="Transparent" Offset="1"/>
-							</LinearGradientBrush>
-						</Border.Background>
-					</Border>
-					<TextBlock TextWrapping="Wrap" Text="{Binding Value}" VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="24" FontWeight="Bold" Margin="6,2,6,0"/>
-					<Rectangle Grid.Column="2" Fill="{Binding Gives, Converter={StaticResource ColorToBrushConverter}}" HorizontalAlignment="Right" Stroke="Black" Width="25" Margin="0,3,2,3" Height="25"/>
-					<StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
-						<Button Content="B" Command="{Binding CommandService.BuildCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
-						<Button Content="R" Command="{Binding CommandService.ReserveCardCommand, Source={StaticResource ViewModelLocator}}" CommandParameter="{Binding}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="10" Padding="8,4"/>
-					</StackPanel>
-					<ItemsControl Grid.Row="1" ItemTemplate="{StaticResource CostTemplate}" ItemsSource="{Binding Converter={StaticResource CardToCostsConverter}}" VerticalAlignment="Bottom" Margin="0,0,0,8"/>
-				</Grid>
+				<Interactivity:Interaction.Behaviors>
+					<v:AnimationSourceBehavior Identifier="{Binding}"/>
+				</Interactivity:Interaction.Behaviors>
+				<ContentPresenter ContentTemplate="{StaticResource CardTemplate}"/>
+			</Border>
+		</DataTemplate>
+
+		<DataTemplate x:Key="ReserveCardTemplate">
+			<Border CornerRadius="4">
+				<Interactivity:Interaction.Behaviors>
+					<vm:CardReservedTrigger EventArgsConverter="{StaticResource CardEventArgsToCardConverter}">
+						<vm:CardReservedTrigger.Actions>
+							<v:TranslateAndScaleAction/>
+						</vm:CardReservedTrigger.Actions>
+					</vm:CardReservedTrigger>
+				</Interactivity:Interaction.Behaviors>
+				<ContentPresenter ContentTemplate="{StaticResource CardTemplate}"/>
 			</Border>
 		</DataTemplate>
 
@@ -98,11 +119,11 @@
 		</DataTemplate>
 
 		<DataTemplate x:Key="SmallGemTemplate">
-			<Border Width="40" Height="40" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+			<Border Width="40" Height="40" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
 				<Interactivity:Interaction.Behaviors>
-					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}" EventArgsConverter="{StaticResource CardEventArgsToCardConverter}">
 						<vm:CardBuiltTrigger.Actions>
-							<v:ScaleAction/>
+							<v:TranslateAndScaleAction/>
 						</vm:CardBuiltTrigger.Actions>
 					</vm:CardBuiltTrigger>
 				</Interactivity:Interaction.Behaviors>
@@ -111,7 +132,7 @@
 		</DataTemplate>
 
 		<DataTemplate x:Key="SmallTokenTemplate">
-			<Border Width="40" Height="40" CornerRadius="40" Visibility="{Binding Cost, Converter={StaticResource CostZeroToCollapsedConverter}}" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
+			<Border Width="40" Height="40" CornerRadius="40" Background="{Binding Color, Converter={StaticResource ColorToBrushConverter}}" Margin="2" BorderThickness="1" BorderBrush="Black">
 				<Interactivity:Interaction.Behaviors>
 					<vm:TokenGainedTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
 						<vm:TokenGainedTrigger.Actions>
@@ -125,16 +146,13 @@
 
 		<DataTemplate x:Key="MediumGemTemplate">
 			<Border x:Name="MediumGemRootBorder" Width="60" Height="60" Margin="2" BorderThickness="1" BorderBrush="Black" RenderTransformOrigin="0.5,0.5">
-				<Border.Visibility>
-					<Binding Converter="{StaticResource CostZeroToCollapsedConverter}" Path="Cost"/>
-				</Border.Visibility>
 				<Border.Background>
 					<Binding Converter="{StaticResource ColorToBrushConverter}" Path="Color"/>
 				</Border.Background>
 				<Interactivity:Interaction.Behaviors>
-					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}">
+					<vm:CardBuiltTrigger Color="{Binding Color, Mode=OneWay}" PlayerIndex="{Binding PlayerIndex}" EventArgsConverter="{StaticResource CardEventArgsToCardConverter}">
 						<vm:CardBuiltTrigger.Actions>
-							<v:ScaleAction/>
+							<v:TranslateAndScaleAction/>
 						</vm:CardBuiltTrigger.Actions>
 					</vm:CardBuiltTrigger>
 				</Interactivity:Interaction.Behaviors>

@@ -13,8 +13,12 @@
 
 	public sealed class TranslateAndScaleAction : DependencyObject, Microsoft.Xaml.Interactivity.IAction
 	{
+		public static readonly DependencyProperty SourceIdProperty = DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null));
+
 		private readonly string guid;
 		private readonly AnimationService animationService;
+
+		public bool ShouldScale { get; set; }
 
 		public object SourceId
 		{
@@ -22,12 +26,11 @@
 			set { SetValue(SourceIdProperty, value); }
 		}
 
-		public static readonly DependencyProperty SourceIdProperty = DependencyProperty.Register("SourceId", typeof(object), typeof(TranslateAndScaleAction), new PropertyMetadata(null));
-
 		public TranslateAndScaleAction()
 		{
 			this.guid = Guid.NewGuid().ToString();
 			this.animationService = SimpleIoc.Default.GetInstance<AnimationService>();
+			this.ShouldScale = true;
 		}
 
 		private static Panel FindVisualRootPanel(DependencyObject obj)
@@ -64,11 +67,20 @@
 
 		private async Task ExecuteAsync(object sender, object parameter)
 		{
-			if (this.SourceId == null)
+			object id = this.SourceId ?? parameter;
+			if (id == null)
 			{
 				return;
 			}
-			var sourceObj = this.animationService.GetSource(this.SourceId);
+			var sourceObj = this.animationService.GetSource(id);
+			if(sourceObj == null)
+			{
+				return;
+			}
+			if(sourceObj.DesiredSize.Width == 0 || sourceObj.DesiredSize.Height == 0)
+			{
+				return;
+			}
 			var target = ((IBehavior)sender).AssociatedObject as UIElement;
 			RenderTargetBitmap rtb = new RenderTargetBitmap();
 			await rtb.RenderAsync(sourceObj);
@@ -103,26 +115,28 @@
 			};
 			Storyboard.SetTargetProperty(ya, "(Canvas.Top)");
 			Storyboard.SetTarget(ya, i);
-			DoubleAnimation xs = new DoubleAnimation()
-			{
-				Duration = time,
-				To = scaleX,
-			};
-			Storyboard.SetTargetProperty(xs, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
-			Storyboard.SetTarget(xs, i);
-			DoubleAnimation ys = new DoubleAnimation()
-			{
-				Duration = time,
-				To = scaleY,
-			};
-			Storyboard.SetTargetProperty(ys, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
-			Storyboard.SetTarget(ys, i);
-
-
 			sb.Children.Add(xa);
 			sb.Children.Add(ya);
-			sb.Children.Add(xs);
-			sb.Children.Add(ys);
+
+			if (this.ShouldScale)
+			{
+				DoubleAnimation xs = new DoubleAnimation()
+				{
+					Duration = time,
+					To = scaleX,
+				};
+				Storyboard.SetTargetProperty(xs, "(UIElement.RenderTransform).(CompositeTransform.ScaleX)");
+				Storyboard.SetTarget(xs, i);
+				DoubleAnimation ys = new DoubleAnimation()
+				{
+					Duration = time,
+					To = scaleY,
+				};
+				Storyboard.SetTargetProperty(ys, "(UIElement.RenderTransform).(CompositeTransform.ScaleY)");
+				Storyboard.SetTarget(ys, i);
+				sb.Children.Add(xs);
+				sb.Children.Add(ys);
+			}
 			sb.Begin();
 			sb.Completed += (o, e) => { canvas.Children.Remove(i); };
 		}

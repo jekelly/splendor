@@ -62,7 +62,7 @@
 			}
 			if (this.selectionIndex == 0 && this.selectedTokens[0] == tokens.Color)
 			{
-				return tokens.Count > 3;
+				return tokens.Count >= 3;
 			}
 			return selectedTokens[0] != tokens.Color && 
 				this.selectedTokens[1] != tokens.Color &&

@@ -1,8 +1,11 @@
 ﻿namespace Splendor.View
 {
+	using System.Collections.Specialized;
 	using GalaSoft.MvvmLight.Ioc;
 	using Microsoft.Xaml.Interactivity;
 	using Windows.UI.Xaml;
+	using Windows.UI.Xaml.Controls;
+	using Windows.UI.Xaml.Media;
 
 	public sealed class AnimationSourceBehavior : DependencyObject, IBehavior
 	{
@@ -37,7 +40,30 @@
 		{
 			this.AssociatedObject = associatedObject;
 			this.animationService.Register(this.Identifier, (UIElement)this.AssociatedObject);
+			//((FrameworkElement)associatedObject).Loaded += (o, e) =>
+			//	{
+			//		// see if we're coming from a notifying container, and hook up an unregistration notice if so
+			//		DependencyObject root = associatedObject;
+			//		while (root != null)
+			//		{
+			//			ItemsControl ic = root as ItemsControl;
+			//			if (ic != null)
+			//			{
+			//				INotifyCollectionChanged ncc = ic.ItemsSource as INotifyCollectionChanged;
+			//				if (ncc != null)
+			//				{
+			//					ncc.CollectionChanged += ncc_CollectionChanged;
+			//				}
+			//				break;
+			//			}
+			//			root = VisualTreeHelper.GetParent(root);
+			//		}
+			//	};
 		}
+
+		//void ncc_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		//{
+		//}
 
 		public void Detach()
 		{

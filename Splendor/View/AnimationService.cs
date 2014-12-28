@@ -14,7 +14,7 @@
 		internal void Register(object identifier, UIElement dependencyObject)
 		{
 			if (identifier == null) return;
-			this.sources.Add(identifier, dependencyObject);
+			this.sources[identifier] = dependencyObject;
 		}
 
 		internal void Unregister(object identifier)

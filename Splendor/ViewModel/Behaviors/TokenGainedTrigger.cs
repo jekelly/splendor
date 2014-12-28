@@ -11,7 +11,7 @@
 		{
 			if (e.Color == this.Color && e.PlayerIndex == this.PlayerIndex)
 			{
-				await this.InvokeAsync(null);
+				await this.InvokeAsync(e);
 			}
 		}
 	}

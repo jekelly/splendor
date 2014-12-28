@@ -120,6 +120,7 @@
     <Compile Include="ViewModel\Behaviors\CardBuiltTrigger.cs" />
     <Compile Include="ViewModel\Behaviors\EventServiceTrigger.cs" />
     <Compile Include="ViewModel\Behaviors\TokenGainedTrigger.cs" />
+    <Compile Include="ViewModel\Converters\CardEventArgsToCardConverter.cs" />
     <Compile Include="View\Behaviors\ScaleAction.cs" />
     <Compile Include="View\Behaviors\TranslateAndScaleAction.cs" />
     <Compile Include="View\AnimationService.cs" />

@@ -8,12 +8,14 @@
 	using Splendor.Model;
 	using Windows.UI.Core;
 	using Windows.UI.Xaml;
+	using Windows.UI.Xaml.Data;
 
 	public abstract class EventServiceTrigger : DependencyObject, IBehavior
 	{
 		public static readonly DependencyProperty ActionsProperty = DependencyProperty.Register("Actions", typeof(ActionCollection), typeof(EventServiceTrigger), new PropertyMetadata(null));
 		public static readonly DependencyProperty ColorProperty = DependencyProperty.Register("Color", typeof(Color), typeof(EventServiceTrigger), new PropertyMetadata(Color.Gold));
 		public static readonly DependencyProperty PlayerIndexProperty = DependencyProperty.Register("PlayerIndex", typeof(int), typeof(EventServiceTrigger), new PropertyMetadata(-1));
+		public static readonly DependencyProperty EventArgsConverterProperty = DependencyProperty.Register("EventArgsConverter", typeof(IValueConverter), typeof(EventServiceTrigger), new PropertyMetadata(null));
 
 		private readonly EventService eventService;
 		private readonly CoreDispatcher uiDispatcher;
@@ -35,6 +37,11 @@
 		{
 			get { return (int)this.GetValue(PlayerIndexProperty); }
 			set { this.SetValue(PlayerIndexProperty, value); }
+		}
+		public IValueConverter EventArgsConverter
+		{
+			get { return (IValueConverter)GetValue(EventArgsConverterProperty); }
+			set { SetValue(EventArgsConverterProperty, value); }
 		}
 
 		public EventServiceTrigger()
@@ -69,6 +76,10 @@
 			{
 				foreach (Microsoft.Xaml.Interactivity.IAction action in this.Actions)
 				{
+					if(this.EventArgsConverter != null)
+					{
+						parameter = this.EventArgsConverter.Convert(parameter, null, null, null);
+					}
 					var result = action.Execute(this, parameter);
 					if (result is Task)
 					{
