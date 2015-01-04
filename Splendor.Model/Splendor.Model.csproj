@@ -36,7 +36,9 @@
     <Compile Include="Actions\BuildCardAction.cs" />
     <Compile Include="Actions\NobleVisitAction.cs" />
     <Compile Include="AI\Choosers\ColorPreferenceChooser.cs" />
+    <Compile Include="AI\Choosers\ExpectedValueChooser.cs" />
     <Compile Include="AI\Choosers\FirstChooser.cs" />
+    <Compile Include="AI\Choosers\GreedyChooser.cs" />
     <Compile Include="AI\Choosers\HighestScoreChooser.cs" />
     <Compile Include="AI\Choosers\IanMStrategyChooser.cs" />
     <Compile Include="AI\Choosers\MaxScoreChooser.cs" />

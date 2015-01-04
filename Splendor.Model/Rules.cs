@@ -99,7 +99,7 @@
 			new Noble() { id = 10, requires = new byte[] { 4, 4, 0, 0, 0 }, value = 3 },
 		};
 
-		public static readonly Card SentinelCard = new Card() { id = 0, tier = 255, costBlack = 255, costBlue = 255, costGreen = 255, costRed = 255, costWhite = 255, gives = 255, value = 255 };
+		public static readonly Card SentinelCard = new Card() { id = 0, tier = 255, costBlack = 255, costBlue = 255, costGreen = 255, costRed = 255, costWhite = 255, gives = 255, value = 0 };
 		public static readonly Card[] Cards = 
 		{
 			SentinelCard,
