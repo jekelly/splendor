@@ -4,6 +4,9 @@
 	using System.Linq;
 	using Splendor.Model;
 
+	/// <summary>
+	/// Always chooses the first action available to it.
+	/// </summary>
 	class FirstChooser : IChooser
 	{
 		public IAction Choose(IGame state)

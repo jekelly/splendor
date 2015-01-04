@@ -4,11 +4,14 @@
 	using System.Collections.Generic;
 	using System.Linq;
 
-	public class SimpleChooser : IChooser
+	/// <summary>
+	/// Avoids taking tokens when its near the max, but otherwise random.
+	/// </summary>
+	public class NearlyRandomChooser : IChooser
 	{
 		private readonly Random rand;
 
-		public SimpleChooser(int index)
+		public NearlyRandomChooser(int index)
 		{
 			this.rand = new Random();
 		}

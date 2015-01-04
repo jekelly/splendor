@@ -22,7 +22,7 @@
 			int[] movingAverage = new int[100];
 			int[] runningTotal = new int[2];
 			IChooser[] choosers = new IChooser[2];
-			choosers[0] = new SimpleChooser(0);
+			choosers[0] = new NearlyRandomChooser(0);
 			//choosers[1] = new IanMStrategy(1);
 			//choosers[0] = new IanMStrategy(0);
 			//choosers[0] = new TDChooser(0, false);
