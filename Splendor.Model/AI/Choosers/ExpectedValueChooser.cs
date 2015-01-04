@@ -25,21 +25,71 @@
 					double value = 0;
 					IPlayer currentPlayer = state.GetPlayer(this.PlayerIndex);
 
-					double[] gemValues = CalculateGemValues(state);
+					//double[] gemValues = CalculateGemValues(state);
 
 					value += currentPlayer.Score;
-					for (int n = 0; n < state.Nobles.Length; n++)
-					{
-						Noble noble = state.Nobles[n];
-						value += 3.0 * NobleRatio(state, currentPlayer, noble);
-					}
+					// build a table of gem prevalence
+					double[] tokenValues = new double[5];
+					// tokens can only buy market cards, so don't count nobles
 					for (int m = 0; m < state.Market.Length; m++)
 					{
 						Card card = state.Market[m];
-						if (card.id == Rules.SentinelCard.id) continue;
-						value += (card.value + gemValues[card.gives]) * CardRatio(state, currentPlayer, card);
-						// todo: secondary value of card as a gem in terms of expectations of its future value?
+						for (int c = 0; c < 5; c++)
+						{
+							tokenValues[c] += Math.Max(0, card.Cost((Color)c) - currentPlayer.Gems((Color)c));
+						}
 					}
+					double[] gemValues = new double[5];
+					Buffer.BlockCopy(tokenValues, 0, gemValues, 0, 5);
+					for (int n = 0; n < state.Nobles.Length; n++)
+					{
+						Noble noble = state.Nobles[n];
+						for (int c = 0; c < 5; c++)
+						{
+							gemValues[c] += Math.Max(0, noble.requires[c] - currentPlayer.Gems((Color)c));
+						}
+					}
+					double totalTokens = tokenValues.Sum();
+					double totalGems = gemValues.Sum();
+					for (int i = 0; i < tokenValues.Length; i++)
+					{
+						tokenValues[i] /= totalTokens;
+						gemValues[i] /= totalGems;
+					}
+					// for each card in tableau, value is the gem value it gives + weighted value of cards it contributes towards buying
+					foreach (Card card in currentPlayer.Tableau)
+					{
+						value += tokenValues[card.gives];
+						for (int m = 0; m < state.Market.Length; m++)
+						{
+							Card marketCard = state.Market[m];
+							if (marketCard.id == Rules.SentinelCard.id || marketCard.Cost((Color)card.gives) == 0) continue;
+							double cardValue = marketCard.value + gemValues[marketCard.gives];
+							double cardCost = TotalCost(marketCard);
+							value += (cardValue / cardCost);
+						}
+					}
+					// for tokens, give their gem value once (for gold, give highest gem value)
+					for (int c = 0; c < 5; c++)
+					{
+						value += tokenValues[c] * currentPlayer.Tokens((Color)c);
+					}
+					value += tokenValues.Max() * currentPlayer.Tokens(Color.Gold);
+
+
+					//for (int n = 0; n < state.Nobles.Length; n++)
+					//{
+					//	Noble noble = state.Nobles[n];
+					//	value += noble.value * NobleRatio(state, currentPlayer, noble);
+					//}
+					// for each market card, get some value for each percentage of matching gems we have
+					//for (int m = 0; m < state.Market.Length; m++)
+					//{
+					//	Card card = state.Market[m];
+					//	if (card.id == Rules.SentinelCard.id) continue;
+					//	value += (card.value + gemValues[card.gives]) * CardRatio(state, currentPlayer, card);
+					//	// todo: secondary value of card as a gem in terms of expectations of its future value?
+					//}
 					//foreach (Card card in currentPlayer.Hand)
 					//{
 					//	if (card.id == Rules.SentinelCard.id) continue;
@@ -74,18 +124,18 @@
 					}
 				}
 			}
-			for (int n = 0; n < state.Nobles.Length; n++)
-			{
-				Noble noble = state.Nobles[n];
-				int cost = noble.requires[0] + noble.requires[1] + noble.requires[2] + noble.requires[3] + noble.requires[4];
-				for (int color = 0; color < 5; color++)
-				{
-					if (noble.requires[color] > 0)
-					{
-						values[color] += noble.value * (1.0 / cost);
-					}
-				}
-			}
+			//for (int n = 0; n < state.Nobles.Length; n++)
+			//{
+			//	Noble noble = state.Nobles[n];
+			//	int cost = noble.requires[0] + noble.requires[1] + noble.requires[2] + noble.requires[3] + noble.requires[4];
+			//	for (int color = 0; color < 5; color++)
+			//	{
+			//		if (noble.requires[color] > 0)
+			//		{
+			//			values[color] += noble.value * (1.0 / cost);
+			//		}
+			//	}
+			//}
 			return values;
 		}
 
@@ -108,7 +158,7 @@
 			distance += Math.Max(0, card.costBlue - player.BuyingPower[(int)Color.Blue]);
 			distance += Math.Max(0, card.costRed - player.BuyingPower[(int)Color.Red]);
 			distance += Math.Max(0, card.costWhite - player.BuyingPower[(int)Color.White]);
-			distance -= Math.Max(0, distance - player.Tokens(Color.Gold));
+			distance = Math.Max(0, distance - player.Tokens(Color.Gold));
 			return distance;
 		}
 

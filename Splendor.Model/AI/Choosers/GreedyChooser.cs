@@ -27,7 +27,7 @@
 			{
 				return actions[0];
 			}
-
+			Debug.WriteLine("Current value: {0}", this.EvaluateStateAsync(state).Result);
 			int index = -1;
 			Task<double>[] tasks = new Task<double>[actions.Length];
 			if (state.CurrentPhase == Phase.Choose)
@@ -48,6 +48,7 @@
 				double[] results = tasks.Select(t => t.Result).ToArray();
 				for (int i = 0; i < results.Length; i++)
 				{
+					Debug.WriteLine("{0}: {1}", results[i], actions[i]);
 					if (results[i] > max)
 					{
 						index = i;
