@@ -41,7 +41,7 @@
 
 			this.choosers = new IChooser[2];
 			this.choosers[0] = new HumanChooser(commandService);
-			this.choosers[1] = new Splendor.Model.AI.IanMStrategy(1);
+			this.choosers[1] = new Splendor.Model.AI.ExpectedValueChooser(1); //new Splendor.Model.AI.IanMStrategy(1);
 
 			this.MainPlayer = new PlayerViewModel(this.game.Players[0], eventService);
 			this.OtherPlayers = this.game.Players.Skip(1).Select(player => new PlayerViewModel(player, eventService));

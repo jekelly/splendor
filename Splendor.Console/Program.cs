@@ -27,11 +27,12 @@
 			//choosers[0] = new IanMStrategy(0);
 			//choosers[0] = new TDChooser(0, false);
 			//choosers[0] = new RandomChooser(0);
-			choosers[1] = new TDChooser(1, true);
+			//choosers[1] = new TDChooser(1, true);
+			choosers[1] = new ExpectedValueChooser(1);
 			for (int i = 0; i < GamesToPlay; i++)
 			{
-				((TDChooser)choosers[1]).Alpha = 0.2 * GetLearningRateForIteration(i);
-				((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
+				//((TDChooser)choosers[1]).Alpha = 0.2 * GetLearningRateForIteration(i);
+				//((TDChooser)choosers[1]).Beta = GetLearningRateForIteration(i);
 				if (!Directory.Exists("AI"))
 				{
 					Directory.CreateDirectory("AI");
