@@ -43,7 +43,7 @@
 
 		public int Cost(Color color)
 		{
-			switch(color)
+			switch (color)
 			{
 				case Color.White:
 					return this.costWhite;
@@ -51,13 +51,22 @@
 					return this.costBlue;
 				case Color.Green:
 					return this.costGreen;
-				case Color.Red: 
+				case Color.Red:
 					return this.costRed;
 				case Color.Black:
 					return this.costBlack;
 				default:
 					throw new InvalidOperationException();
 			}
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (obj is Card)
+			{
+				return ((Card)obj).id == this.id;
+			}
+			return false;
 		}
 
 		public override string ToString()
@@ -68,7 +77,7 @@
 			string green = this.costGreen > 0 ? this.costGreen + "G " : string.Empty;
 			string red = this.costRed > 0 ? this.costRed + "R " : string.Empty;
 			string black = this.costBlack > 0 ? this.costBlack + "B" : string.Empty;
-			return string.Format("{7} [{0}] ({1}) {2}{3}{4}{5}{6}", this.value, Colors.Short(this.gives), white, blue, green, red, black, string.Join("", Enumerable.Repeat('.', this.tier+1)));
+			return string.Format("{7} [{0}] ({1}) {2}{3}{4}{5}{6}", this.value, Colors.Short(this.gives), white, blue, green, red, black, string.Join("", Enumerable.Repeat('.', this.tier + 1)));
 		}
 
 		public bool CanBuy(int[] resources)
