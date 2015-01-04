@@ -59,7 +59,7 @@
 					// for each card in tableau, value is the gem value it gives + weighted value of cards it contributes towards buying
 					foreach (Card card in currentPlayer.Tableau)
 					{
-						value += tokenValues[card.gives];
+						value += gemValues[card.gives];
 						for (int m = 0; m < state.Market.Length; m++)
 						{
 							Card marketCard = state.Market[m];
