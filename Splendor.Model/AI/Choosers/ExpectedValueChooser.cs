@@ -18,6 +18,11 @@
 		{
 		}
 
+		private static double sigma(double x)
+		{
+			return 1.0 / (1.0 + Math.Exp(-x));
+		}
+
 		protected async override Task<double> EvaluateStateAsync(IGame state)
 		{
 			return await Task.Run(() =>
@@ -36,7 +41,9 @@
 						Card card = state.Market[m];
 						for (int c = 0; c < 5; c++)
 						{
-							tokenValues[c] += Math.Max(0, card.Cost((Color)c) - currentPlayer.Gems((Color)c));
+							double cost = card.Cost((Color)c);
+							if (cost == 0) continue;
+							tokenValues[c] += card.value * sigma(Math.Max(0, cost - currentPlayer.Gems((Color)c)) / cost);
 						}
 					}
 					double[] gemValues = new double[5];
@@ -44,9 +51,10 @@
 					for (int n = 0; n < state.Nobles.Length; n++)
 					{
 						Noble noble = state.Nobles[n];
+						if (noble.id == Rules.SentinelNoble.id) continue;
 						for (int c = 0; c < 5; c++)
 						{
-							gemValues[c] += Math.Max(0, noble.requires[c] - currentPlayer.Gems((Color)c));
+							gemValues[c] += noble.value * Math.Max(0, noble.requires[c] - currentPlayer.Gems((Color)c));
 						}
 					}
 					double totalTokens = tokenValues.Sum();
@@ -56,6 +64,7 @@
 						tokenValues[i] /= totalTokens;
 						gemValues[i] /= totalGems;
 					}
+
 					// for each card in tableau, value is the gem value it gives + weighted value of cards it contributes towards buying
 					foreach (Card card in currentPlayer.Tableau)
 					{
@@ -69,7 +78,7 @@
 							value += (cardValue / cardCost);
 						}
 					}
-					// for tokens, give their gem value once (for gold, give highest gem value)
+					// for tokens, give their token value (for gold, give highest token value)
 					for (int c = 0; c < 5; c++)
 					{
 						value += tokenValues[c] * currentPlayer.Tokens((Color)c);
