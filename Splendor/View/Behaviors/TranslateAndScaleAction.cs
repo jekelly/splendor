@@ -83,7 +83,14 @@
 			}
 			var target = ((IBehavior)sender).AssociatedObject as UIElement;
 			RenderTargetBitmap rtb = new RenderTargetBitmap();
-			await rtb.RenderAsync(sourceObj);
+			try
+			{
+				await rtb.RenderAsync(sourceObj);
+			}
+			catch
+			{
+				return;
+			}
 			Image i = new Image();
 			Canvas canvas = this.GetAnimationLayer(sourceObj);
 			i.Source = rtb;

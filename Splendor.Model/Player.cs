@@ -86,7 +86,16 @@
 
 			public IEnumerable<Noble> Nobles
 			{
-				get { return this.gameState.nobleVisiting.Where(nv => nv == this.index).Select((n, i) => Rules.Nobles[this.gameState.nobles[i]]); }
+				get
+				{
+					for (int i = 0; i < this.gameState.nobleVisiting.Length; i++)
+					{
+						if (this.gameState.nobleVisiting[i] == this.index)
+						{
+							yield return Rules.Nobles[this.gameState.nobles[i]];
+						}
+					}
+				}
 			}
 
 			private int[] gems

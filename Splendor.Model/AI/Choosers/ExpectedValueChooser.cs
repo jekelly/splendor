@@ -54,7 +54,8 @@
 						if (noble.id == Rules.SentinelNoble.id) continue;
 						for (int c = 0; c < 5; c++)
 						{
-							gemValues[c] += noble.value * Math.Max(0, noble.requires[c] - currentPlayer.Gems((Color)c));
+							if (noble.requires[c] == 0) continue;
+							gemValues[c] += noble.value * sigma(Math.Max(0, noble.requires[c] - currentPlayer.Gems((Color)c)) / noble.requires[c]);
 						}
 					}
 					double totalTokens = tokenValues.Sum();
